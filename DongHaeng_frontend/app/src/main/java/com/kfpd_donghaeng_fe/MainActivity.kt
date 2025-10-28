@@ -1,5 +1,3 @@
-// MainActivity.kt
-
 package com.kfpd_donghaeng_fe
 
 import android.os.Bundle
@@ -9,11 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingScreen // 1. OngoingScreen을 import 합니다.
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.kfpd_donghaeng_fe.ui.auth.SignUpScreen
+import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
-import dagger.hilt.android.AndroidEntryPoint // 2. Hilt를 사용하기 위해 이 어노테이션을 추가합니다.
 
-@AndroidEntryPoint // 3. Hilt 필수!
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +26,46 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // 4. 여기서 OngoingScreen()을 호출하면 됩니다!
-                    OngoingScreen()
+                    val navController = rememberNavController()
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "signup"
+                    ) {
+
+                        // "signup" 화면 정의
+                        composable("signup") {
+                            SignUpScreen(
+                                onNavigateBack = {
+                                    // ...
+                                },
+                                // userType을 받는 람다
+                                onSignUpComplete = { userType ->
+                                    // "home/NEEDY" 또는 "home/HELPER"로 이동
+                                    navController.navigate("home/${userType.name}") {
+                                        popUpTo("signup") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
+                        // "home" 화면 정의
+                        composable(
+                            // "home/{userType}" 형태의 주소를 받음
+                            route = "home/{userType}",
+                            // {userType} 인자에 대한 정보 정의
+                            arguments = listOf(navArgument("userType") {
+                                type = NavType.StringType // 문자열 타입
+                            })
+                        ) { backStackEntry ->
+                            // 주소에서 userType 값 꺼내기
+                            val userTypeString = backStackEntry.arguments?.getString("userType")
+                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+
+                            // HomeScreen에 userType 전달 (임시 화면)
+                            MainScreen(userType = userType)
+                        }
+                    }
                 }
             }
         }
