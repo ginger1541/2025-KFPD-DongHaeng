@@ -26,9 +26,6 @@ fun OngoingScreen(viewModel: OngoingViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // 1️⃣ 배경 (지도나 컨텐츠)
-       // Background_Map()
-
         // 2️⃣ 상단 시트 (유저 프로필)
         Column(
             modifier = Modifier

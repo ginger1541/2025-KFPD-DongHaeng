@@ -15,9 +15,6 @@ class OngoingViewModel : ViewModel() {
         if (_uiState.value.OngoingPage < 3) {
             _uiState.update { it.copy(OngoingPage = it.OngoingPage + 1) }
         }
-        else{
-            Text(text="리뷰페이지(임시)")
-        }
     }
 
     fun previousPage() {
