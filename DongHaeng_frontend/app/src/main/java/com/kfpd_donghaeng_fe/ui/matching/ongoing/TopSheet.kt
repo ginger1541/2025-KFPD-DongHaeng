@@ -229,9 +229,9 @@ fun Batch(
 }
 
 
-@Preview(showBackground = true)
+
 @Composable
-fun UserProfilePreview() {
+fun TopSheet(page:Int) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MainOrange //배경색
@@ -247,7 +247,7 @@ fun UserProfilePreview() {
                 Contact()
             },
             distanceText = "약속 장소까지 0.8km",
-            progressStep = 2 // "요청 접수" 단계
+            progressStep = page // "요청 접수" 단계
         )
     }
 }

@@ -81,5 +81,9 @@ dependencies {
     // ViewModel 사용을 위해 필요할 수 있습니다.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3") // 최신 버전 확인 후 사용
 
+    //QR 인식을 위해!
+    implementation("com.journeyapps:zxing-android-embedded:3.6.0") { isTransitive = false }
+    implementation("com.journeyapps:zxing-android-embedded:3.6.0")
+
 
 }

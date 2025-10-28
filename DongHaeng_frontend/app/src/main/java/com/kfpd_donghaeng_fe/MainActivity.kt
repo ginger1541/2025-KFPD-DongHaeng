@@ -65,6 +65,9 @@ class MainActivity : ComponentActivity() {
                             // HomeScreen에 userType 전달 (임시 화면)
                             MainScreen(userType = userType)
                         }
+
+
+
                     }
                 }
             }
