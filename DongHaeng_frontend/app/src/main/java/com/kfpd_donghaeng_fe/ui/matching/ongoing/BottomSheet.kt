@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.zIndex
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 
-// TODO : bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
+// TODO : background 넣기 bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
 
 
 

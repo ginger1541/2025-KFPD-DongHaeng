@@ -12,7 +12,7 @@ class OngoingViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     fun nextPage() {
-        if (_uiState.value.OngoingPage < 3) {
+        if (_uiState.value.OngoingPage < 2) {
             _uiState.update { it.copy(OngoingPage = it.OngoingPage + 1) }
         }
     }
@@ -23,8 +23,8 @@ class OngoingViewModel : ViewModel() {
         }
     }
 
-    fun setDHType(type: DHType) {
-        _uiState.update { it.copy(DHType = type) }
-    }
+
 }
+
+
 
