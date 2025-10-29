@@ -16,17 +16,47 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image // 1. Image 컴포저블 자체를 사용하기 위해 필요
 import com.kfpd_donghaeng_fe.R // 3. 프로젝트의 리소스(R) 클래스 사용을 위해 필요
-
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
 // --- 기존 import 및 함수 (UserProfile, Contact, RequestPlace)는 동일하다고 가정 ---
 
 
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+
 
 
 // 메인 색상 정의 (Preview를 위해 임의로 지정)
 val MainOrange = Color(0xFFEA7A34)
 
+@Composable
+fun MsgImg_Onclick(){
+    ChattingScreen() // TODO: 클릭시 화면 넘어가기 로직 추가
+}
+
+
+@Composable // 메세지이미지 클릭을 위한 함수
+fun MessageIconButton(
+    MessageImg: Painter, // 외부에서 Painter를 받습니다.
+    onClick: () -> Unit, // 클릭 콜백
+    modifier: Modifier = Modifier // 외부에서 Modifier를 받을 수 있도록 추가
+) {
+    IconButton(
+        onClick = onClick, // ✅ IconButton의 onClick 사용
+        modifier = modifier.size(30.dp) // 💡 IconButton 자체의 크기
+    ) {
+        Image(
+            painter = MessageImg,
+            contentDescription = "MessageImg", // 접근성 설명을 추가하는 것이 좋습니다.
+            modifier = Modifier.fillMaxSize() // IconButton의 크기에 맞춰 Image를 채웁니다.
+        )
+    }
+}
+
+@Composable //메세지 클릭시
+fun MessageImg_Onclick(){
+
+}
 @Composable
 fun UserProfile(name: String, DH_score: Int) { //유저 프로필사진,닉네임,동행지수
     val ProfileImg = painterResource(id = R.drawable.def_prof_pic)
@@ -69,11 +99,12 @@ fun Contact() {
         horizontalArrangement = Arrangement.spacedBy(40.dp)
     ) {
         // 아이콘 크기 통일 및 확대
-        Image(
-            painter = MessageImg,
-            contentDescription = "MessageImg",
-            // 💡 아이콘 크기 확대
-            modifier = Modifier.size(30.dp)
+        MessageIconButton(
+            MessageImg = MessageImg,
+            onClick = {
+
+            },
+            modifier = Modifier.padding(8.dp)
         )
         Image(
             painter = PhoneImg,
@@ -231,7 +262,7 @@ fun Batch(
 
 
 @Composable
-fun TopSheet(page:Int) {
+fun TopSheet(page:Int) { //쓰레기값 넣어져 있는 PREVEIW
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MainOrange //배경색

@@ -1,6 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
-import androidx.compose.foundation.layout.fillMaxSize
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -24,6 +24,9 @@ import com.kfpd_donghaeng_fe.ui.matching.ongoing.BottomSheet
 import com.kfpd_donghaeng_fe.ui.theme.*
 /*----------ongoing import ------------*/
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+
+
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
 
 
 /**
@@ -71,7 +74,7 @@ fun MainScreen(userType: UserType) {
 
             // '프로필' 화면
             composable("profile") {
-                Text("프로필 화면 (임시)")
+                //ChattingScreen()
             }
         }
     }
