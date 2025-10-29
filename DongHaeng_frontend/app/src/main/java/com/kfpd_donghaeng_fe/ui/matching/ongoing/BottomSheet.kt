@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalContext // Context를 가져오기 위�
 import android.content.Intent // Intent 사용을 위해 추가
 import androidx.activity.ComponentActivity
 
-// TODO : bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
+// TODO : background 넣기 bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
 
 
 
