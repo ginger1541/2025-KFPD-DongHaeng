@@ -2,7 +2,6 @@ package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -19,9 +18,8 @@ import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import kotlinx.coroutines.CoroutineScope
-import androidx.compose.ui.platform.LocalContext // Context를 가져오기 위해 추가
-import android.content.Intent // Intent 사용을 위해 추가
-import androidx.activity.ComponentActivity
+import androidx.compose.ui.zIndex
+import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 
 // TODO : bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
 
@@ -35,11 +33,17 @@ import androidx.activity.ComponentActivity
 fun Background_Map() {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Blue),
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "임시바탕...지도 넣어주세용", color = Color.White)
+        KakaoMapView(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(0f),
+            locationX = 126.97796919,
+            locationY = 37.56661209,
+            enabled = true
+        )
     }
 }
 
@@ -120,7 +124,7 @@ fun BtnQR(onClick: () -> Unit) {
 // 버튼 묶음
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SheetButtonBatch(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel) {
+fun SheetButtonBatch(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel, onEndDH: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp), // 높이 줄임
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -180,7 +184,7 @@ fun SheetMiddle(page: Int) {
 // 시트 내부 전체
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel) {
+fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel, onEndDH: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -188,17 +192,20 @@ fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: (
         SheetTop(page)
         SheetMiddle(page)
         Spacer(modifier = Modifier.height(20.dp)) // 간격 줄임
-        SheetButtonBatch(scope, sheetState, onCloseRequest, page, viewModel)
+        SheetButtonBatch(
+            scope, sheetState, onCloseRequest, page, viewModel,
+            onEndDH = onEndDH,
+        )
     }
 }
 
 // BottomSheet Scaffold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheet(viewModel: OngoingViewModel = viewModel()) {
+fun BottomSheet(viewModel: OngoingViewModel = viewModel(), onNavigateToReview: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     val page = uiState.OngoingPage
-
+    val onEndDH = { onNavigateToReview() }
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = true)
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
@@ -212,7 +219,7 @@ fun BottomSheet(viewModel: OngoingViewModel = viewModel()) {
             BottomSheetDefaults.DragHandle(color = Color.Gray, width = 40.dp) // 얇게
         },
         sheetContent = {
-            SheetInside(scope, bottomSheetState, onCloseRequest = {}, page = page, viewModel = viewModel)
+            SheetInside(scope, bottomSheetState, onCloseRequest = {}, page = page, viewModel = viewModel, onEndDH = onEndDH,)
         },
         content = {
             Background_Map()
@@ -224,6 +231,9 @@ fun BottomSheet(viewModel: OngoingViewModel = viewModel()) {
 @Composable
 fun DefaultAppPreview() {
     KFPD_DongHaeng_FETheme(dynamicColor = false) {
-        BottomSheet()
+        BottomSheet(
+            viewModel = TODO(),
+            onNavigateToReview = TODO()
+        )
     }
 }
