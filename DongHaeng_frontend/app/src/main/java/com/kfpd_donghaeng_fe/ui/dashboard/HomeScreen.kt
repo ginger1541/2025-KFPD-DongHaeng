@@ -17,12 +17,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.theme.*
+import com.kfpd_donghaeng_fe.util.navigateToMatchingScreen
 
 @Composable
-fun HomeScreen(userType: UserType) {
+fun HomeScreen(userType: UserType, navController: NavController) {
     // 화면 전체를 스크롤 가능하게
     Column(
         modifier = Modifier
@@ -46,9 +48,16 @@ fun HomeScreen(userType: UserType) {
             modifier = Modifier.padding(horizontal = 24.dp) // 좌우 공통 여백
         ) {
             when (userType) {
-                UserType.NEEDY -> NeedyContent()
-                UserType.HELPER -> HelperContent()
+                UserType.NEEDY -> NeedyContent(
+                    navController = navController,
+                    userType = userType
+                )
+                UserType.HELPER -> HelperContent(
+                    navController = navController,
+                    userType = userType
+                )
             }
+
         }
 
         Spacer(modifier = Modifier.height(24.dp)) // 스크롤 하단 여백
@@ -172,7 +181,11 @@ private fun HomeHeader() {
  * Needy (도움이 필요해요) 사용자 홈 컨텐츠 (버튼 버전)
  */
 @Composable
-private fun NeedyContent(modifier: Modifier = Modifier) {
+private fun NeedyContent(
+    navController: NavController, // ✅ NavController 인자 추가
+    userType: UserType,           // ✅ UserType 인자 추가
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "주변 동행자에게 요청하세요",
@@ -185,7 +198,7 @@ private fun NeedyContent(modifier: Modifier = Modifier) {
 
         // "동행 요청하기" 버튼
         Button(
-            onClick = { /* TODO: 요청 화면으로 이동 */ },
+            onClick = { navController.navigateToMatchingScreen(userType) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp),
@@ -217,7 +230,11 @@ private fun NeedyContent(modifier: Modifier = Modifier) {
  * Helper (도움을 드릴게요) 사용자 홈 컨텐츠 (버튼 버전)
  */
 @Composable
-private fun HelperContent(modifier: Modifier = Modifier) {
+private fun HelperContent(
+    navController: NavController, // ✅ NavController 인자 추가
+    userType: UserType,           // ✅ UserType 인자 추가
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "현재 3개의 요청이 있어요",
@@ -230,7 +247,7 @@ private fun HelperContent(modifier: Modifier = Modifier) {
 
         // "주변 요청 확인하기" 버튼
         Button(
-            onClick = { /* TODO: 요청 확인 화면으로 이동 */ },
+            onClick = { navController.navigateToMatchingScreen(userType) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp),

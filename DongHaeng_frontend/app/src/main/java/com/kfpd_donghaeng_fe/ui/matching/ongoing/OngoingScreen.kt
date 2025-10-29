@@ -22,7 +22,7 @@ import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OngoingScreen(viewModel: OngoingViewModel = viewModel()) {
+fun OngoingScreen(viewModel: OngoingViewModel = viewModel(),  onNavigateToReview: () -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -44,7 +44,7 @@ fun OngoingScreen(viewModel: OngoingViewModel = viewModel()) {
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
-            BottomSheet(viewModel) // or OngoingScreen()
+            BottomSheet(viewModel, onNavigateToReview) // or OngoingScreen()
         }
     }
 }

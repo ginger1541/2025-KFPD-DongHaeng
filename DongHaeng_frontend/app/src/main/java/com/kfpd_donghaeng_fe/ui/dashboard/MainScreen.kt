@@ -31,6 +31,9 @@ import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
 import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
 
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
+import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
 
 /**
@@ -38,7 +41,7 @@ import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
 @Composable
-fun MainScreen(userType: UserType) {
+fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
@@ -67,13 +70,20 @@ fun MainScreen(userType: UserType) {
         ) {
             // '홈' 화면
             composable("home") {
-                HomeScreen(userType = userType)
+                HomeScreen(
+                    userType = userType,
+                    navController = mainNavController,
+                )
             }
 
             // '동행(미션)' 화면
             composable("mission") {
-                //modifier = Modifier.padding(innerPaddig) // Scaffold의 패딩 적용
-                OngoingScreen()
+                OngoingScreen(
+                    onNavigateToReview = {
+                        // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
+                        bottomNavController.navigateToReviewScreen()
+                    }
+                )
             }
 
             // '프로필' 화면
