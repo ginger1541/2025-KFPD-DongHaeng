@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,7 +20,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.BottomSheet
 import com.kfpd_donghaeng_fe.ui.theme.*
+/*----------ongoing import ------------*/
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+
 
 /**
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
@@ -59,7 +65,8 @@ fun MainScreen(userType: UserType) {
 
             // '동행(미션)' 화면
             composable("mission") {
-                Text("동행 화면 (임시)")
+                //modifier = Modifier.padding(innerPaddig) // Scaffold의 패딩 적용
+                OngoingScreen()
             }
 
             // '프로필' 화면
