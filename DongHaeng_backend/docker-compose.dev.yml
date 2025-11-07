@@ -1,0 +1,67 @@
+version: '3.8'
+
+# 로컬 개발용 docker-compose
+# 사용법: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # MySQL (개발 환경)
+  mysql:
+    image: mysql:8.0
+    container_name: dongheng-mysql-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dongheng_db
+      MYSQL_USER: dongheng
+      MYSQL_PASSWORD: password
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+    networks:
+      - dev-network
+
+  # Redis (개발 환경)
+  redis:
+    image: redis:7.0-alpine
+    container_name: dongheng-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - dev-network
+
+  # Prisma Studio (DB GUI)
+  prisma-studio:
+    image: node:20-alpine
+    container_name: dongheng-prisma-studio
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "5555:5555"
+    command: npx prisma studio
+    depends_on:
+      - mysql
+    environment:
+      DATABASE_URL: mysql://dongheng:password@mysql:3306/dongheng_db
+    networks:
+      - dev-network
+    profiles:
+      - tools
+
+volumes:
+  mysql_dev_data:
+  redis_dev_data:
+
+networks:
+  dev-network:
+    driver: bridge
