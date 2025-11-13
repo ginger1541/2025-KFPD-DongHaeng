@@ -1,5 +1,12 @@
 # Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio,macos,windows,kotlin
 # Edit at https://www.toptal.com/developers/gitignore?templates=android,androidstudio,macos,windows,kotlin
+*.json
+!package.json
+!tsconfig.json
+firebase-key.json
+storage-key.json
+.env
+.env.*
 
 ### Android ###
 # Gradle files

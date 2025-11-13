@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Prisma
+prisma/.env
+prisma/migrations/**/migration.sql.bak
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Firebase service account (보안상 중요!)
+*service-account*.json
+firebase-adminsdk*.json
+
+# GCP credentials (보안상 중요!)
+*gcp-service-account*.json
+google-credentials*.json
+
+# Debug
+.pnp.*
+.yarn/
+
+# PM2
+.pm2/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variable files
+.env.development
+.env.test
+.env.production
