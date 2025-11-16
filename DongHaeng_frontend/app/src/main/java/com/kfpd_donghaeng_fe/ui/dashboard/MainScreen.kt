@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -10,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -18,14 +20,28 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.BottomSheet
 import com.kfpd_donghaeng_fe.ui.theme.*
+/*----------ongoing import ------------*/
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+// 💡 필요한 import 구문들을 추가합니다.
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.ui.graphics.Color // 💡 Bar 배경색상용
+import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
+import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
+
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
+import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
+
 
 /**
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
 @Composable
-fun MainScreen(userType: UserType) {
+fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
@@ -54,21 +70,35 @@ fun MainScreen(userType: UserType) {
         ) {
             // '홈' 화면
             composable("home") {
-                HomeScreen(userType = userType)
+                HomeScreen(
+                    userType = userType,
+                    navController = mainNavController,
+                )
             }
 
             // '동행(미션)' 화면
             composable("mission") {
-                Text("동행 화면 (임시)")
+                OngoingScreen(
+                    onNavigateToReview = {
+                        // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
+                        bottomNavController.navigateToReviewScreen()
+                    }
+                )
             }
 
             // '프로필' 화면
             composable("profile") {
-                Text("프로필 화면 (임시)")
+                UserReveiwScreen()
             }
         }
     }
 }
+
+/**
+ * 하단 네비게이션 바 Composable
+ */
+
+
 
 /**
  * 하단 네비게이션 바 Composable
@@ -84,12 +114,16 @@ private fun BottomNavBar(
 
     // 2. 하단바 아이템 리스트 정의
     val navItems = listOf(
-        BottomNavItem("home", R.drawable.ic_home, "홈"), // TODO: 아이콘 변경
-        BottomNavItem("mission", R.drawable.ic_logo_gray, "동행"), // TODO: 아이콘 변경
-        BottomNavItem("profile", R.drawable.ic_user, "내정보") // TODO: 아이콘 변경
+        BottomNavItem("home", R.drawable.ic_home, "홈"),
+        BottomNavItem("mission", R.drawable.ic_logo_gray, "동행"),
+        BottomNavItem("profile", R.drawable.ic_user, "내정보")
     )
 
-    NavigationBar {
+    NavigationBar(
+        // 💡 1. 바(Bar) 자체의 배경색 설정 (예: 흰색)
+        containerColor = Color.White
+        // 💡 (테마의 surface 색상을 사용하려면 MaterialTheme.colorScheme.surface)
+    ) {
         navItems.forEach { item ->
             NavigationBarItem(
                 selected = (currentRoute == item.route), // 현재 선택된 아이템인가?
@@ -101,12 +135,20 @@ private fun BottomNavBar(
                     )
                 },
                 label = { Text(item.label) },
-                // TODO: 선택/비선택 시 색상 커스텀 (ui/theme 사용)
-                // colors = NavigationBarItemDefaults.colors(
-                //     selectedIconColor = BrandOrange,
-                //     unselectedIconColor = MediumGray,
-                //     ...
-                // )
+
+                // 💡 2. 아이템 색상 커스텀 (TODO 부분 활성화)
+                colors = NavigationBarItemDefaults.colors(
+
+                    selectedIconColor = BrandOrange,
+                    selectedTextColor = BrandOrange,
+
+
+                    unselectedIconColor = MediumGray,
+                    unselectedTextColor = MediumGray,
+
+
+                    indicatorColor = BrandOrange.copy(alpha = 0.1f)
+                )
             )
         }
     }

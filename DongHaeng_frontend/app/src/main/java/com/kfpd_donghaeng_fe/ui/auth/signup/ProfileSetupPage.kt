@@ -50,7 +50,7 @@ fun ProfileSetupPage(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape) // 원형으로 자르기
-                .background(color=White) // 적용
+                .background(color=Color.White) // 적용
                 .align(Alignment.CenterHorizontally) // 컬럼 내에서 수평 중앙 정렬
                 .clickable { /* TODO: 갤러리/카메라 열기 */ },
             contentAlignment = Alignment.Center // 내용물(아이콘)을 중앙에

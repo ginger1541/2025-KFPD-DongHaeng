@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +21,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val kakaoRestApiKey = getApiKey("kakao.rest.api.key")
+        val skOpenApiKey = getApiKey("sk.open.api.key")
+        val kakaoNativeAppKey = getApiKey("kakao.native.app.key")
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"${kakaoNativeAppKey}\"")
+        buildConfigField("String", "KAKAO_REST_API_KEY", "\"${kakaoRestApiKey}\"")
+        buildConfigField("String", "SK_OPEN_API_KEY", "\"${skOpenApiKey}\"")
+        manifestPlaceholders["K_NATIVE_APP_KEY"] = kakaoNativeAppKey
+        manifestPlaceholders["SK_OPEN_API_KEY"] = kakaoNativeAppKey
+
     }
 
     buildTypes {
@@ -39,9 +51,13 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
-}
 
+}
+fun getApiKey(propertyKey: String): String {
+    return gradleLocalProperties(rootDir, providers).getProperty(propertyKey)
+}
 dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
@@ -53,6 +69,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.ui.graphics)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -75,4 +93,22 @@ dependencies {
     implementation(libs.retrofit.converter.moshi)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    implementation(libs.kakaomap.sdk)
+
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material.ripple)
+
+    implementation(libs.gson)
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
+
+    implementation(libs.androidx.hilt.navigation.compose)
+
+
+    // ViewModel 사용을 위해 필요할 수 있습니다.
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3") // 최신 버전 확인 후 사용
+
+
+
 }
