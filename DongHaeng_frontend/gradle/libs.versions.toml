@@ -20,6 +20,7 @@ kakaomap = "2.12.18"
 composeMaterial = "1.9.4"
 gson = "2.13.2"
 hilt-compose = "1.1.0"
+foundationLayout = "1.9.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +64,7 @@ kakaomap-sdk = { module = "com.kakao.maps.open:android", version.ref = "kakaomap
 androidx-compose-material = { group = "androidx.compose.material", name = "material", version.ref = "composeMaterial" }
 androidx-compose-material-ripple = { group = "androidx.compose.material", name = "material-ripple", version.ref = "composeMaterial" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
