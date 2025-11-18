@@ -21,27 +21,15 @@ import com.kfpd_donghaeng_fe.ui.auth.SignUpScreen
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
-import com.kfpd_donghaeng_fe.util.AppScreens
-import com.kfpd_donghaeng_fe.util.navigateToHomeAfterSignUp
-import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
-import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImpl
-import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
-import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import androidx.navigation.NavHostController
-import com.kfpd_donghaeng_fe.data.Request
-import com.kfpd_donghaeng_fe.data.findRequestById
 import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
-import com.kfpd_donghaeng_fe.ui.matching.RequestDetailScreen
-import com.kfpd_donghaeng_fe.ui.matching.ReviewScreen
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
-import com.kfpd_donghaeng_fe.util.navigateTo
-import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
-import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
+
+
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
+/*
     private val permissionChecker: PermissionChecker by lazy { AndroidPermissionChecker(this) }
     private val appSettingsNavigator: AppSettingsNavigator by lazy { AndroidAppSettingsNavigatorImpl(this) }
 
@@ -161,5 +149,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
+    }*/
 }

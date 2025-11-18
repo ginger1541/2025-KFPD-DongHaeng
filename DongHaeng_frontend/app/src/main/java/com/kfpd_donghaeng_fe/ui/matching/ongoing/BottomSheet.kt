@@ -19,6 +19,7 @@ import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.zIndex
+import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 
 // TODO : background 넣기 bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
@@ -42,7 +43,7 @@ fun Background_Map() {
                 .zIndex(0f),
             locationX = 126.97796919,
             locationY = 37.56661209,
-            enabled = true
+            enabled = GlobalApplication.isMapLoaded
         )
     }
 }

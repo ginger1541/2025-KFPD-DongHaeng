@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavHostController
+import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.matching.componentes.BottomMatchingSheetContent
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
@@ -198,7 +199,7 @@ fun MapContent(
                 .zIndex(0f),
             locationY = locationY,
             locationX = locationX,
-            enabled = enabled
+            enabled = GlobalApplication.isMapLoaded
         )
 
         // 오버레이: 검색바 + 정렬 버튼

@@ -1,7 +1,7 @@
 package com.kfpd_donghaeng_fe.ui.common
 
-import android.graphics.Color
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -24,6 +25,7 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.shape.MapPoints
 import com.kakao.vectormap.shape.PolylineOptions
 import com.kakao.vectormap.shape.PolylineStyle
+import com.kfpd_donghaeng_fe.GlobalApplication
 
 @Composable
 fun KakaoMapView(
@@ -31,7 +33,16 @@ fun KakaoMapView(
     locationX: Double,
     locationY: Double,
     enabled: Boolean = true, // ← 추가
+    enabled_map_emulate:Boolean = GlobalApplication.isMapLoaded
 ) {
+    if(!enabled_map_emulate){
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xFF81D4FA)), // 밝은 파란색
+        )
+        return
+    }
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
     var kakaoMap: KakaoMap? by remember { mutableStateOf(null) }
