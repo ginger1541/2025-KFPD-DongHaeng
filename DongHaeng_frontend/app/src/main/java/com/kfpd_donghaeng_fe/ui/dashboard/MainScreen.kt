@@ -27,11 +27,13 @@ import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
 // 💡 필요한 import 구문들을 추가합니다.
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.ui.graphics.Color // 💡 Bar 배경색상용
+import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
 import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
 import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
 
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.util.navigateToRequestDetail
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
@@ -68,13 +70,35 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
             startDestination = "home", // 시작은 '홈' 화면
             modifier = Modifier.padding(innerPadding) // Scaffold의 패딩 적용
         ) {
-            // '홈' 화면
+
+            // '홈' 화면 (여기서 최종적으로 수정합니다.)
             composable("home") {
-                HomeScreen(
-                    userType = userType,
-                    navController = mainNavController,
+
+                // 💡 이제 이 블록 안에서 userType과 mainNavController를 사용할 수 있습니다.
+                // 이전의 HomeScreen 호출 대신 MatchingHomeRoute를 호출합니다.
+                MatchingHomeRoute(
+                    userType = userType, // ⬅️ MainScreen의 인자(userType) 사용
+
+                    // ViewModel은 hiltViewModel()에 의해 자동으로 userType을 읽도록 설정되어 있습니다.
+
+                    onNavigateToSearch = { userTypeForSearch ->
+                        // TODO: 실제 검색 화면으로 이동 로직 구현
+                    },
+                    onNavigateToChangeLocation = {
+                        // TODO: 위치 변경 화면으로 이동 로직 구현
+                    },
+                    onNavigateToRequestDetail = { requestId ->
+                        mainNavController.navigateToRequestDetail(requestId)
+                    }
                 )
             }
+//            // '홈' 화면
+//            composable("home") {
+//                HomeScreen(
+//                    userType = userType,
+//                    navController = mainNavController,
+//                )
+//            }
 
             // '동행(미션)' 화면
             composable("mission") {

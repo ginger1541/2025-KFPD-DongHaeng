@@ -46,7 +46,7 @@ fun SearchBar(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "목적지 검색",
+                text = "장소, 버스, 지하철, 주소 검색",
                 color = AppColors.SecondaryText,
                 fontSize = 14.sp
             )

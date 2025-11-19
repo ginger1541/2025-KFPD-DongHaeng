@@ -54,7 +54,6 @@ fun RequestBookingContent(
 ) {
     // ViewModel 상태 관찰
     val routeInputs by viewModel.routeInputs.collectAsState()
-    val hasWaypoint = routeInputs.any { it.type == LocationType.WAYPOINT }
     val isEndLocationSet = routeInputs.find { it.type == LocationType.END }
         ?.placeInfo != null
 
@@ -73,7 +72,6 @@ fun RequestBookingContent(
             onPlaceSelected = { placeInfo ->
                 when (showSearch) {
                     "도착지" -> viewModel.updateEndLocation(placeInfo)
-                    "경유지" -> viewModel.updateWaypointLocation(placeInfo)
                 }
                 showSearch = null
             },
@@ -115,17 +113,9 @@ fun RequestBookingContent(
             // 경로 입력 박스
             PathInputBox(
                 routeInputs = routeInputs,
-                hasWaypoint = hasWaypoint,
-                onAddWaypoint = {
-                    if (!hasWaypoint) {
-                        viewModel.addWaypoint()
-                    }
-                },
-                onRemoveWaypoint = viewModel::removeWaypoint,
                 onLocationClick = { location ->
                     when (location.type) {
                         LocationType.END -> showSearch = "도착지"
-                        LocationType.WAYPOINT -> showSearch = "경유지"
                         else -> {}
                     }
                 },
@@ -188,12 +178,12 @@ fun RequestBookingContent(
     }
 }
 
+// BookingViewModel에서 경유지 로직 제거에 따라
+// 이 Composable은 이제 경유지 추가/제거 기능을 사용하지 않습니다.
+
 @Composable
 fun PathInputBox(
     routeInputs: List<LocationInput>,
-    hasWaypoint: Boolean,
-    onAddWaypoint: () -> Unit,
-    onRemoveWaypoint: () -> Unit,
     onLocationClick: (LocationInput) -> Unit,
     onCancel: (() -> Unit)? = null
 ) {
@@ -214,19 +204,24 @@ fun PathInputBox(
                         onLocationClick = { onLocationClick(input) }
                     )
 
-                    // 출발지 다음에 디바이더 + 버튼
-                    if (input.type == LocationType.START) {
+                    // 1. 출발지 다음에 나오는 요소 처리 (경유지 추가 버튼 제거)
+                    // 경유지 추가 기능이 제거되었으므로, 출발지와 도착지 사이에 구분선만 표시합니다.
+                    if (input.type == LocationType.START && index < routeInputs.size - 1) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        DividerWithButton(
-                            hasWaypoint = hasWaypoint,
-                            canAddWaypoint = !hasWaypoint, // 경유지 1개 제한
-                            onAddWaypoint = onAddWaypoint,
-                            onRemoveWaypoint = onRemoveWaypoint
+
+                        // DividerWithButton 대신 일반 구분선만 남깁니다.
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color(0xFFE0E0E0))
                         )
+
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    // 경유지 다음에 디바이더 (버튼 없음)
+                    // 2. ❌ 경유지 다음에 디바이더 로직 전체 제거
+                    /*
                     if (input.type == LocationType.WAYPOINT && index < routeInputs.size - 1) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
@@ -237,19 +232,18 @@ fun PathInputBox(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
+                    */
                 }
             }
         }
 
-        // 우측 상단 X 버튼 (닫기)
+        // 우측 상단 X 버튼 (닫기) - 동일
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(x = (-8).dp, y = (-8).dp)
                 .size(32.dp)
-                .clickable {
-                    onCancel?.invoke()
-                },
+                .clickable { onCancel?.invoke() },
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -316,10 +310,12 @@ fun LocationInputRow(
     input: LocationInput,
     onLocationClick: () -> Unit
 ) {
+    // ❌ LocationType.WAYPOINT 처리 제거
     val color = when (input.type) {
         LocationType.START -> Color(0xFFFF9800)
-        LocationType.WAYPOINT -> Color(0xFF9E9E9E)
         LocationType.END -> Color(0xFFFF9800)
+        // LocationType.WAYPOINT 타입의 입력은 이제 routeInputs에 포함되지 않으므로 제거
+        else -> Color(0xFFFF9800) // 혹시 모를 다른 타입 대비 (출발/도착으로 통일)
     }
 
     val displayText = input.placeInfo?.placeName ?: input.address
@@ -328,6 +324,7 @@ fun LocationInputRow(
         modifier = Modifier
             .fillMaxWidth()
             .then(
+                // 출발지는 보통 '내 위치'로 수정 불가하므로 클릭 로직 분리
                 if (input.type != LocationType.START) {
                     Modifier.clickable(onClick = onLocationClick)
                 } else Modifier
@@ -345,6 +342,7 @@ fun LocationInputRow(
         Text(
             text = displayText,
             fontSize = 16.sp,
+            // SecondaryText, PrimaryDarkText는 정의된 테마 색상으로 가정합니다.
             color = if (input.placeInfo == null && input.isEditable)
                 SecondaryText
             else

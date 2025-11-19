@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.kakao.vectormap.LatLng
+import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.ui.matching.MatchingPhase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +21,6 @@ data class LocationInput(
 )
 
 data class LatLng(val latitude: Double, val longitude: Double)
-
-enum class LocationType { START, WAYPOINT, END }
 
 open class MatchingViewModel : ViewModel() {
     // 1. 요청자 모달 내부 상태 (Overview -> Booking -> Confirm)
@@ -108,22 +107,6 @@ open class MatchingViewModel : ViewModel() {
         // TODO: 서버에서 예상 요금 계산
 
         _currentPhase.value = MatchingPhase.CONFIRM
-    }
-
-    fun addWaypoint() {
-        val newId = (_routeInputs.value.maxOfOrNull { it.id } ?: 0) + 1
-        val lastIndex = _routeInputs.value.lastIndex
-
-        val newWaypoint = LocationInput(
-            id = newId,
-            address = "경유지 입력",
-            type = LocationType.WAYPOINT,
-            isEditable = true
-        )
-
-        val newList = _routeInputs.value.toMutableList()
-        newList.add(lastIndex, newWaypoint)
-        _routeInputs.value = newList
     }
 
     fun removeLocation(locationId: Int) {

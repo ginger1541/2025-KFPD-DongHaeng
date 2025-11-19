@@ -8,14 +8,14 @@ import retrofit2.http.Header
 import retrofit2.http.Query
 
 interface KakaoPlaceApiService {
-    @GET("keyword")
+
+    @GET("v2/local/search/keyword.json")
     suspend fun searchPlaces(
-        @Header("Authorization") authorization: String = "KakaoAK ${BuildConfig.KAKAO_REST_API_KEY}",
         @Query("query") query: String,
         @Query("x") longitude: String? = null,
         @Query("y") latitude: String? = null,
         @Query("radius") radius: Int? = null,
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 15
-    ): Response<KakaoPlaceResponse>
+    ): Response<KakaoPlaceResponse> // DTO 이름은 이미 정의되어 있다고 가정
 }
