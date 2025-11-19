@@ -27,8 +27,6 @@ import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 
 
 
-
-
 // 임시 배경
 @Composable
 fun Background_Map() {
