@@ -103,8 +103,8 @@ fun BtnQR(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .width(120.dp)
-            .height(100.dp), // 직사각형
+            .width(240.dp)
+            .height(200.dp), // 직사각형
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         border = BorderStroke(width = 2.dp, color = Color.LightGray)
@@ -128,15 +128,15 @@ fun BtnQR(onClick: () -> Unit) {
 fun SheetButtonBatch(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel, onEndDH: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp), // 높이 줄임
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BtnSOS(onClick = {}, modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(8.dp))
-        BtnShareLocation(onClick = {}, modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(8.dp))
+        //BtnSOS(onClick = {}, modifier = Modifier.weight(1f))
+        //Spacer(modifier = Modifier.width(8.dp))
+        //BtnShareLocation(onClick = {}, modifier = Modifier.weight(1f))
+        //Spacer(modifier = Modifier.width(8.dp))
         when(page) {
-            0 -> BtnStartDH(viewModel, Modifier.weight(1f))
+            //0 -> BtnStartDH(viewModel, Modifier.weight(1f))
             1,2 -> BtnEndDH(viewModel, Modifier.weight(1f))
         }
     }
