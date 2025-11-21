@@ -2,6 +2,7 @@ package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -22,29 +23,14 @@ import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
-// TODO : background 넣기 bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
+// TODO :  카메라 인식, 상단 padding 없애기
+
 
 
 
 
 // 임시 배경
-@Composable
-fun Background_Map() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        KakaoMapView(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(0f),
-            locationX = 126.97796919,
-            locationY = 37.56661209,
-            enabled = GlobalApplication.isMapLoaded
-        )
-    }
-}
+
 
 // 버튼 색상 및 활성화
 val OffButtonColor = Color(0xFFE0E0E0)
@@ -62,7 +48,7 @@ fun BtnSet(text: String, modifier: Modifier = Modifier, onClick: () -> Unit, isE
     Button(
         onClick = onClick,
         modifier = modifier.height(40.dp), // 약간 더 납작하게
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         enabled = isEnabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isEnabled) OnButtonColor else OffButtonColor,
@@ -73,38 +59,22 @@ fun BtnSet(text: String, modifier: Modifier = Modifier, onClick: () -> Unit, isE
     }
 }
 
-// 동행 버튼
-@Composable
-fun BtnStartDH(viewModel: OngoingViewModel, modifier: Modifier = Modifier) {
-    BtnSet(text = "동행시작", modifier = modifier, onClick = { viewModel.nextPage() }, isEnabled = isBtnStartDHEnabled)
-}
+
 
 @Composable
 fun BtnEndDH(viewModel:OngoingViewModel, modifier: Modifier = Modifier) {
     BtnSet(text = "동행종료", modifier = modifier, onClick = { viewModel.nextPage() }, isEnabled = isBtnEndDHEnabled)
 }
 
-// SOS 버튼
-@Composable
-fun BtnSOS(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    BtnSet(text = "SOS", modifier = modifier, onClick = onClick, isEnabled = isBtnSOSEnabled)
-}
-
-// 위치공유 버튼
-@Composable
-fun BtnShareLocation(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    BtnSet(text = "위치공유", modifier = modifier, onClick = onClick, isEnabled = isBtnShareLocationEnabled)
-}
-
 // QR 버튼
 @Composable
-fun BtnQR(onClick: () -> Unit) {
+fun BtnQR(viewModel:OngoingViewModel, onClick: () -> Unit) {
     val QRCamImg = painterResource(id = R.drawable.qr_cam_icon)
     Button(
         onClick = onClick,
         modifier = Modifier
-            .width(220.dp)
-            .height(180.dp), // 직사각형
+            .width(200.dp)
+            .height(160.dp), // 직사각형
         shape = RoundedCornerShape(25.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         border = BorderStroke(width = 3.dp, color = Color.LightGray)
@@ -127,17 +97,20 @@ fun BtnQR(onClick: () -> Unit) {
 @Composable
 fun SheetButtonBatch(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, page: Int, viewModel: OngoingViewModel, onEndDH: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp), // 높이 줄임
-        horizontalArrangement = Arrangement.Center,
+        // fillMaxWidth()를 유지하고, horizontalArrangement = Arrangement.Center 로 버튼을 중앙에 배치
+        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+        horizontalArrangement = Arrangement.Center, // 👈 중앙 정렬
         verticalAlignment = Alignment.CenterVertically
     ) {
-        //BtnSOS(onClick = {}, modifier = Modifier.weight(1f))
-        //Spacer(modifier = Modifier.width(8.dp))
-        //BtnShareLocation(onClick = {}, modifier = Modifier.weight(1f))
-        //Spacer(modifier = Modifier.width(8.dp))
         when(page) {
-            //0 -> BtnStartDH(viewModel, Modifier.weight(1f))
-            1,2 -> BtnEndDH(viewModel, Modifier.weight(1f))
+            1 -> {
+                BtnEndDH(
+                    viewModel = viewModel,
+                    // 버튼의 너비를 160.dp로 고정하여 길이를 줄입니다.
+                    modifier = Modifier.width(160.dp)
+                        .height(50.dp)
+                )
+            }
         }
     }
 }
@@ -160,24 +133,27 @@ fun SheetTop(page: Int) {
 
 // 중간 컨텐츠
 @Composable
-fun SheetMiddle(page: Int) {
+fun SheetMiddle( viewModel : OngoingViewModel, page: Int) {
     Spacer(modifier = Modifier.height(16.dp)) // 패딩 줄임
     when(page) {
-        0,2 -> BtnQR(onClick = {page+1})
+        0,2 -> BtnQR(viewModel = viewModel, onClick = { viewModel.nextPage() })
         1 -> {
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("시작 시간", style = MaterialTheme.typography.titleMedium, color = Color.Gray.copy(alpha = 0.8f))
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text("18:20", style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold), color = Color.Black)
                 }
-                Divider(color = Color.Black.copy(alpha = 0.5f), modifier = Modifier.height(60.dp).width(1.dp))
+                Divider(color = Color.Black.copy(alpha = 0.5f), modifier = Modifier.height(90.dp).width(1.dp))
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("이동 거리", style = MaterialTheme.typography.titleMedium, color = Color.Gray.copy(alpha = 0.8f))
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text("0.0Km", style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold), color = Color.Black)
                 }
+
+
             }
+            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }
@@ -191,7 +167,7 @@ fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: (
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetTop(page)
-        SheetMiddle(page)
+        SheetMiddle(viewModel,page)
         Spacer(modifier = Modifier.height(20.dp)) // 간격 줄임
         SheetButtonBatch(
             scope, sheetState, onCloseRequest, page, viewModel,
@@ -201,6 +177,7 @@ fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: (
 }
 
 // BottomSheet Scaffold
+// BottomSheet Scaffold (수정: 시트 초기 크기 고정)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheet(viewModel: OngoingViewModel = viewModel(), onNavigateToReview: () -> Unit) {
@@ -208,12 +185,14 @@ fun BottomSheet(viewModel: OngoingViewModel = viewModel(), onNavigateToReview: (
     val page = uiState.OngoingPage
     val onEndDH = { onNavigateToReview() }
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = true)
+
+    // SheetValue.Expanded 대신 PartiallyExpanded를 사용하여 콘텐츠 길이에 맞게 초기화합니다.
+    val bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = false) // skipHiddenState를 false로 변경할 수 있습니다.
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        sheetPeekHeight = 40.dp, // 낮게
+        sheetPeekHeight = 350.dp, // 접혔을 때 높이
         sheetShape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp), // 둥근 정도 줄임
         sheetContainerColor = Color.White,
         sheetDragHandle = {
@@ -223,8 +202,7 @@ fun BottomSheet(viewModel: OngoingViewModel = viewModel(), onNavigateToReview: (
             SheetInside(scope, bottomSheetState, onCloseRequest = {}, page = page, viewModel = viewModel, onEndDH = onEndDH,)
         },
         content = {
-            Background_Map()
+            //Background_Map()
         }
     )
 }
-

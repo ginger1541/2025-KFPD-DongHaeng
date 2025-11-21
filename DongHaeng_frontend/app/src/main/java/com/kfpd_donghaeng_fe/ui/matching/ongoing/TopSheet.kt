@@ -194,8 +194,6 @@ fun Batch(
             requestPlaceContent()
         }
 
-        // 💡 [수정] 프로필, 연락처, 거리 텍스트를 하나의 Column으로 묶어 관리
-        // 💡 [수정] 프로필, 연락처, 거리 텍스트를 하나의 Column으로 묶어 관리
 
         Column(modifier = Modifier.fillMaxWidth()) {
             // 2. 프로필 + 연락처 아이콘

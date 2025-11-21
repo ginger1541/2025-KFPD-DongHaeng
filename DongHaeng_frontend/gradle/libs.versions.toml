@@ -22,6 +22,7 @@ gson = "2.13.2"
 hilt-compose = "1.1.0"
 foundationLayout = "1.9.4"
 ui = "1.9.5"
+foundationLayoutVersion = "1.9.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -67,6 +68,7 @@ androidx-compose-material-ripple = { group = "androidx.compose.material", name =
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayoutVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
