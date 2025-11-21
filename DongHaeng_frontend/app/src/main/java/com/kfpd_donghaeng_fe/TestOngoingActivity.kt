@@ -16,43 +16,28 @@ import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
-// ----------------------------------------------------
-// 1. TestEntry Activity 클래스 정의
-// ----------------------------------------------------
+
 @AndroidEntryPoint
-class TestEntry: ComponentActivity() {
+class TestOngoingActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             KFPD_DongHaeng_FETheme  {
-                AppNavigation_TestLogin() // 👈 클래스 밖의 함수 호출
+                AppNavigation_TestOngoing()
             }
         }
     }
 }
 
 @Composable
-fun AppNavigation_TestLogin() {
+fun AppNavigation_TestOngoing() {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = "splash"
+        startDestination = "login"
     ) {
-        composable("splash") {
-            LaunchedEffect(Unit) {
-                delay(2000L)
-                navController.navigate("login") {
-                    popUpTo("splash") { inclusive = true }
-                }
-            }
-            OnboardingScreen(
-                uiState = LoginAccountUiState(),
-                onNextClick = {},
-                MovetoMakeAccount = {},
-                page = 0 // 주황색 배경, 흰색 로고 (스플래시 디자인)
-            )
-        }
+
         composable("login"){
             LoginRoute(onNavigateToMakeAccount = {
                 navController.navigate("signup") {
@@ -61,8 +46,5 @@ fun AppNavigation_TestLogin() {
             },)
         }
 
-        composable("signup") {
-            MakeAccountRoute()
-        }
     }
 }

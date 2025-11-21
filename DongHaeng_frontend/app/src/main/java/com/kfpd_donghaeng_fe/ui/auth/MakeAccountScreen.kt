@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kfpd_donghaeng_fe.ui.auth.signin.CertificateVerificationSheetUI
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignInScreen_2
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignInScreen_3
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignIngScreen_0
@@ -45,7 +46,8 @@ fun MakeAccountRoute(
         onBirthDateChange = viewModel::updateBirthDate,
         onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
         onTogglePasswordConfirmVisibility = viewModel::togglePasswordConfirmVisibility,
-        modifier = Modifier
+        modifier = Modifier,
+        previousPage= viewModel:: previousPage
     )
 }
 
@@ -58,6 +60,7 @@ fun MakeAccountScreen(
     onNextClick: () -> Unit,
     selectedType: UserType?,
     onUserTypeSelect: (UserType) -> Unit,
+    previousPage: () -> Unit,
 
 
     //---
@@ -84,8 +87,13 @@ fun MakeAccountScreen(
             uiState = uiState,
             onNextClick = onNextClick,
         )
-
-        2->UserInfoScreen(
+        2->CertificateVerificationSheetUI(
+            uiState = uiState,
+            previousPage= previousPage,
+            onNextClick = onNextClick,
+            modifier = Modifier
+        )
+        3->UserInfoScreen(
             uiState = uiState.userInfoUiState,
             onUserIdChange = onUserIdChange,
             onPasswordChange = onPasswordChange,
@@ -97,16 +105,16 @@ fun MakeAccountScreen(
             onTogglePasswordVisibility = onTogglePasswordVisibility,
             onTogglePasswordConfirmVisibility = onTogglePasswordConfirmVisibility
         )
-        3->SignIngScreen_0(
+        4->SignIngScreen_0(
             uiState = uiState,
             onNextClick = onNextClick,
         )
 
-        4 ->SignInScreen_3(  // 프로필 설정 (닉네임 . 자기 소개 )
+        5 ->SignInScreen_3(  // 프로필 설정 (닉네임 . 자기 소개 )
             uiState = uiState,
             onNextClick = onNextClick,
         )
-        5 ->SingInScreen_4( // // 등록 완료! 페이지
+        6 ->SingInScreen_4( // // 등록 완료! 페이지
             uiState = uiState,
             onNextClick = onNextClick,
         )

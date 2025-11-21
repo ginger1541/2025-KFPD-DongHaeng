@@ -48,7 +48,7 @@ fun SignIngScreen_0( uiState: MakeAccountUiState,
 
             contentAlignment = Alignment.TopStart
         ) {
-            StepCircle(0) // 이 컴포넌트가 좌측 정렬됩니다.
+            StepCircle(3) // 이 컴포넌트가 좌측 정렬됩니다.
         }
         // 1️⃣ [상단 & 중앙 영역]: 제목, 회원가입 링크, 입력 필드
         Column(

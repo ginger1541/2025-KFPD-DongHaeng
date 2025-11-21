@@ -103,11 +103,11 @@ fun BtnQR(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .width(240.dp)
-            .height(200.dp), // 직사각형
-        shape = RoundedCornerShape(12.dp),
+            .width(220.dp)
+            .height(180.dp), // 직사각형
+        shape = RoundedCornerShape(25.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-        border = BorderStroke(width = 2.dp, color = Color.LightGray)
+        border = BorderStroke(width = 3.dp, color = Color.LightGray)
     ) {
         Box(
             modifier = Modifier.fillMaxSize().padding(1.dp),
@@ -116,7 +116,7 @@ fun BtnQR(onClick: () -> Unit) {
             Image(
                 painter = QRCamImg,
                 contentDescription = "QR_Code_Scanner_Icon",
-                modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                modifier = Modifier.fillMaxWidth().aspectRatio(1.3f)
             )
         }
     }
@@ -163,7 +163,7 @@ fun SheetTop(page: Int) {
 fun SheetMiddle(page: Int) {
     Spacer(modifier = Modifier.height(16.dp)) // 패딩 줄임
     when(page) {
-        0,2 -> BtnQR(onClick = {})
+        0,2 -> BtnQR(onClick = {page+1})
         1 -> {
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -228,13 +228,3 @@ fun BottomSheet(viewModel: OngoingViewModel = viewModel(), onNavigateToReview: (
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultAppPreview() {
-    KFPD_DongHaeng_FETheme(dynamicColor = false) {
-        BottomSheet(
-            viewModel = TODO(),
-            onNavigateToReview = TODO()
-        )
-    }
-}

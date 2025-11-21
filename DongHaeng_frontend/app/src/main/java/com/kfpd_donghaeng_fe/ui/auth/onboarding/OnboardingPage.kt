@@ -29,7 +29,7 @@ import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 //TODO: 전역 mainorange -> color.kt 로 변환하기 111 줄 텍스트 클릭시 넘어가기
-//TODO : 계정만들기 <-> 로그인 바꾸기 회의
+
 
 // page =0 onboarding
 // page =1 로그인 도입 화면

@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 
@@ -47,5 +48,13 @@ fun OngoingScreen(viewModel: OngoingViewModel = viewModel(), onNavigateToReview:
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun OngoingScreenPreview() {
+    // 뷰모델은 기본값(viewModel())을 사용하고,
+    // onNavigateToReview는 더미 함수 {}를 사용합니다.
+    OngoingScreen(onNavigateToReview = {})
+}
 
 
