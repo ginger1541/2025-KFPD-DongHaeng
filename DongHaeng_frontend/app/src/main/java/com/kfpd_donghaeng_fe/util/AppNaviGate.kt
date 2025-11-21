@@ -60,14 +60,12 @@ fun NavController.navigateToHomeAfterSignUp(userType: UserType) {
 }
 
 /**
- * 메인 화면에서 '요청 확인하기/요청하기' 버튼 클릭 시, 매칭 화면으로 이동
+ * 홈 화면 검색 바 클릭 시, 새로운 경로 탐색 (BOOKING) 화면으로 즉시 이동합니다.
  * @param userType 현재 사용자의 유형 (NEEDY 또는 HELPER)
  */
-fun NavController.navigateToMatchingScreen(userType: UserType) {
-    // ✅ UserType을 인자로 포함하여 Matching 화면으로 이동합니다.
-    val routeWithArg = "${AppScreens.MATCHING_BASE}/${userType.name}"
-
-    // 매칭 화면으로 이동합니다.
+fun NavController.navigateToNewSearchFlow(userType: UserType) {
+    // FIX: 쿼리 파라미터로 'startSearch=true'를 전달하여 즉시 검색 화면을 띄우도록 요청
+    val routeWithArg = "${AppScreens.MATCHING_BASE}/${userType.name}?startSearch=true"
     this.navigateTo(routeWithArg)
 }
 

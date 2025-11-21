@@ -49,32 +49,14 @@ fun BottomMatchingSheetContent(
     ) {
         when (role) {
             UserType.NEEDY -> {
+                // MainRouteScreen에서 처리되는 Phase는 여기서 제외합니다.
                 when (currentPhase) {
                     MatchingPhase.OVERVIEW -> RequesterOverviewContent(
                         onBookClicked = viewModel::navigateToBooking
                     )
-                    MatchingPhase.BOOKING -> RequestBookingContent(
-                        onTimePickerRequested = viewModel::navigateToTimeSelection,
-                        onCancel = viewModel::navigateToOverview
-                    )
-                    MatchingPhase.TIME_SELECTION -> RequestTimePicker(
-                        currentDateTime = viewModel.selectedDateTime.value,
-                        onConfirm = { newDateTime ->
-                            viewModel.updateSelectedTime(newDateTime)
-                            // TODO: 실제 경로 확인 로직 호출 (findRouteAndCalculatePrice)
-                            viewModel.navigateToConfirm()
-                        },
-                        onCancel = viewModel::navigateToBooking
-                    )
-                    MatchingPhase.CONFIRM -> RequestConfirmContent(
-                        viewModel = viewModel,
-                        onFinalRequest = {
-                            // 1. 최종 매칭 API 호출 (TODO: 실제 API 로직)
-                            println("최종 매칭 API 호출")
-                            // 2. OngoingScreen으로 이동
-                            onNavigateToOngoing() },
-                        onEdit = viewModel::navigateToBooking
-                    )
+                    // BOOKING, SERVICE_TYPE, TIME_SELECTION, REQUEST_DETAIL, PAYMENT는
+                    // MatchingScreen.kt에서 MainRouteScreen이 Full Screen으로 처리합니다.
+                    else -> Spacer(modifier = Modifier.height(1.dp)) // 아무것도 표시하지 않음
                 }
             }
             UserType.HELPER -> CompanionMatchingContent(

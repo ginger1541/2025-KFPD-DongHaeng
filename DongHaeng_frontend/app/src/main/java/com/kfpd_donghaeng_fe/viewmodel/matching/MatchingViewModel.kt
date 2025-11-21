@@ -88,13 +88,25 @@ open class MatchingViewModel : ViewModel() {
     fun navigateToOverview() {
         _currentPhase.value = MatchingPhase.OVERVIEW
     }
+
+    fun navigateToServiceType() {
+        _currentPhase.value = MatchingPhase.SERVICE_TYPE
+    }
+
     fun navigateToTimeSelection() {
         _currentPhase.value = MatchingPhase.TIME_SELECTION
     }
 
-    fun navigateToConfirm() {
-        _currentPhase.value = MatchingPhase.CONFIRM
+    fun navigateToRequestDetail() {
+        _currentPhase.value = MatchingPhase.REQUEST_DETAIL
     }
+
+    fun navigateToPayment() {
+        // TODO: 여기서 SK API 예상 경로/요금 계산 로직을 호출해야 함.
+        _currentPhase.value = MatchingPhase.PAYMENT
+    }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateSelectedTime(newDateTime: LocalDateTime) {

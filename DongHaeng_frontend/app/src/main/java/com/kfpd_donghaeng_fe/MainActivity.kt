@@ -95,21 +95,50 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         // MATCHING 경로 정의
+//                        composable(
+//                            // 경로 상수 사용
+//                            route = AppScreens.MATCHING_ROUTE,
+//                            arguments = listOf(navArgument("userType") {
+//                                type = NavType.StringType
+//                            })
+//                        ) { backStackEntry ->
+//                            val userTypeString = backStackEntry.arguments?.getString("userType")
+//                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+//
+//                            MatchingScreen(
+//                                userType = userType,
+//                                navController = navController,
+//                                checker = permissionChecker,
+//                                navigator = appSettingsNavigator
+//                            )
+//                        }
+
                         composable(
-                            // 경로 상수 사용
-                            route = AppScreens.MATCHING_ROUTE,
-                            arguments = listOf(navArgument("userType") {
-                                type = NavType.StringType
-                            })
+                            // 💡 [필수 수정]: startSearch 쿼리 파라미터를 경로에 추가합니다.
+                            route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}",
+                            arguments = listOf(
+                                navArgument("userType") {
+                                    type = NavType.StringType
+                                },
+                                // 💡 [필수 추가]: startSearch 인자 정의를 추가합니다.
+                                navArgument("startSearch") {
+                                    type = NavType.BoolType
+                                    defaultValue = false // 기본값은 false
+                                }
+                            )
                         ) { backStackEntry ->
                             val userTypeString = backStackEntry.arguments?.getString("userType")
                             val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+
+                            // 💡 [필수 추가]: startSearch 인자 값을 읽어서 전달합니다.
+                            val startSearch = backStackEntry.arguments?.getBoolean("startSearch") ?: false
 
                             MatchingScreen(
                                 userType = userType,
                                 navController = navController,
                                 checker = permissionChecker,
-                                navigator = appSettingsNavigator
+                                navigator = appSettingsNavigator,
+                                startSearch = startSearch // 인자 전달
                             )
                         }
 

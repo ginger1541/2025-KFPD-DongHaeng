@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.theme.*
-import com.kfpd_donghaeng_fe.util.navigateToMatchingScreen
+import com.kfpd_donghaeng_fe.util.navigateToNewSearchFlow
 
 @Composable
 fun HomeScreen(userType: UserType, navController: NavController) {
@@ -198,7 +198,7 @@ private fun NeedyContent(
 
         // "동행 요청하기" 버튼
         Button(
-            onClick = { navController.navigateToMatchingScreen(userType) },
+            onClick = { navController.navigateToNewSearchFlow(userType) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp),
@@ -246,8 +246,9 @@ private fun HelperContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // "주변 요청 확인하기" 버튼
+        // TODO: 없어지긴 했는데 어쨌든 수정
         Button(
-            onClick = { navController.navigateToMatchingScreen(userType) },
+            onClick = { navController.navigateToNewSearchFlow(userType) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp),

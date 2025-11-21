@@ -27,6 +27,10 @@ class MatchingHomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<MatchingHomeUiState>(MatchingHomeUiState.Loading)
     val uiState: StateFlow<MatchingHomeUiState> = _uiState.asStateFlow()
 
+    init {
+        // FIX: ViewModel 생성 시점에 기본 유형의 홈 데이터를 즉시 로드하도록 보장
+        loadHomeData()
+    }
     /**
      * 유저 타입 변경 (예: 설정에서 역할 바꾸는 경우 등)
      */

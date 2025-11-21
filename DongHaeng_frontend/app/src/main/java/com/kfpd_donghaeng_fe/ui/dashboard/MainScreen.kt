@@ -33,6 +33,7 @@ import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
 
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.util.navigateToNewSearchFlow
 import com.kfpd_donghaeng_fe.util.navigateToRequestDetail
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
@@ -77,12 +78,10 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 // 💡 이제 이 블록 안에서 userType과 mainNavController를 사용할 수 있습니다.
                 // 이전의 HomeScreen 호출 대신 MatchingHomeRoute를 호출합니다.
                 MatchingHomeRoute(
-                    userType = userType, // ⬅️ MainScreen의 인자(userType) 사용
-
-                    // ViewModel은 hiltViewModel()에 의해 자동으로 userType을 읽도록 설정되어 있습니다.
-
+                    userType = userType,
                     onNavigateToSearch = { userTypeForSearch ->
-                        // TODO: 실제 검색 화면으로 이동 로직 구현
+                        // 💡 FIX: 새로운 검색 플로우로 즉시 진입 요청
+                        mainNavController.navigateToNewSearchFlow(userTypeForSearch)
                     },
                     onNavigateToChangeLocation = {
                         // TODO: 위치 변경 화면으로 이동 로직 구현
