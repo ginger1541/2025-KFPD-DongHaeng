@@ -159,39 +159,62 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     });
 
     // =========================================
-    // 실시간 채팅
+    // 실시간 채팅 (PDF 요구사항: DB 저장 추가)
     // =========================================
-    socket.on('chat:send', (data: {
+    socket.on('chat:send', async (data: {
       matchId: string;
       message: string;
       messageId?: string;
     }) => {
-      const { matchId, message, messageId } = data;
+      const { matchId, message } = data;
       const roomName = `match:${matchId}`;
 
-      const chatMessage = {
-        messageId: messageId || `msg_${Date.now()}_${socket.id}`,
-        matchId,
-        senderId: userId,
-        senderName: socket.user!.email.split('@')[0], // 임시 이름
-        message,
-        timestamp: Date.now(),
-      };
+      try {
+        // PDF 요구사항: DB에 메시지 저장
+        const { saveMessage } = await import('../services/chat.service');
+        const savedMessage = await saveMessage({
+          matchId: BigInt(matchId),
+          senderId: socket.user!.userId,
+          message,
+        });
 
-      // 상대방에게 메시지 전송
-      socket.to(roomName).emit('chat:message', chatMessage);
+        const chatMessage = {
+          messageId: savedMessage.message_id.toString(),
+          matchId,
+          senderId: userId,
+          senderName: socket.user!.email.split('@')[0], // 임시 이름
+          message: savedMessage.message,
+          timestamp: savedMessage.created_at.getTime(),
+        };
 
-      // 발신자에게 전송 확인
-      socket.emit('chat:sent', {
-        messageId: chatMessage.messageId,
-        timestamp: chatMessage.timestamp,
-      });
+        // 상대방에게 메시지 전송
+        socket.to(roomName).emit('chat:message', chatMessage);
 
-      logger.info('Chat message sent', {
-        userId,
-        matchId,
-        messageLength: message.length,
-      });
+        // 발신자에게 전송 확인
+        socket.emit('chat:sent', {
+          messageId: chatMessage.messageId,
+          timestamp: chatMessage.timestamp,
+        });
+
+        logger.info('Chat message saved and sent', {
+          userId,
+          matchId,
+          messageId: savedMessage.message_id.toString(),
+          messageLength: message.length,
+        });
+      } catch (error) {
+        logger.error('Failed to save chat message', {
+          userId,
+          matchId,
+          error,
+        });
+
+        // 에러를 발신자에게 알림
+        socket.emit('chat:error', {
+          message: '메시지 전송에 실패했습니다',
+          error: String(error),
+        });
+      }
     });
 
     // =========================================

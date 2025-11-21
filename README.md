@@ -706,7 +706,7 @@ Content-Type: application/json
 #### 🚶 동행 요청 API
 
 <details>
-<summary><strong>POST /companion/request</strong> - 동행 요청 생성</summary>
+<summary><strong>POST /companion/request</strong> - 동행 요청 생성 (예약 일시 + 경로 포함)</summary>
 
 ```http
 POST /api/v1/companion/request
@@ -720,9 +720,30 @@ Content-Type: application/json
   "dest_latitude": 35.1601,
   "dest_longitude": 126.8538,
   "dest_address": "광주광역시 동구 충장로 47",
-  "estimated_minutes": 15
+  "estimated_minutes": 15,
+  "scheduledAt": "2025-12-01T15:00:00+09:00",
+  "route": {
+    "coord_type": "WGS84",
+    "total_distance_meters": 2150,
+    "total_duration_seconds": 900,
+    "estimated_price": 3200,
+    "points": [
+      { "lat": 35.176123, "lng": 126.905432 },
+      { "lat": 35.175900, "lng": 126.906100 },
+      { "lat": 35.175500, "lng": 126.907000 }
+    ]
+  }
 }
 ```
+
+**새로운 필드:**
+- `scheduledAt` (필수): 예약 일시 (ISO 8601 형식, 미래 시간)
+- `route` (선택): 경로 정보
+  - `coord_type`: 좌표계 ("WGS84" 고정)
+  - `total_distance_meters`: 총 거리 (미터)
+  - `total_duration_seconds`: 예상 소요 시간 (초)
+  - `estimated_price`: 예상 택시 요금 (원)
+  - `points`: 경로 좌표 배열 (최소 2개)
 
 **Response (201 Created):**
 ```json
@@ -732,6 +753,14 @@ Content-Type: application/json
     "request_id": 123,
     "status": "PENDING",
     "estimated_minutes": 15,
+    "scheduledAt": "2025-12-01T15:00:00+09:00",
+    "route": {
+      "coord_type": "WGS84",
+      "total_distance_meters": 2150,
+      "total_duration_seconds": 900,
+      "estimated_price": 3200,
+      "points": [...]
+    },
     "created_at": "2025-11-04T10:30:00Z"
   }
 }
@@ -791,6 +820,24 @@ Content-Type: application/json
   "request_id": 123
 }
 ```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "data": {
+    "match_id": 456,
+    "chat_room_id": 456,
+    "status": "pending",
+    "created_at": "2025-11-04T10:35:00Z"
+  }
+}
+```
+
+**주요 필드:**
+- `match_id`: 매칭 ID
+- `chat_room_id`: 채팅방 ID (match_id와 동일)
+- 이 ID로 채팅방 API를 호출할 수 있습니다
 
 </details>
 
@@ -896,6 +943,148 @@ Content-Type: application/json
 GET /api/v1/reviews/45?page=1&limit=10
 Authorization: Bearer {access_token}
 ```
+
+</details>
+
+#### 💬 채팅방 API
+
+<details>
+<summary><strong>GET /chat-rooms/:id</strong> - 단일 채팅방 조회</summary>
+
+```http
+GET /api/v1/chat-rooms/123
+Authorization: Bearer {access_token}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "chat_room_id": 123,
+    "match_id": 123,
+    "request_id": 456,
+    "partner": {
+      "user_id": 45,
+      "nickname": "김철수",
+      "profile_image_url": "https://..."
+    },
+    "request": {
+      "scheduled_at": "2025-12-01T15:00:00+09:00",
+      "start_address": "광주광역시 북구 용봉동",
+      "end_address": "광주광역시 동구 금남로"
+    },
+    "last_message": {
+      "message_id": 789,
+      "sender_id": 45,
+      "message": "5분 후에 도착해요!",
+      "created_at": "2025-11-04T10:30:00Z"
+    },
+    "unread_count": 3
+  }
+}
+```
+
+**주요 필드:**
+- `chat_room_id`: 채팅방 ID (match_id와 동일)
+- `partner`: 상대방 정보
+- `request`: 동행 요청 정보 (예약 일시 포함)
+- `last_message`: 마지막 메시지 (없으면 null)
+- `unread_count`: 안 읽은 메시지 수
+
+</details>
+
+<details>
+<summary><strong>GET /chat-rooms/:id/messages</strong> - 메시지 히스토리 조회</summary>
+
+```http
+GET /api/v1/chat-rooms/123/messages?before_id=100&limit=20
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `before_id` (선택): 이 ID 이전의 메시지 조회 (페이징)
+- `limit` (선택): 가져올 메시지 수 (기본값: 50, 최대: 100)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "message_id": 99,
+      "sender_id": 45,
+      "message": "도착했어요!",
+      "created_at": "2025-11-04T10:29:00Z"
+    },
+    {
+      "message_id": 98,
+      "sender_id": 12,
+      "message": "거의 다 왔습니다",
+      "created_at": "2025-11-04T10:28:00Z"
+    }
+  ],
+  "pagination": {
+    "has_more": true,
+    "next_before_id": 98
+  }
+}
+```
+
+**페이징 방식:**
+- 내림차순 정렬 (최신 메시지가 먼저)
+- `before_id`를 사용한 커서 기반 페이징
+- `has_more`가 true면 더 가져올 메시지 존재
+- `next_before_id`로 다음 페이지 요청
+
+</details>
+
+<details>
+<summary><strong>GET /chat-rooms</strong> - 참여 중 채팅방 목록 조회</summary>
+
+```http
+GET /api/v1/chat-rooms?status=active
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `status` (선택): 필터링 옵션
+  - `active`: 진행 중인 동행 (pending, in_progress)
+  - `completed`: 완료된 동행
+  - `all`: 전체 (기본값)
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "chat_room_id": 123,
+      "match_id": 123,
+      "request_id": 456,
+      "partner": {
+        "user_id": 45,
+        "nickname": "김철수",
+        "profile_image_url": "https://..."
+      },
+      "request": {
+        "scheduled_at": "2025-12-01T15:00:00+09:00",
+        "start_address": "광주광역시 북구 용봉동",
+        "end_address": "광주광역시 동구 금남로"
+      },
+      "last_message": {
+        "message_id": 789,
+        "message": "5분 후에 도착해요!",
+        "created_at": "2025-11-04T10:30:00Z"
+      },
+      "unread_count": 3
+    }
+  ]
+}
+```
+
+**정렬:**
+- 매칭 최신순 (matchedAt DESC)
 
 </details>
 

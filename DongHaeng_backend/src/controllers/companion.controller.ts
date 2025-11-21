@@ -90,9 +90,13 @@ export const acceptRequest = asyncHandler(async (req: Request, res: Response) =>
   const requestId = BigInt(req.params.id);
   const match = await companionService.acceptRequest(requestId, req.user!.userId);
 
+  // PDF 요구사항 2-1: chat_room_id 추가 (match_id와 동일)
   res.status(201).json({
     success: true,
     message: '요청을 수락했습니다',
-    data: match,
+    data: {
+      ...match,
+      chat_room_id: match.matchId, // match_id를 chat_room_id로 사용
+    },
   });
 });
