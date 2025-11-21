@@ -81,20 +81,10 @@ fun LoginScreen(
             MovetoMakeAccount = MovetoMakeAccount,
             page = 1,
         )
-        1->LoginPage(uiState = uiState,
-            onNextClick = onNextClick)
+        1->LoginPage(
+            uiState = uiState,
+            onNextClick = onNextClick
+        )
 
-        /*
-        3 ->SignInScreen_3(
-            uiState = uiState,
-            onNextClick = onNextClick,
-            onPreviousClick = onPreviousClick
-        )
-        4 ->SingInScreen_4(
-            uiState = uiState,
-            onNextClick = onNextClick,
-            onPreviousClick = onPreviousClick
-        )
-        else -> Text("가입 완료!")*/
     }
 }

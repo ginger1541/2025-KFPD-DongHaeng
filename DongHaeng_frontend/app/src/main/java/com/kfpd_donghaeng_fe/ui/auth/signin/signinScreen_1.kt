@@ -19,10 +19,12 @@ import androidx.compose.ui.zIndex
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.theme.* // 테마 및 색상 import (BrandOrange, TextBlack 등)
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 /** 페이지 3: 사용자 유형 Composable */
 @Composable
 fun UserTypePage(
+    uiState: MakeAccountUiState,
     selectedType: UserType?,
     onUserTypeSelect: (UserType) -> Unit,
     onNextClick: () -> Unit,
@@ -184,7 +186,7 @@ private fun SelectableCard(
 }
 
 // ------------------------------------------------------------------
-
+/*
 /** 🚀 프리뷰 컴포넌트 */
 @Preview(showBackground = true, name = "User Type Selection")
 @Composable
@@ -208,4 +210,4 @@ fun UserTypePagePreview_Interactive() {
         modifier = Modifier.padding(top = 20.dp)
     )
     // }
-}
+}*/

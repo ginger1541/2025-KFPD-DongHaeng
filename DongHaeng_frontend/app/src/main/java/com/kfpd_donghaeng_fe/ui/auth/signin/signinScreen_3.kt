@@ -35,7 +35,7 @@ val SuccessGreen = Color(0xFF4CAF50)
 @Composable
 fun SignInScreen_3( uiState: MakeAccountUiState,
                     onNextClick: () -> Unit,
-                    onPreviousClick: () -> Unit) {
+                    ) {
     // --- 상태 관리 (State) ---
     var nickname by remember { mutableStateOf("동행하는우인이") } // 예시값
     var introduction by remember { mutableStateOf("") }
@@ -105,7 +105,7 @@ fun SignInScreen_3( uiState: MakeAccountUiState,
 
         // 5. 하단 고정 버튼
         Button(
-            onClick = { /* 다음 단계 로직 */ },
+            onClick = onNextClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()

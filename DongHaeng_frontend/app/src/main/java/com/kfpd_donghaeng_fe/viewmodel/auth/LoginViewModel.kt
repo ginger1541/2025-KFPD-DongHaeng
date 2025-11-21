@@ -15,7 +15,9 @@ data class LoginAccountUiState(
     val id: String = "",  //아이디
     val pw:String="", // 비번
     val userType: UserType? = null,    // 유저 타입
+
 )
+
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(

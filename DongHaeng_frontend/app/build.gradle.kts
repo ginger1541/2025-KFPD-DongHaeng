@@ -59,6 +59,7 @@ fun getApiKey(propertyKey: String): String {
     return gradleLocalProperties(rootDir, providers).getProperty(propertyKey)
 }
 dependencies {
+    implementation(libs.androidx.compose.ui)
     val cameraVersion = "1.3.0" // 최신 안정 버전 확인 필요
 
     implementation("androidx.camera:camera-core:$cameraVersion")

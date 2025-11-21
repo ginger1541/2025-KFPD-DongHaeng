@@ -36,7 +36,7 @@ var middleimg=R.drawable.ic_card_ex
 @Composable
 fun SignInScreen_2 (uiState: MakeAccountUiState,
                     onNextClick: () -> Unit,
-                    onPreviousClick: () -> Unit){
+                   ){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,7 +107,7 @@ fun SignInScreen_2 (uiState: MakeAccountUiState,
 
             // 💡 버튼은 enabled 속성으로 선택 상태에 따라 활성화/비활성화됩니다.
             Button(
-                onClick = {},
+                onClick =  onNextClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

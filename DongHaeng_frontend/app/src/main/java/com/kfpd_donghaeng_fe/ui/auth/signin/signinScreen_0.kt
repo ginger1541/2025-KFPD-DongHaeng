@@ -31,7 +31,7 @@ import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 @Composable
 fun SignIngScreen_0( uiState: MakeAccountUiState,
                      onNextClick: () -> Unit,
-                     onPreviousClick: () -> Unit){
+                    ){
 
     Box(
         modifier = Modifier
