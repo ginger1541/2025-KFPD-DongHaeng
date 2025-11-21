@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching
-
+/*
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -35,6 +35,8 @@ import com.kfpd_donghaeng_fe.domain.entity.LocationPermissionState
 import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
+
+
 import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
 import com.kfpd_donghaeng_fe.ui.matching.components.SearchBar
 import com.kfpd_donghaeng_fe.ui.matching.components.SheetHandleBar
@@ -42,6 +44,7 @@ import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.PermissionChecker
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.auth.UserType
@@ -274,4 +277,4 @@ fun MapContent(
             }
         }
     }
-}
+}*/

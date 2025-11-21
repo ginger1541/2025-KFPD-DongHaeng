@@ -32,9 +32,10 @@ fun KakaoMapView(
     modifier: Modifier = Modifier,
     locationX: Double,
     locationY: Double,
-    enabled: Boolean = true, // ← 추가
-    enabled_map_emulate:Boolean = GlobalApplication.isMapLoaded
+    enabled: Boolean = true,
+    enabled_map_emulate:Boolean = GlobalApplication.isMapLoaded  // ← 추가
 ) {
+    //  ! 추가 ! ( 45번째 줄 return 까지 )
     if(!enabled_map_emulate){
         Box(
             modifier = modifier

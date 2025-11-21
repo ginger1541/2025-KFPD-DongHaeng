@@ -27,14 +27,16 @@ import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.theme.BrandOrange
 import com.kfpd_donghaeng_fe.ui.theme.DarkGray
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 
 var toptext="장애인증 인증 안내"
 var middleimg=R.drawable.ic_card_ex
 
 @Composable
-fun SignInScreen_2(){
+fun SignInScreen_2 (uiState: MakeAccountUiState,
+                    onNextClick: () -> Unit,
+                    onPreviousClick: () -> Unit){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,9 +123,9 @@ fun SignInScreen_2(){
 }
 
 
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun singupPreview3() {
     SignInScreen_2()
-}
+}*/

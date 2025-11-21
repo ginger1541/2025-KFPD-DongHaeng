@@ -26,9 +26,12 @@ import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 @Composable
-fun SignIngScreen_0(){
+fun SignIngScreen_0( uiState: MakeAccountUiState,
+                     onNextClick: () -> Unit,
+                     onPreviousClick: () -> Unit){
 
     Box(
         modifier = Modifier
@@ -93,7 +96,7 @@ fun SignIngScreen_0(){
                 modifier = Modifier
                     .offset(y = 0.dp)
                     .padding(horizontal = 20.dp),
-            ){LoginPageButton("다음", {})}
+            ){LoginPageButton("다음", onNextClick)}
         }
     }
 }
@@ -125,9 +128,9 @@ fun StepCircle(cnt:Int){
 
 }
 
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun singupPreview2() {
     SignIngScreen_0()
-}
+}*/

@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,20 +19,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.BottomSheet
 import com.kfpd_donghaeng_fe.ui.theme.*
 /*----------ongoing import ------------*/
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+//import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
 // 💡 필요한 import 구문들을 추가합니다.
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.ui.graphics.Color // 💡 Bar 배경색상용
 import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
 import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
-
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
-import com.kfpd_donghaeng_fe.util.AppScreens
-import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
-import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
 
 /**
@@ -42,7 +35,7 @@ import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
  */
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
-
+/*
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
 
@@ -151,7 +144,7 @@ private fun BottomNavBar(
                 )
             )
         }
-    }
+    }*/
 }
 
 // 하단바 아이템을 위한 데이터 클래스
@@ -160,3 +153,6 @@ private data class BottomNavItem(
     val iconResId: Int,
     val label: String
 )
+
+
+

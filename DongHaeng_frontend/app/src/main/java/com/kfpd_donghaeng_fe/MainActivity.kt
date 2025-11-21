@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.PermissionChecker
@@ -23,11 +24,16 @@ import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import androidx.navigation.NavHostController
-import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
+import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
+//import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
 
-
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay // 딜레이를 위해 필요
 import dagger.hilt.android.AndroidEntryPoint
 
+
+
+//  기존 mainactivty 오류 파티라서 .. 주석 처리 해놨어요!
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 /*

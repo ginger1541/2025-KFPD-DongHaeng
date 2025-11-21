@@ -2,8 +2,6 @@ package com.kfpd_donghaeng_fe.viewmodel.matching
 
 import androidx.lifecycle.ViewModel
 import com.kfpd_donghaeng_fe.domain.entity.PlaceSearchResult
-import com.kfpd_donghaeng_fe.ui.matching.componentes.LocationInput
-import com.kfpd_donghaeng_fe.ui.matching.componentes.LocationType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+
+/*
 @HiltViewModel
 class BookingViewModel @Inject constructor() : ViewModel() {
 
@@ -153,8 +153,13 @@ class BookingViewModel @Inject constructor() : ViewModel() {
 /**
  * 경로 정보 데이터 클래스
  */
+
+
 data class RouteInfo(
+
     val start: LocationInput?,
     val waypoint: LocationInput?,
     val end: LocationInput?
 )
+
+*/

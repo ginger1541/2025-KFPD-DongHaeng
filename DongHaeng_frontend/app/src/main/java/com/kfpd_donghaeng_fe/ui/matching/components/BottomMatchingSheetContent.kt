@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching.componentes
-
+/*
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -129,4 +129,4 @@ fun RequesterOverviewContent(onBookClicked: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(60.dp))
     }
-}
+}*/

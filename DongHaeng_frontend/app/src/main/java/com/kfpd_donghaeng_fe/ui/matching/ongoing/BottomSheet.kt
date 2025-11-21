@@ -16,11 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
-import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.zIndex
 import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
 // TODO : background 넣기 bottomsheet 초기 크기 고정, 카메라 인식, 상단 padding 없애기
 
@@ -55,6 +55,8 @@ val isBtnSOSEnabled = false
 val isBtnShareLocationEnabled = false
 
 // 공통 버튼
+
+
 @Composable
 fun BtnSet(text: String, modifier: Modifier = Modifier, onClick: () -> Unit, isEnabled: Boolean) {
     Button(
@@ -78,7 +80,7 @@ fun BtnStartDH(viewModel: OngoingViewModel, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BtnEndDH(viewModel: OngoingViewModel, modifier: Modifier = Modifier) {
+fun BtnEndDH(viewModel:OngoingViewModel, modifier: Modifier = Modifier) {
     BtnSet(text = "동행종료", modifier = modifier, onClick = { viewModel.nextPage() }, isEnabled = isBtnEndDHEnabled)
 }
 

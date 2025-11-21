@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 // 필요한 색상 정의 (테마에 없다면 임시 사용)
 val BrandOrange = Color(0xFFE67E22) // 예시 색상
@@ -32,7 +33,9 @@ val ErrorRed = Color(0xFFE53935)
 val SuccessGreen = Color(0xFF4CAF50)
 
 @Composable
-fun SignInScreen_3() {
+fun SignInScreen_3( uiState: MakeAccountUiState,
+                    onNextClick: () -> Unit,
+                    onPreviousClick: () -> Unit) {
     // --- 상태 관리 (State) ---
     var nickname by remember { mutableStateOf("동행하는우인이") } // 예시값
     var introduction by remember { mutableStateOf("") }
@@ -256,8 +259,10 @@ fun InputFormSection(
     }
 }
 
+
+/*
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 fun SignUpPreview4() {
     SignInScreen_3()
-}
+}*/

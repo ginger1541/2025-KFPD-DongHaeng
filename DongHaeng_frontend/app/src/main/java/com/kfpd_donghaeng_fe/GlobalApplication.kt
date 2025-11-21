@@ -19,7 +19,7 @@ class GlobalApplication : Application() {
 
         try {
             // 카카오맵 초기화 시도
-            KakaoMapSdk.init(this, "여기에_네이티브_앱_키")
+            KakaoMapSdk.init(this, "36496bc3af191f9e2fab5202d4f894dc")
             isMapLoaded = true // 성공하면 true
         } catch (e: UnsatisfiedLinkError) {
             // 에뮬레이터라서 실패하면 여기로 빠짐

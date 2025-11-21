@@ -25,9 +25,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 @Composable
-fun SingInScreen_4(){
+fun SingInScreen_4( uiState: MakeAccountUiState,
+                    onNextClick: () -> Unit,
+                    onPreviousClick: () -> Unit){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -126,9 +129,9 @@ fun SingInScreen_4(){
 
 }
 }
-
+/*
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 fun SignUpPreview5() {
     SingInScreen_4()
-}
+}*/
