@@ -3,6 +3,7 @@ package com.kfpd_donghaeng_fe.ui.auth
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,6 +13,7 @@ import com.kfpd_donghaeng_fe.ui.auth.signin.SignInScreen_3
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignIngScreen_0
 import com.kfpd_donghaeng_fe.ui.auth.signin.SingInScreen_4
 import com.kfpd_donghaeng_fe.ui.auth.signin.UserTypePage
+import com.kfpd_donghaeng_fe.viewmodel.auth.LoginViewModel
 import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountViewModel
 
@@ -33,6 +35,7 @@ fun MakeAccountRoute(
 
 
 
+
 @Composable
 fun MakeAccountScreen(
     uiState: MakeAccountUiState,
@@ -40,11 +43,12 @@ fun MakeAccountScreen(
     onPreviousClick: () -> Unit
 ) {
     when (uiState.currentPage) {
-        0 ->SignIngScreen_0(
+        0,1 ->SignIngScreen_0(
             uiState = uiState,
             onNextClick = onNextClick,
             onPreviousClick = onPreviousClick
-        )/*
+        )
+        /*
         1->UserTypePage(){
             selectedType: UserType?,
             onUserTypeSelect: (UserType) -> Unit,

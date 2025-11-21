@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
+import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
+import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 
 //TODO: 전역 mainorange -> color.kt 로 변환하기 111 줄 텍스트 클릭시 넘어가기
 //TODO : 계정만들기 <-> 로그인 바꾸기 회의
@@ -38,7 +40,10 @@ import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 
 
 @Composable
-private fun OnboardingScreen(page: Int ){
+fun OnboardingScreen(uiState: LoginAccountUiState,
+                     onNextClick: () -> Unit,
+                     MovetoMakeAccount: () -> Unit,
+                     page: Int ){
     // int page =0 일 때 : onboding
     var LogoImg=painterResource(id = R.drawable.ic_logo_white)
     var backColor=MainOrange
@@ -104,7 +109,7 @@ private fun OnboardingScreen(page: Int ){
                 modifier = Modifier
                     .offset(y = -20.dp)
                     .padding(horizontal = 20.dp),
-            ){ LoginPageButton("계정 만들기",{})}
+            ){ LoginPageButton("계정 만들기", MovetoMakeAccount)}
             Row( modifier = Modifier
                 .offset(y = 0.dp)) {
                 Text(
@@ -116,6 +121,7 @@ private fun OnboardingScreen(page: Int ){
                     modifier = Modifier
                         .clickable {
                             //TODO:click 시 페이지 넘어가기
+                            onNextClick()
                         },
                     text = "로그인",
                     color = MainOrange,
@@ -128,10 +134,11 @@ private fun OnboardingScreen(page: Int ){
 
 }
 
-
+/*
 
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview2() {
     OnboardingScreen(page = 1)
 }
+*/

@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
+import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
 
 
 //TODO: 109 줄 oncick 이벤트 해결
@@ -43,7 +44,10 @@ import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 
 
 @Composable
-fun LoginScreen() {
+fun LoginPage(
+    uiState: LoginAccountUiState,
+    onNextClick: () -> Unit,
+) {
     // 💡 로그인 입력 상태 관리 (이전에 안내해 드린 코드 기반)
     var idText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
@@ -112,6 +116,7 @@ fun LoginScreen() {
                 Text(
                     modifier = Modifier.clickable {
                         // TODO: click 시 페이지 넘어가기
+                        onNextClick()
                     },
                     text = "회원가입하기",
                     color = MainOrange,
@@ -159,9 +164,9 @@ fun LoginTextField(
     )
 }
 
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
     LoginScreen()
-}
+}*/

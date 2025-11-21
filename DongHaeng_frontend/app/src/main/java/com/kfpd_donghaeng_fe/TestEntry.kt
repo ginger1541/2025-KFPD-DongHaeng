@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.kfpd_donghaeng_fe.ui.auth.LoginRoute
 import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,11 +33,8 @@ class TestEntry: ComponentActivity() {
             }
         }
     }
-} // ✅ 클래스가 여기서 닫힙니다.
+}
 
-// ----------------------------------------------------
-// 2. AppNavigation 함수는 클래스 외부에 정의
-// ----------------------------------------------------
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -47,14 +45,21 @@ fun AppNavigation() {
     ) {
         composable("splash") {
             LaunchedEffect(Unit) {
-                delay(2000L)
-                navController.navigate("signup") {
+                delay(1000L)
+                navController.navigate("login") {
                     popUpTo("splash") { inclusive = true }
                 }
             }
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "Splash Screen Loading...")
             }
+        }
+        composable("login"){
+            LoginRoute(onNavigateToMakeAccount = {
+                navController.navigate("signup") {
+                    popUpTo("login") { inclusive = true }
+                }
+            },)
         }
 
         composable("signup") {
