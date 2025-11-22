@@ -16,6 +16,15 @@ export const createRequest = async (
     startAddress: string;
     destinationAddress: string;
     estimatedMinutes: number;
+    scheduledAt: Date; // PDF 요구사항 1-1
+    route?: {
+      // PDF 요구사항 1-2
+      coord_type: string;
+      total_distance_meters: number;
+      total_duration_seconds: number;
+      estimated_price: number;
+      points: Array<{ lat: number; lng: number }>;
+    };
   }
 ) => {
   const request = await companionRepo.createRequest({
@@ -29,6 +38,8 @@ export const createRequest = async (
     startAddress: data.startAddress,
     destinationAddress: data.destinationAddress,
     estimatedMinutes: data.estimatedMinutes,
+    scheduledAt: data.scheduledAt,
+    route: data.route || null,
   });
 
   return request;

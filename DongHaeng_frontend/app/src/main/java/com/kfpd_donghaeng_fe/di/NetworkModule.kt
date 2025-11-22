@@ -4,6 +4,7 @@ import com.kfpd_donghaeng_fe.data.remote.api.KakaoPlaceApiService
 import com.kfpd_donghaeng_fe.data.remote.api.SKRouteApiService
 import com.kfpd_donghaeng_fe.data.repository.PlaceRepositoryImpl
 import com.kfpd_donghaeng_fe.domain.repository.PlaceRepository
+import com.kfpd_donghaeng_fe.data.remote.api.MatchApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -78,6 +79,24 @@ object NetworkModule {
         apiService: KakaoPlaceApiService
     ): PlaceRepository {
         return PlaceRepositoryImpl(apiService)
+    }
+
+    // 정연 서버용 Retrofit
+    @Provides
+    @Singleton
+    @Named("my_server") // 이름표 붙이기
+    fun provideMyServerRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8080/") // 에뮬레이터용 로컬 주소
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    // 2. MatchApiService 만들기
+    @Provides
+    @Singleton
+    fun provideMatchApiService(@Named("my_server") retrofit: Retrofit): MatchApiService {
+        return retrofit.create(MatchApiService::class.java)
     }
 
     @Provides

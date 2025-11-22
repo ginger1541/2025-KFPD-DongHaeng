@@ -6,7 +6,9 @@ const REDIS_ENABLED = process.env.REDIS_ENABLED === 'true';
 let redis: Redis | null = null;
 
 if (REDIS_ENABLED) {
-  const redisConfig = {
+  const REDIS_TLS = process.env.REDIS_TLS === 'true';
+
+  const redisConfig: any = {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD || undefined,
@@ -17,6 +19,13 @@ if (REDIS_ENABLED) {
     maxRetriesPerRequest: 3,
     lazyConnect: true, // 초기 연결 실패 시 앱 시작 차단 방지
   };
+
+  // TLS 설정 (Upstash 등 클라우드 Redis 서비스용)
+  if (REDIS_TLS) {
+    redisConfig.tls = {
+      rejectUnauthorized: false, // Upstash에서는 false로 설정
+    };
+  }
 
   redis = new Redis(redisConfig);
 

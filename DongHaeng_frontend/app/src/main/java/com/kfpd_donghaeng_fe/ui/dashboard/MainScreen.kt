@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color // Bar 배경색 상용
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,7 +22,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.BottomSheet
 import com.kfpd_donghaeng_fe.ui.theme.*
 /*----------ongoing import ------------*/
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
@@ -79,16 +80,7 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 // 이전의 HomeScreen 호출 대신 MatchingHomeRoute를 호출합니다.
                 MatchingHomeRoute(
                     userType = userType,
-                    onNavigateToSearch = { userTypeForSearch ->
-                        // 💡 FIX: 새로운 검색 플로우로 즉시 진입 요청
-                        mainNavController.navigateToNewSearchFlow(userTypeForSearch)
-                    },
-                    onNavigateToChangeLocation = {
-                        // TODO: 위치 변경 화면으로 이동 로직 구현
-                    },
-                    onNavigateToRequestDetail = { requestId ->
-                        mainNavController.navigateToRequestDetail(requestId)
-                    }
+                    navController = mainNavController,
                 )
             }
 //            // '홈' 화면
@@ -109,6 +101,11 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 )
             }
 
+            // '채팅' 화면
+            composable("chat") {
+                ChattingScreen()
+            }
+
             // '프로필' 화면
             composable("profile") {
                 UserReveiwScreen()
@@ -116,12 +113,6 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
         }
     }
 }
-
-/**
- * 하단 네비게이션 바 Composable
- */
-
-
 
 /**
  * 하단 네비게이션 바 Composable
@@ -138,7 +129,8 @@ private fun BottomNavBar(
     // 2. 하단바 아이템 리스트 정의
     val navItems = listOf(
         BottomNavItem("home", R.drawable.ic_home, "홈"),
-        BottomNavItem("mission", R.drawable.ic_logo_gray, "동행"),
+        BottomNavItem("matching", R.drawable.ic_logo_gray, "동행"),
+        BottomNavItem("chat", R.drawable.ic_chat, "채팅"),
         BottomNavItem("profile", R.drawable.ic_user, "내정보")
     )
 
@@ -165,10 +157,8 @@ private fun BottomNavBar(
                     selectedIconColor = BrandOrange,
                     selectedTextColor = BrandOrange,
 
-
                     unselectedIconColor = MediumGray,
                     unselectedTextColor = MediumGray,
-
 
                     indicatorColor = BrandOrange.copy(alpha = 0.1f)
                 )
@@ -183,3 +173,14 @@ private data class BottomNavItem(
     val iconResId: Int,
     val label: String
 )
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    KFPD_DongHaeng_FETheme {
+        MainScreen(
+            userType = UserType.NEEDY,
+            mainNavController = rememberNavController()
+        )
+    }
+}
