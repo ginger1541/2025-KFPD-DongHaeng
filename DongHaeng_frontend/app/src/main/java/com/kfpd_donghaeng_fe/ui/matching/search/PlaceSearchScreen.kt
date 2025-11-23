@@ -154,7 +154,7 @@ fun PlaceSearchScreen(
             // 홈/회사 버튼 (PathInputBox에서 재사용)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 HomeCompanyTag("집", R.drawable.ic_home)
-                HomeCompanyTag("회사", R.drawable.ic_home)
+                HomeCompanyTag("회사", R.drawable.ic_company)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

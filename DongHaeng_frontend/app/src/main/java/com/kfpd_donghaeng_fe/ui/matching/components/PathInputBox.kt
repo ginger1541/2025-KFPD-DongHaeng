@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,85 +37,99 @@ fun PathInputBox(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
-            // 상단 상태바 영역만큼 패딩이 필요할 수 있음 (WindowInsets 활용 권장)
-            .statusBarsPadding()
             .padding(bottom = 16.dp)
     ) {
-        // 1. 상단바 (뒤로가기 + 입력 박스)
+        // 1. 상단 네비게이션 바 (뒤로가기 버튼만)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 뒤로가기 버튼
             IconButton(onClick = onClose) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    painter = painterResource(id = R.drawable.ic_chevron_left),
                     contentDescription = "뒤로가기",
                     tint = AppColors.PrimaryDarkText
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // 메인 입력 박스 (통합된 스트로크)
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+        // 2. 입력 박스 (출발/도착지)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                // 왼쪽: 교체 아이콘 (Swap)
+                IconButton(
+                    onClick = { /* TODO: 출발/도착지 교체 로직 구현 필요 */ },
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
-                    // 왼쪽: 출발/도착 입력칸 컬럼
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        // 출발지 입력 행
-                        LocationInputRowWithIcon(
-                            place = startLocation,
-                            placeholder = "출발",
-                            iconResId = R.drawable.ic_start_dot,
-                            iconTint = Color(0xFF4A90E2), // 파란색
-                            onSelect = { onLocationClick(true) }
-                        )
-
-                        // 구분선
-                        Divider(
-                            color = Color(0xFFE0E0E0),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        )
-
-                        // 도착지 입력 행
-                        LocationInputRowWithIcon(
-                            place = endLocation,
-                            placeholder = "도착",
-                            iconResId = R.drawable.ic_end_dot,
-                            iconTint = Color(0xFFE25B4A), // 빨간색
-                            onSelect = { onLocationClick(false) }
-                        )
-                    }
-
-                    // 오른쪽: 교체 아이콘 (Swap)
-                    IconButton(
-                        onClick = { /* TODO: 출발/도착지 교체 로직 구현 필요 */ },
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_swap),
-                            contentDescription = "출발/도착 교체",
-                            tint = MediumGray,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_swap),
+                        contentDescription = "출발/도착 교체",
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
+
+                // 중앙: 출발/도착 입력칸 컬럼
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    // 출발지 입력 행
+                    LocationInputRowWithIcon(
+                        place = startLocation,
+                        placeholder = "출발",
+                        iconResId = R.drawable.ic_start_dot,
+                        // 💡 [수정] 현재 출발지를 선택 중인지(isSelectingStart == true) 전달
+                        isActive = isSelectingStart,
+                        onSelect = { onLocationClick(true) }
+                    )
+
+                    // 구분선
+                    Divider(
+                        color = Color(0xFFE0E0E0),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+
+                    // 도착지 입력 행
+                    LocationInputRowWithIcon(
+                        place = endLocation,
+                        placeholder = "도착",
+                        iconResId = R.drawable.ic_end_dot,
+                        // 💡 [수정] 현재 도착지를 선택 중인지(isSelectingStart == false) 전달
+                        isActive = !isSelectingStart,
+                        onSelect = { onLocationClick(false) }
+                    )
+                }
+            }
+
+            // 우측 상단: X 버튼 (Clear)
+            IconButton(
+                onClick = onClear,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "지우기",
+                    tint = MediumGray,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
 
-        // 2. 하단 태그 (집/회사) - 디자인 유지
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 3. 하단 태그 (집/회사)
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -130,7 +145,7 @@ fun LocationInputRowWithIcon(
     place: RouteLocation?,
     placeholder: String,
     iconResId: Int,
-    iconTint: Color,
+    isActive: Boolean,
     onSelect: () -> Unit
 ) {
     Row(
@@ -142,10 +157,9 @@ fun LocationInputRowWithIcon(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 아이콘
-        Icon(
+        Image(
             painter = painterResource(id = iconResId),
             contentDescription = null,
-            tint = iconTint,
             modifier = Modifier.size(12.dp)
         )
 
@@ -162,34 +176,39 @@ fun LocationInputRowWithIcon(
         } else {
             Text(
                 text = placeholder,
-                color = MediumGray, // 플레이스홀더 색상
+                color = MediumGray,
                 fontSize = 16.sp
             )
         }
     }
 }
 
-// HomeCompanyTag는 기존과 동일하게 유지
 @Composable
 fun HomeCompanyTag(label: String, iconResId: Int) {
-    Row(
-        modifier = Modifier
-            .background(Color(0xFFF5F5F5), RoundedCornerShape(16.dp))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        modifier = Modifier,
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White,
+        shadowElevation = 4.dp  // 그림자 추가
     ) {
-        Icon(
-            painter = painterResource(id = iconResId),
-            contentDescription = label,
-            tint = MediumGray,
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(
-            text = label,
-            color = AppColors.PrimaryDarkText,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
-        )
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = label,
+                tint = AppColors.AccentColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = label,
+                color = AppColors.PrimaryDarkText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
