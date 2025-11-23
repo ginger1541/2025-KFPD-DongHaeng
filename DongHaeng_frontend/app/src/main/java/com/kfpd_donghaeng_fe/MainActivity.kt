@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
+import com.kfpd_donghaeng_fe.ui.chat.ChatDetailScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.Request
@@ -194,6 +195,19 @@ class MainActivity : ComponentActivity() {
                                     // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
                                     navController.navigateToReviewScreen()
                                 }
+                            )
+                        }
+
+                        // 채팅 상세 화면 경로 추가
+                        composable(
+                            route = "chat_detail/{chatRoomId}",
+                            arguments = listOf(navArgument("chatRoomId") { type = NavType.LongType })
+                        ) { backStackEntry ->
+                            val chatRoomId = backStackEntry.arguments?.getLong("chatRoomId") ?: 0L
+
+                            ChatDetailScreen(
+                                chatRoomId = chatRoomId,
+                                onBackClick = { navController.popBackStack() } // 뒤로가기
                             )
                         }
 

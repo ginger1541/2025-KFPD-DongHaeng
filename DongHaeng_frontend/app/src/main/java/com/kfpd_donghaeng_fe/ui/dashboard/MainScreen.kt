@@ -7,6 +7,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,18 +24,19 @@ import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
-import com.kfpd_donghaeng_fe.ui.theme.BrandOrange
-import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
-import com.kfpd_donghaeng_fe.ui.theme.MediumGray
 import com.kfpd_donghaeng_fe.util.navigateToNewSearchFlow
 import com.kfpd_donghaeng_fe.util.navigateToRequestDetail
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+import com.kfpd_donghaeng_fe.ui.chat.ChatListScreen
+import com.kfpd_donghaeng_fe.ui.theme.*
+
 
 /**
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
@@ -99,7 +102,9 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
             // '채팅' 화면
             composable("chat") {
-                ChattingScreen()
+                ChatListScreen(
+                    navController = mainNavController
+                )
             }
 
             // '프로필' 화면
@@ -108,6 +113,11 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
             }
         }
     }
+}
+
+@Composable
+fun HomeScreen(userType: UserType, navController: NavHostController) {
+    TODO("Not yet implemented")
 }
 
 /**
@@ -166,6 +176,7 @@ private data class BottomNavItem(
     val label: String
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
