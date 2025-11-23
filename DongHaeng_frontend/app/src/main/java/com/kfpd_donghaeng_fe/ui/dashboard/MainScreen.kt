@@ -2,11 +2,21 @@ package com.kfpd_donghaeng_fe.ui.dashboard
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color // Bar 배경색 상용
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-/*----------ongoing import ------------*/
-//import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
-// 💡 필요한 import 구문들을 추가합니다.
-import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.ui.theme.*
 
 
 /**
@@ -49,14 +59,16 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 )
             }
 
-            // '동행(미션)' 화면
-            composable("mission") {
-                OngoingScreen(
-                    onNavigateToReview = {
-                        // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
-                        bottomNavController.navigateToReviewScreen()
-                    }
+            // '예약 확인' 화면
+            composable("matching") {
+                ScheduleScreen(
+                    navController = mainNavController,
                 )
+            }
+
+            // '채팅' 화면
+            composable("chat") {
+                ChattingScreen()
             }
 
             // '프로필' 화면
@@ -66,12 +78,6 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
         }
     }
 }
-
-/**
- * 하단 네비게이션 바 Composable
- */
-
-
 
 /**
  * 하단 네비게이션 바 Composable
@@ -88,7 +94,8 @@ private fun BottomNavBar(
     // 2. 하단바 아이템 리스트 정의
     val navItems = listOf(
         BottomNavItem("home", R.drawable.ic_home, "홈"),
-        BottomNavItem("mission", R.drawable.ic_logo_gray, "동행"),
+        BottomNavItem("matching", R.drawable.ic_logo_gray, "동행"),
+        BottomNavItem("chat", R.drawable.ic_chat, "채팅"),
         BottomNavItem("profile", R.drawable.ic_user, "내정보")
     )
 
@@ -115,10 +122,8 @@ private fun BottomNavBar(
                     selectedIconColor = BrandOrange,
                     selectedTextColor = BrandOrange,
 
-
                     unselectedIconColor = MediumGray,
                     unselectedTextColor = MediumGray,
-
 
                     indicatorColor = BrandOrange.copy(alpha = 0.1f)
                 )
@@ -134,5 +139,13 @@ private data class BottomNavItem(
     val label: String
 )
 
-
-
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    KFPD_DongHaeng_FETheme {
+        MainScreen(
+            userType = UserType.NEEDY,
+            mainNavController = rememberNavController()
+        )
+    }
+}

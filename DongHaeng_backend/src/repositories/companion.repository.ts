@@ -13,6 +13,8 @@ export const createRequest = async (data: {
   startAddress: string;
   destinationAddress: string;
   estimatedMinutes: number;
+  scheduledAt: Date; // PDF 요구사항 1-1
+  route: any | null; // PDF 요구사항 1-2
 }) => {
   return prisma.companionRequest.create({
     data: {
@@ -24,6 +26,8 @@ export const createRequest = async (data: {
       startAddress: data.startAddress,
       destinationAddress: data.destinationAddress,
       estimatedMinutes: data.estimatedMinutes,
+      scheduledAt: data.scheduledAt,
+      route: data.route,
       status: 'pending',
       expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2시간 후 만료
     },

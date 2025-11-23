@@ -111,6 +111,11 @@ model CompanionRequest {
   startAddress       String             @map("start_address") @db.VarChar(500)
   destinationAddress String             @map("destination_address") @db.VarChar(500)
   estimatedMinutes   Int                @map("estimated_minutes")
+  // PDF 요구사항 1-1: 동행 예약 일시 (필수)
+  scheduledAt        DateTime           @map("scheduled_at")
+  // PDF 요구사항 1-2: 경로 정보 (선택)
+  // JSON: { coord_type, total_distance_meters, total_duration_seconds, estimated_price, points[] }
+  route              Json?
   status             RequestStatus      @default(pending)
   viewCount          Int                @default(0) @map("view_count")
   requestedAt        DateTime           @default(now()) @map("requested_at")
@@ -125,6 +130,7 @@ model CompanionRequest {
   @@index([requesterId], map: "idx_requester_id")
   @@index([status], map: "idx_status")
   @@index([requestedAt(sort: Desc)], map: "idx_requested_at")
+  @@index([scheduledAt(sort: Asc)], map: "idx_scheduled_at")
   // @@index([startLocation], map: "idx_start_location", type: Spatial) - 수동 추가 필요
   @@map("companion_requests")
 }

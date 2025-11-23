@@ -5,6 +5,7 @@ import companionRoutes from './companion.routes';
 import matchRoutes from './match.routes';
 import reviewRoutes from './review.routes';
 import notificationRoutes from './notification.routes';
+import chatRoutes from './chat.routes'; // PDF 요구사항: 채팅 라우트
 
 const router = Router();
 
@@ -38,5 +39,8 @@ router.use('/reviews', reviewRoutes);
 
 // Notification 라우트
 router.use('/notifications', notificationRoutes);
+
+// Chat 라우트 (PDF 요구사항: 채팅 API)
+router.use('/chat-rooms', chatRoutes);
 
 export default router;
