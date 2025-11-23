@@ -24,13 +24,12 @@ import com.kfpd_donghaeng_fe.ui.theme.AppColors
 // PaymentContent - Mockup image_b268c2.jpg의 하단 시트 + 예약 완료 팝업
 @Composable
 fun PaymentContent(
-    onConfirm: () -> Unit,
+    onPaymentClick: () -> Unit,
     onEdit: () -> Unit,
     modifier: Modifier = Modifier,
     estimatedPrice: String = "6,000원", // TODO: ViewModel에서 계산된 값 사용
     points: Int = 0
 ) {
-    var showCompletionDialog by remember { mutableStateOf(false) } // State for popup
 
     Column(
         modifier = modifier
@@ -118,7 +117,7 @@ fun PaymentContent(
             }
 
             Button(
-                onClick = { showCompletionDialog = true }, // 💡 팝업 띄우기
+                onClick = onPaymentClick,
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AppColors.AccentOrange),
                 modifier = Modifier.weight(1f).height(56.dp)
@@ -128,21 +127,6 @@ fun PaymentContent(
         }
     }
 
-    // 5. 예약 완료 팝업 (CommonDialog 사용)
-    if (showCompletionDialog) {
-        CommonDialog(
-            title = "예약 완료",
-            message = "동행 예약이 완료되었습니다.\n근처 동행자에게 알림 메시지를 보냅니다.\n\n" +
-                    "// TODO: 요청 생성 및 채팅방 생성 API 호출 (현재 주석 처리)\n" + // 💡 서버 API TODO 추가
-                    "[확인] 버튼을 누르면 홈 화면으로 이동합니다.", // 💡 텍스트 수정: 홈 화면으로 이동
-            onDismiss = {
-                showCompletionDialog = false
-                onConfirm() // 팝업 닫고 최종 완료 액션 실행 (Home으로 이동 요청)
-            },
-            cancelText = "확인",
-            onConfirm = null
-        )
-    }
 }
 
 @Composable

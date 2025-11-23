@@ -70,8 +70,8 @@ fun MatchingScreen(
     )
 
     LaunchedEffect(Unit) {
-        // startSearch=true이면 즉시 BOOKING Phase로 전환
-        if (startSearch) {
+        // NEEDY인 경우 바로 BOOKING 모드로 진입
+        if (userType == UserType.NEEDY) {
             matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
         }
     }
@@ -86,16 +86,15 @@ fun MatchingScreen(
 
     // 💡 MainRouteScreen이 지도와 하단 시트 모두를 관리하므로,
     //    BOOKING/SERVICE_TYPE 등의 경로 설정 플로우는 MainRouteScreen이 Full Screen으로 덮습니다.
-    if (userType == UserType.NEEDY && (currentPhase != MatchingPhase.OVERVIEW)) {
+    if (userType == UserType.NEEDY) {
         MainRouteScreen(
+            // 💡 [핵심 수정] startSearch 값을 MainRouteScreen으로 전달
+            startSearch = startSearch,
+
             onClose = matchingViewModel::navigateToOverview,
             onNavToHome = {
-                // 💡 최종 예약 완료 후 Home 화면으로 이동 (MatchingScreen을 스택에서 제거)
                 val homeRoute = AppScreens.HOME_ROUTE.replace("{userType}", userType.name)
-
-                // MatchingScreen을 pop하고 Home으로 이동
                 navController.navigate(homeRoute) {
-                    // 현재 스택의 MATCHING_ROUTE를 pop하여 제거
                     popUpTo(AppScreens.MATCHING_ROUTE.replace("{userType}", userType.name)) {
                         inclusive = true
                     }

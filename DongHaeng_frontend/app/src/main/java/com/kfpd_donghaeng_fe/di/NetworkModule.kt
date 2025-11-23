@@ -51,6 +51,7 @@ object NetworkModule {
 //    }
 
     private const val KAKAO_BASE_URL = "https://dapi.kakao.com/"
+    private const val SK_ROUTE_BASE_URL = "https://apis.openapi.sk.com/"
 
     @Provides
     @Singleton
@@ -101,8 +102,19 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSKRouteApiService(retrofit: Retrofit): SKRouteApiService {
-        // Retrofit 인스턴스를 사용하여 Service 인터페이스 구현체를 생성
+    @Named("sk_route")
+    fun provideSkRouteRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(SK_ROUTE_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSKRouteApiService(
+        @Named("sk_route") retrofit: Retrofit
+    ): SKRouteApiService {
         return retrofit.create(SKRouteApiService::class.java)
     }
 

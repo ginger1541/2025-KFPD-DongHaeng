@@ -1,11 +1,13 @@
 package com.kfpd_donghaeng_fe.ui.matching.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
@@ -42,7 +44,7 @@ fun PlaceSearchScreen(
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchHistories by viewModel.searchHistories.collectAsState()
-
+    var selectedPlaceForDetail by remember { mutableStateOf<PlaceSearchResult?>(null) }
     // 💡 이미지와 동일하게 Full Screen Search UI 구성
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
 
@@ -62,35 +64,75 @@ fun PlaceSearchScreen(
                     tint = AppColors.PrimaryDarkText
                 )
             }
-            // 검색 입력 필드 (디자인과 달리 TextField로 구현)
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .height(40.dp)
             ) {
-                OutlinedTextField(
+                BasicTextField(
                     value = searchQuery,
                     onValueChange = viewModel::updateSearchQuery,
-                    placeholder = { Text("장소, 버스, 지하철, 주소 검색", fontSize = 16.sp) },
-                    modifier = Modifier.fillMaxSize(),
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = viewModel::clearSearchQuery) {
-                                Icon(Icons.Default.Clear, contentDescription = "지우기")
-                            }
-                        } else {
-                            // 💡 검색 아이콘 (이미지에는 없음)
-                            Icon(Icons.Default.Search, contentDescription = "검색")
-                        }
-                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // 1. 배경 및 테두리 설정 (OutlinedTextField 스타일 흉내)
+                        .background(
+                            color = AppColors.LightGray.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            // 포커스/입력 유무에 따른 색상 처리 (필요시 isFocused 상태 추가 관리 가능)
+                            color = if (searchQuery.isNotEmpty()) AppColors.AccentColor else Color(0xFFE0E0E0),
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontSize = 16.sp,
+                        color = AppColors.PrimaryDarkText
+                    ),
                     singleLine = true,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = AppColors.AccentColor,
-                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                        focusedContainerColor = AppColors.LightGray.copy(alpha = 0.5f),
-                        unfocusedContainerColor = AppColors.LightGray.copy(alpha = 0.5f),
-                    )
+                    // 2. 내부 장식 (Placeholder, 아이콘, 텍스트 배치)
+                    decorationBox = { innerTextField ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp), // 좌우 여백
+                            verticalAlignment = Alignment.CenterVertically // 수직 중앙 정렬 (핵심!)
+                        ) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                // Placeholder
+                                if (searchQuery.isEmpty()) {
+                                    Text(
+                                        text = "장소, 버스, 지하철, 주소 검색",
+                                        fontSize = 16.sp,
+                                        color = Color.Gray
+                                    )
+                                }
+                                // 실제 입력 필드
+                                innerTextField()
+                            }
+
+                            // Trailing Icon (검색/삭제 아이콘)
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(
+                                    onClick = viewModel::clearSearchQuery,
+                                    modifier = Modifier.size(20.dp) // 아이콘 버튼 크기 조절
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "지우기",
+                                        tint = AppColors.SecondaryText
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "검색",
+                                    tint = AppColors.SecondaryText,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
                 )
             }
 
@@ -116,7 +158,7 @@ fun PlaceSearchScreen(
 
             // 검색 결과 또는 히스토리
             if (searchQuery.isBlank()) {
-                // 히스토리 표시 (이미지 image_b268c1.png)
+                // 히스토리 표시
                 if (searchHistories.isNotEmpty()) {
                     Text(
                         text = "최근 검색",
@@ -124,15 +166,13 @@ fun PlaceSearchScreen(
                         color = AppColors.SecondaryText,
                         modifier = Modifier.padding(horizontal = 0.dp, vertical = 8.dp)
                     )
-                    // TODO: 히스토리 리스트 구현 (현재는 PlaceItem 재사용)
                     LazyColumn {
                         items(searchHistories) { place ->
                             PlaceItem(
                                 place = place,
                                 onClick = {
-                                    // 히스토리 항목 클릭 시, 해당 장소를 선택하고 검색창을 지웁니다.
-                                    onPlaceSelected(place)
-                                    viewModel.clearSearchQuery()
+                                    // 💡 [수정] 히스토리 항목 클릭 시 상세 모달을 띄웁니다.
+                                    selectedPlaceForDetail = place
                                 }
                             )
                         }
@@ -145,14 +185,13 @@ fun PlaceSearchScreen(
                 } else if (searchResults.isEmpty()) {
                     // ... 결과 없음
                 } else {
-                    // 검색 결과 리스트 (이미지 image_b268c1.png의 하단 리스트)
+                    // 검색 결과 리스트
                     LazyColumn {
                         items(searchResults) { place ->
                             PlaceItem(
                                 place = place,
                                 onClick = {
-                                    viewModel.addToHistory(place)
-                                    onPlaceSelected(place)
+                                    selectedPlaceForDetail = place
                                 }
                             )
                         }
@@ -160,6 +199,30 @@ fun PlaceSearchScreen(
                 }
             }
         }
+    }
+
+    // ==========================================================
+    // 💡 [추가] PlaceDetailModal 렌더링 로직
+    // ==========================================================
+    selectedPlaceForDetail?.let { place ->
+        PlaceDetailModal(
+            place = place,
+            onBack = { selectedPlaceForDetail = null }, // 모달 닫기
+            onSelectAsStart = { routeLocation ->
+                // 출발지로 선택: ViewModel에 저장 후, 검색 화면 전체 닫기
+                viewModel.addToHistory(place)
+                onPlaceSelected(routeLocation.toPlaceSearchResult()) // MainRouteScreen으로 선택된 장소 전달
+                // 💡 [핵심 수정] 상세 모달을 닫는 대신, MainRouteScreen이 다음 플로우를 진행할 수 있도록 콜백을 호출합니다.
+                // PlaceSearchScreen은 MainRouteScreen에 의해 제어되므로, onBack()을 호출하여 PlaceSearchScreen을 닫고 MainRouteScreen으로 돌아갑니다.
+                onBackPressed()
+            },
+            onSelectAsEnd = { routeLocation ->
+                // 도착지로 선택: ViewModel에 저장 후, 검색 화면 전체 닫기
+                viewModel.addToHistory(place)
+                onPlaceSelected(routeLocation.toPlaceSearchResult())
+                onBackPressed()
+            }
+        )
     }
 }
 

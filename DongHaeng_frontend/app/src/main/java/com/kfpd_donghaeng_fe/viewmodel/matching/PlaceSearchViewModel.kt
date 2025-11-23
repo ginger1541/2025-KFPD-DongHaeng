@@ -89,15 +89,25 @@ class PlaceSearchViewModel @Inject constructor(
 
     fun addToHistory(place: PlaceSearchResult) {
         val currentHistories = _searchHistories.value.toMutableList()
-        // 중복 제거
+
+        // 1. 중복 제거
         currentHistories.removeAll { it.placeName == place.placeName }
-        // 최신 항목을 맨 앞에 추가
+
+        // 2. 최신 항목을 맨 앞에 추가
         currentHistories.add(0, place)
-        // 최대 10개만 유지
+
+        // 3. 최대 10개만 유지
         if (currentHistories.size > 10) {
             currentHistories.removeAt(currentHistories.size - 1)
         }
-        _searchHistories.value = currentHistories // StateFlow 업데이트 -> collect 로직이 DataStore에 저장
+
+        // 4. 화면 상태 업데이트 (즉시 반영)
+        _searchHistories.value = currentHistories
+
+        // 5. 💾 [핵심 추가] DataStore에 영구 저장!
+        viewModelScope.launch {
+            historyRepository.saveHistories(currentHistories)
+        }
     }
 
     fun clearSearchQuery() {

@@ -1,6 +1,8 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -25,9 +27,6 @@ import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.theme.*
 /*----------ongoing import ------------*/
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
-// 💡 필요한 import 구문들을 추가합니다.
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.ui.graphics.Color // 💡 Bar 배경색상용
 import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
 import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
 import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
@@ -44,6 +43,7 @@ import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
@@ -73,14 +73,27 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
             modifier = Modifier.padding(innerPadding) // Scaffold의 패딩 적용
         ) {
 
-            // '홈' 화면 (여기서 최종적으로 수정합니다.)
             composable("home") {
+                // Hilt ViewModel은 자동으로 주입됩니다.
 
-                // 💡 이제 이 블록 안에서 userType과 mainNavController를 사용할 수 있습니다.
-                // 이전의 HomeScreen 호출 대신 MatchingHomeRoute를 호출합니다.
                 MatchingHomeRoute(
-                    userType = userType,
-                    navController = mainNavController,
+                    userType = userType, // 상위 MainScreen의 userType 인자 사용
+
+                    // 💡 FIX: 검색 바 클릭 시 레거시 화면을 건너뛰고 새 검색 플로우로 바로 이동합니다.
+                    onNavigateToSearch = { userTypeForSearch ->
+                        mainNavController.navigateToNewSearchFlow(userTypeForSearch)
+                    },
+
+                    // TODO: 위치 변경 화면으로 이동 로직 구현
+                    onNavigateToChangeLocation = {
+                        // (예: 지도에서 위치 설정 화면으로 이동)
+                        // mainNavController.navigateToChangeLocation()
+                    },
+
+                    // 최근 동행 내역 또는 주변 요청 항목 클릭 시 상세 화면으로 이동
+                    onNavigateToRequestDetail = { requestId ->
+                        mainNavController.navigateToRequestDetail(requestId)
+                    }
                 )
             }
 //            // '홈' 화면
@@ -91,13 +104,9 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 //                )
 //            }
 
-            // '동행(미션)' 화면
-            composable("mission") {
-                OngoingScreen(
-                    onNavigateToReview = {
-                        // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
-                        bottomNavController.navigateToReviewScreen()
-                    }
+            composable("matching") {
+                ScheduleScreen(
+                    navController = mainNavController,
                 )
             }
 

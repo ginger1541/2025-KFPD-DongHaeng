@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.repository.RouteRepository // <-- 인터페이스로 변경
 import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 import com.kfpd_donghaeng_fe.domain.entity.WalkingRoute
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * 지도 화면의 UI 상태를 정의하는 데이터 클래스.
@@ -27,7 +29,9 @@ data class MapUiState(
  * 지도 화면의 비즈니스 로직과 데이터 흐름을 관리하는 ViewModel.
  * RouteRepository 인터페이스에 의존합니다.
  */
-class MapViewModel(
+
+@HiltViewModel
+class MapViewModel @Inject constructor(
     private val routeRepository: RouteRepository
 ) : ViewModel() {
 

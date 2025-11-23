@@ -47,71 +47,87 @@ fun KakaoMapView(
     modifier: Modifier = Modifier,
     locationX: Double,
     locationY: Double,
+    route: WalkingRoute? = null,
     enabled: Boolean = true, // ← 추가
 ) {
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
-    var kakaoMap: KakaoMap? by remember { mutableStateOf(null) }
-
     // 지도 요소 관리 상태
     val labelManager = remember { mutableStateOf<LabelManager?>(null) }
-    var currentPolyline by remember { mutableStateOf<Polyline?>(null) }
     var currentMarkers by remember { mutableStateOf<List<Label>>(emptyList()) }
+    var kakaoMapState by remember { mutableStateOf<KakaoMap?>(null) }
+    var currentPolyline by remember { mutableStateOf<Polyline?>(null) }
+    var lastRoute by remember { mutableStateOf<WalkingRoute?>(null) }
+    var isInitialMoveDone by remember { mutableStateOf(false) }
 
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = {
-            if (enabled) {
-                mapView.start(
+            mapView.apply {
+                start(
                     object : MapLifeCycleCallback() {
                         override fun onMapDestroy() {}
                         override fun onMapError(exception: Exception?) {
-                            Log.e("KakaoMapDebug", "Map error: ${exception?.message}")
+                            Log.e("KakaoMap", "Error: ${exception?.message}")
                         }
                     },
                     object : KakaoMapReadyCallback() {
                         override fun onMapReady(map: KakaoMap) {
-                            // 1) 좌표들
-                            val waypoints = listOf(
-                                LatLng.from(37.56369, 126.97558), // 시청역
-                                LatLng.from(37.56580, 126.97472), // 덕수궁
-                                LatLng.from(37.56531, 126.97695), // 서울광장
-                                LatLng.from(37.56629, 126.98223), // 을지로입구
-                                LatLng.from(37.56336, 126.98779)  // 명동성당
-                            )
-
-                            val mapPoints = MapPoints.fromLatLng(waypoints)
-
-                            val styleZoomClose   = PolylineStyle.from(8F, Color.RED)   // 줌인 시 굵게
-                            val styleZoomDefault = PolylineStyle.from(6F, Color.RED)
-
-                            val options = PolylineOptions.from(mapPoints, styleZoomClose, styleZoomDefault)
-
-                            val layer = map.getShapeManager()?.getLayer()
-//                            val polyline = layer?.addPolyline(options)
-
-                            val center = LatLng.from(
-                                waypoints.map { it.latitude }.average(),
-                                waypoints.map { it.longitude }.average()
-                            )
-                            map.moveCamera(CameraUpdateFactory.newCenterPosition(center))
-                            map.moveCamera(CameraUpdateFactory.zoomTo(15)) // zoomTo는 Float 파라미터
+                            kakaoMapState = map
+                            // 지도 로드 직후에는 기본 위치로 한 번만 이동
+                            val position = LatLng.from(locationY, locationX)
+                            map.moveCamera(CameraUpdateFactory.newCenterPosition(position))
+                            map.moveCamera(CameraUpdateFactory.zoomTo(15))
                         }
-
-
-
-                        override fun getPosition(): LatLng = LatLng.from(locationY, locationX)
                     }
                 )
             }
-            mapView
         },
-        update = {
+        update = { view ->
             if (enabled) {
-                val target = LatLng.from(locationY, locationX)
-                kakaoMap?.moveCamera(CameraUpdateFactory.newCenterPosition(target))
+                kakaoMapState?.let { map ->
+                    // 1. 경로가 없을 때 초기 위치 이동 (딱 한 번만 수행하여 사용자 조작 허용)
+                    if (route == null && !isInitialMoveDone) {
+                        val target = LatLng.from(locationY, locationX)
+                        map.moveCamera(CameraUpdateFactory.newCenterPosition(target))
+                        isInitialMoveDone = true
+                    }
+
+                    // 2. 경로 그리기 (데이터가 변경되었을 때만 실행)
+                    if (route != lastRoute) {
+                        lastRoute = route // 변경 사항 반영
+
+                        // 기존 경로 삭제
+                        currentPolyline?.let {
+                            map.shapeManager?.layer?.remove(it)
+                            currentPolyline = null
+                        }
+
+                        // 새 경로 그리기
+                        if (route != null && route.points.isNotEmpty()) {
+                            val latLngs = route.points.map { point ->
+                                LatLng.from(point.latitude, point.longitude)
+                            }
+
+                            val style = PolylineStyle.from(20f, Color.parseColor("#FF8216")) // 두께와 색상
+                            val options = PolylineOptions.from(
+                                MapPoints.fromLatLng(latLngs),
+                                style
+                            )
+
+                            // 레이어에 추가
+                            currentPolyline = map.shapeManager?.layer?.addPolyline(options)
+
+                            // 🚀 [수정] 카메라를 경로 전체가 보이도록 이동 (List -> Array 변환)
+                            // 패딩(100)을 주어 경로가 화면에 꽉 차게 보이도록 설정
+                            map.moveCamera(
+                                CameraUpdateFactory.fitMapPoints(latLngs.toTypedArray(), 100)
+                            )
+                        }
+                    }
+                }
             }
-        },
+        }
     )
 }
 
