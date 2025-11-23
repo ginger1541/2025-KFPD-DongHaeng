@@ -8,11 +8,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.LoginRoute
 import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
 import com.kfpd_donghaeng_fe.ui.auth.onboarding.OnboardingScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
-import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 

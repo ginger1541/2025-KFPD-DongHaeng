@@ -23,12 +23,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.auth.MakeAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
+
 
 @Composable
-fun SingInScreen_4( uiState: MakeAccountUiState,
-                    onNextClick: () -> Unit,
+fun SingInScreen_4(uiState: MakeAccountUiState,
+                   onNextClick: () -> Unit,
                    ){
     Box(
         modifier = Modifier

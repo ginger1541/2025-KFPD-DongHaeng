@@ -20,13 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
+
 
 //TODO: 전역 mainorange -> color.kt 로 변환하기 111 줄 텍스트 클릭시 넘어가기
 

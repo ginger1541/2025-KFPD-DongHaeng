@@ -3,7 +3,6 @@ package com.kfpd_donghaeng_fe.ui.auth.signin
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.auth.MakeAccountUiState
 import com.kfpd_donghaeng_fe.ui.theme.BrandOrange
 import com.kfpd_donghaeng_fe.ui.theme.DarkGray
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
+
 
 
 var toptext="장애인증 인증 안내"

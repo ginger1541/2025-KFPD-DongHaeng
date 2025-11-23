@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kfpd_donghaeng_fe.domain.entity.auth.MakeAccountUiState
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.auth.signin.CertificateVerificationSheetUI
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignInScreen_2
 import com.kfpd_donghaeng_fe.ui.auth.signin.SignInScreen_3
@@ -15,9 +17,7 @@ import com.kfpd_donghaeng_fe.ui.auth.signin.SignIngScreen_0
 import com.kfpd_donghaeng_fe.ui.auth.signin.SingInScreen_4
 import com.kfpd_donghaeng_fe.ui.auth.signin.UserInfoScreen
 import com.kfpd_donghaeng_fe.ui.auth.signin.UserTypePage
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
 import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountViewModel
-import com.kfpd_donghaeng_fe.viewmodel.auth.UserInfoUiState
 
 // ⭐ UserType enum 클래스도 임포트해야 합니다.
 

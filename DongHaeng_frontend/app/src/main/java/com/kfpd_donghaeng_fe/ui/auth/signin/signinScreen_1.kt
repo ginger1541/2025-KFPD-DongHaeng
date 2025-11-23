@@ -1,6 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.auth.signin
 
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,9 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.kfpd_donghaeng_fe.R
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.domain.entity.auth.MakeAccountUiState
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.theme.* // 테마 및 색상 import (BrandOrange, TextBlack 등)
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
+
 
 /** 페이지 3: 사용자 유형 Composable */
 @Composable

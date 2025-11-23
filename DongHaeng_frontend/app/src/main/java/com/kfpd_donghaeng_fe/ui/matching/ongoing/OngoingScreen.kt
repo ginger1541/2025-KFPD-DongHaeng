@@ -22,7 +22,6 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
-import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingState
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
 

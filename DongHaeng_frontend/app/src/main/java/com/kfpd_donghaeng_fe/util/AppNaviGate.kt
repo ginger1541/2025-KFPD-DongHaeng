@@ -1,9 +1,13 @@
 package com.kfpd_donghaeng_fe.util
 
 import androidx.navigation.NavController
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+
 import android.util.Log
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+
 // 모든 화면 경로를 여기에 정의
+
+
 object AppScreens {
     // Auth Flow
     const val SIGN_UP = "signup"

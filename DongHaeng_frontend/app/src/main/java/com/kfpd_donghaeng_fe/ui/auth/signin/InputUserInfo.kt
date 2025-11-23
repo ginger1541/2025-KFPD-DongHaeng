@@ -1,9 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.auth.signin
 
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -28,7 +24,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
@@ -42,11 +37,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kfpd_donghaeng_fe.R // R.drawable.ic_logo_orange 사용을 위해 필요
-import com.kfpd_donghaeng_fe.viewmodel.auth.UserInfoUiState
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserInfoUiState
+
 
 // UI 상태 정의 (새로운 요구사항 반영)
 
@@ -104,12 +99,12 @@ fun UserInfoScreen(
 
         // --- 2. ID 입력 필드 ---
         UserInfoInputField(
-            label = "아이디*",
+            label = "이메일*",
             value = uiState.userId,
             onValueChange = onUserIdChange,
-            placeholder = "아이디를 입력해주세요",
+            placeholder = "아메일를 입력해주세요",
             errorMessage = uiState.userIdError,
-            keyboardType = KeyboardType.Text // 한글 입력 가능 (ID에 따라 Text 또는 Ascii 설정)
+            keyboardType = KeyboardType.Email // 한글 입력 가능 (ID에 따라 Text 또는 Ascii 설정)
         )
         Spacer(modifier = Modifier.height(24.dp))
 

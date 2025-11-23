@@ -1,15 +1,13 @@
 package com.kfpd_donghaeng_fe.viewmodel.matching
 import androidx.lifecycle.ViewModel
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.domain.entity.matching.MatchingState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
 
-data class MatchingState(
-    val OngoingPage : Int =0
-)
+
 
 class OngoingViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(MatchingState())

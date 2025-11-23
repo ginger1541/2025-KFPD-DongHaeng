@@ -1,32 +1,12 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.kfpd_donghaeng_fe.R
-import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.theme.*
 /*----------ongoing import ------------*/
 //import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
 // 💡 필요한 import 구문들을 추가합니다.
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.ui.graphics.Color // 💡 Bar 배경색상용
-import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
-import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 
 
 /**

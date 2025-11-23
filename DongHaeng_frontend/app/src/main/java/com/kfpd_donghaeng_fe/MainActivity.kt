@@ -19,8 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.kfpd_donghaeng_fe.ui.auth.SignUpScreen
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import androidx.navigation.NavHostController

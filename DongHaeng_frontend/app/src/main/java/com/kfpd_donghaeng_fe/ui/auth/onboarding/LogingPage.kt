@@ -31,11 +31,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-import com.kfpd_donghaeng_fe.viewmodel.auth.LoginAccountUiState
+
 
 
 //TODO: 109 줄 oncick 이벤트 해결

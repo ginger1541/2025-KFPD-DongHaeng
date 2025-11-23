@@ -21,16 +21,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kfpd_donghaeng_fe.domain.entity.auth.MakeAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.LoginPageButton
 
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-import com.kfpd_donghaeng_fe.viewmodel.auth.MakeAccountUiState
+
 
 @Composable
-fun SignIngScreen_0( uiState: MakeAccountUiState,
-                     onNextClick: () -> Unit,
+fun SignIngScreen_0(uiState: MakeAccountUiState,
+                    onNextClick: () -> Unit,
                     ){
 
     Box(
