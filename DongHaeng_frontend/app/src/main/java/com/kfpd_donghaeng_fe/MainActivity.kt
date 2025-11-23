@@ -130,10 +130,17 @@ class MainActivity : ComponentActivity() {
                                             popUpTo("login") { inclusive = true }
                                         }
                                     },
-                                    // ✅ [추가] 로그인 성공 시 홈 화면으로 이동!
-                                    onLoginSuccess = {
-                                        // 로그인 스택을 지우고 홈으로 이동 (뒤로가기 방지)
-                                        navController.navigate("home/NEEDY") {
+                                    // ✅ [수정] 서버에서 받은 userType을 앱의 UserType(NEEDY/HELPER)으로 변환하여 이동
+                                    onLoginSuccess = { userTypeString ->
+                                        // 1. 대문자로 변환 및 매핑 ("requester" -> "NEEDY")
+                                        val normalizedType = when (userTypeString.uppercase()) {
+                                            "HELPER" -> "HELPER"
+                                            "REQUESTER", "NEEDY" -> "NEEDY" // 서버가 requester로 보내면 NEEDY로 처리
+                                            else -> "NEEDY" // 알 수 없는 값이면 기본값 NEEDY (또는 에러 처리)
+                                        }
+
+                                        // 2. 변환된 타입으로 홈 화면 이동
+                                        navController.navigate("home/$normalizedType") {
                                             popUpTo("login") { inclusive = true }
                                         }
                                     }
@@ -217,7 +224,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 요청 상세 화면
+                            // 요청자 홈화면 - 요청 상세 화면
                             composable(
                                 route = "companion_request_detail/{requestId}",
                                 arguments = listOf(navArgument("requestId") { type = NavType.LongType })
@@ -227,8 +234,12 @@ class MainActivity : ComponentActivity() {
                                 CompanionRequestDetailScreen(
                                     requestId = requestId,
                                     onBackClick = { navController.popBackStack() },
+
+                                    // ✅ 매칭 성공 시 채팅방으로 이동하는 로직
                                     onMatchSuccess = { chatRoomId ->
+                                        // chatRoomId를 가지고 채팅 상세 화면으로 이동
                                         navController.navigate("chat_detail/$chatRoomId") {
+                                            // 뒤로가기 했을 때 다시 요청 상세 화면이 나오지 않도록 스택 정리
                                             popUpTo("home/HELPER")
                                         }
                                     }

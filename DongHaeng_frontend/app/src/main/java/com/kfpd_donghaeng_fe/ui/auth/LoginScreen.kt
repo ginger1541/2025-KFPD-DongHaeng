@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun LoginRoute(
     // ✅ 부모로부터 메인 화면으로 이동하는 함수를 전달받습니다.
     onNavigateToMakeAccount: () -> Unit,
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (String) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -31,9 +31,9 @@ fun LoginRoute(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.loginEvent.collectLatest { isSuccess ->
-            if (isSuccess) {
-                onLoginSuccess() // 메인 화면으로 이동!
+        viewModel.loginEvent.collectLatest { userType -> // 2️⃣ 변경: userType 수신
+            if (userType.isNotEmpty()) { // 빈 문자열이 아니면 성공으로 간주
+                onLoginSuccess(userType) // 3️⃣ userType 전달
             }
         }
     }

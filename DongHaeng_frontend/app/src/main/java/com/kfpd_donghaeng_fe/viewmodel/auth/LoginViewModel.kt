@@ -26,8 +26,8 @@ class LoginViewModel @Inject constructor(
     // 외부용 (읽기 전용)
     val uiState = _uiState.asStateFlow()
 
-    private val _loginEvent = MutableSharedFlow<Boolean>()
-    val loginEvent: SharedFlow<Boolean> = _loginEvent.asSharedFlow()
+    private val _loginEvent = MutableSharedFlow<String>()
+    val loginEvent: SharedFlow<String> = _loginEvent.asSharedFlow()
 
     fun login() {
         viewModelScope.launch {
@@ -40,22 +40,23 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun MovetoMain(){
+    fun MovetoMain() {
         viewModelScope.launch {
-            try { // 👈 여기에 try 블록을 시작하고
-                val canLogin = checkCanLoginUseCase("requester@test.com", "test1234")
+            try {
+                val loginResult = checkCanLoginUseCase("helper@test.com", "test1234")
 
-                if (canLogin.success) {
-                    // 성공 로직
-                    Log.e("Login", "로그인 성공!")
-                    _loginEvent.emit(true)
+                if (loginResult.success) {
+                    // 2️⃣ 성공 시 UserType 추출 (null이면 기본값 "NEEDY")
+                    // API 응답의 userType이 "HELPER"인지 "helper"인지 확인 필요 (대소문자 주의)
+                    val userType = loginResult.userData.userType ?: "NEEDY"
+
+                    Log.e("Login", "로그인 성공! 타입: $userType")
+                    _loginEvent.emit(userType) // 유저 타입 방출
                 } else {
-                    // 실패 로직
                     Log.e("Login", "로그인 실패!")
                 }
-            } catch (e: Exception) { // 👈 여기에 catch 블록을 추가해야 합니다.
-                // 앱이 꺼지지 않고 여기서 멈춥니다.
-                Log.e("LOGIN_ERROR", "로그인 과정 중 예외 발생: ${e.message}", e) // 👈 여기서 실제 오류를 확인
+            } catch (e: Exception) {
+                Log.e("LOGIN_ERROR", "로그인 과정 중 예외 발생: ${e.message}", e)
             }
         }
     }

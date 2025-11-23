@@ -82,6 +82,7 @@ fun CompanionRequestDetailScreen(
                     RequestDetailContent(
                         data = state.data,
                         onAccept = {
+                            // 뷰모델의 acceptRequest 호출
                             viewModel.acceptRequest(requestId, onMatchSuccess)
                         }
                     )
@@ -285,51 +286,51 @@ fun AcceptBottomBar(price: Int, onAccept: () -> Unit) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true, heightDp = 1200)
-@Composable
-fun PreviewCompanionRequestDetailScreen() {
-    // 1. Mock Requester 정보
-    val mockRequester = com.kfpd_donghaeng_fe.data.remote.dto.RequesterProfileDto(
-        id = 12345,
-        name = "홍길동",
-        profileImageUrl = null,
-        companionScore = 4.5
-    )
-
-    // 2. Mock Route 정보 (경로 좌표 포함)
-    val mockRoute = com.kfpd_donghaeng_fe.data.remote.dto.RouteInfoDto(
-        estimatedPrice = 6000,
-        totalDistanceMeters = 1500,
-        points = listOf(
-            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5665, 126.9780),
-            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5670, 126.9785),
-            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5675, 126.9790)
-        )
-    )
-
-    // 3. Mock 상세 데이터 (DTO)
-    val mockDetailData = com.kfpd_donghaeng_fe.data.remote.dto.CompanionRequestDetailDto(
-        id = 1001,
-        title = "광주 금남로까지 동행 부탁드립니다",
-        description = "제가 휠체어 사이즈가 커서 무거울 수도 있어요. 계단 이동 시 도움이 필요합니다.",
-        startAddress = "서강대학교 인문대학 1호관",
-        destinationAddress = "루프 홍대점",
-        startLatitude = 37.5665,
-        startLongitude = 126.9780,
-        destinationLatitude = 37.5675,
-        destinationLongitude = 126.9790,
-        estimatedMinutes = 20,
-        scheduledAt = java.time.ZonedDateTime.now().plusHours(1).toString(),
-        route = mockRoute,
-        requester = mockRequester
-    )
-
-    // 4. UI 미리보기 (bottomBar 제거, onAccept 파라미터 추가)
-    MaterialTheme {
-        RequestDetailContent(
-            data = mockDetailData,
-            onAccept = {}
-        )
-    }
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, heightDp = 1200)
+//@Composable
+//fun PreviewCompanionRequestDetailScreen() {
+//    // 1. Mock Requester 정보
+//    val mockRequester = com.kfpd_donghaeng_fe.data.remote.dto.RequesterProfileDto(
+//        id = 12345,
+//        name = "홍길동",
+//        profileImageUrl = null,
+//        companionScore = 4.5
+//    )
+//
+//    // 2. Mock Route 정보 (경로 좌표 포함)
+//    val mockRoute = com.kfpd_donghaeng_fe.data.remote.dto.RouteInfoDto(
+//        estimatedPrice = 6000,
+//        totalDistanceMeters = 1500,
+//        points = listOf(
+//            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5665, 126.9780),
+//            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5670, 126.9785),
+//            com.kfpd_donghaeng_fe.data.remote.dto.PointDto(37.5675, 126.9790)
+//        )
+//    )
+//
+//    // 3. Mock 상세 데이터 (DTO)
+//    val mockDetailData = com.kfpd_donghaeng_fe.data.remote.dto.CompanionRequestDetailDto(
+//        id = 1001,
+//        title = "광주 금남로까지 동행 부탁드립니다",
+//        description = "제가 휠체어 사이즈가 커서 무거울 수도 있어요. 계단 이동 시 도움이 필요합니다.",
+//        startAddress = "서강대학교 인문대학 1호관",
+//        destinationAddress = "루프 홍대점",
+//        startLatitude = 37.5665,
+//        startLongitude = 126.9780,
+//        destinationLatitude = 37.5675,
+//        destinationLongitude = 126.9790,
+//        estimatedMinutes = 20,
+//        scheduledAt = java.time.ZonedDateTime.now().plusHours(1).toString(),
+//        route = mockRoute,
+//        requester = mockRequester
+//    )
+//
+//    // 4. UI 미리보기 (bottomBar 제거, onAccept 파라미터 추가)
+//    MaterialTheme {
+//        RequestDetailContent(
+//            data = mockDetailData,
+//            onAccept = {}
+//        )
+//    }
+//}

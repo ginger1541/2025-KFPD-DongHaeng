@@ -38,11 +38,10 @@ class CompanionRequestDetailViewModel @Inject constructor(
         viewModelScope.launch {
             repository.acceptRequest(requestId)
                 .onSuccess { matchData ->
-                    // 매칭 성공 시 채팅방 ID 또는 매칭 ID를 콜백으로 전달
+                    // ✅ 응답 데이터(matchData)에서 chatRoomId를 꺼내 콜백으로 전달
                     onMatchSuccess(matchData.chatRoomId)
                 }
                 .onFailure { e ->
-                    // 에러 처리 (Toast 등으로 띄울 수 있도록 State 변경 가능)
                     _uiState.value = RequestDetailUiState.Error(e.message ?: "수락 실패")
                 }
         }
