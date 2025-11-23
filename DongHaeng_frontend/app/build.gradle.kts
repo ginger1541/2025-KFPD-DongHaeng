@@ -120,6 +120,9 @@ dependencies {
     // ViewModel 사용을 위해 필요할 수 있습니다.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3") // 최신 버전 확인 후 사용
 
+    // 채팅 소켓 매니저 구현 시 필요
+    implementation("io.socket:socket.io-client:2.1.0")
+    //Data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
 

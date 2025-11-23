@@ -282,7 +282,7 @@ fun RouteInfoView(startLoc: String, endLoc: String, startTime: String, estTime: 
                     color = TextBlack,
                     modifier = Modifier.weight(1f)
                 )
-                Text(text = estTime, fontSize = 12.sp, color = DarkGray)
+                Text(text = "$estTime 도착", fontSize = 12.sp, color = DarkGray)
             }
         }
     }
