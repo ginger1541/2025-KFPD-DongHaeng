@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class BaseResponseDto<T>(
     // API 성공 여부
     @SerializedName("success") val success: Boolean,
-    @SerializedName("data") val data: T? = null,
+    @SerializedName("data") val data: T?= null,
     @SerializedName("message") val message: String? = null,
     @SerializedName("error") val error: ErrorDto? = null
 )

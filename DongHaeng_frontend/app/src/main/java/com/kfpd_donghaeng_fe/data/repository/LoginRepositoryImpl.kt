@@ -1,20 +1,38 @@
 package com.kfpd_donghaeng_fe.data.repository
 
 import com.kfpd_donghaeng_fe.domain.repository.LoginRepository
-import kotlinx.coroutines.delay
+import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
+
+import com.kfpd_donghaeng_fe.data.remote.dto.LoginRequestDto
+
+import com.kfpd_donghaeng_fe.data.remote.dto.toDomainLogin
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginResultEntity
 import javax.inject.Inject
 
-// 💡 @Inject constructor()가 있어야 Hilt가 이 클래스를 만들 수 있습니다.
 class LoginRepositoryImpl @Inject constructor(
-    // 나중에 여기에 private val api: LoginApiService 같은게 들어옵니다.
+    private val apiService: LoginApiService
 ) : LoginRepository {
 
     override suspend fun isLoggedIn(): Boolean {
-        // TODO: 나중에는 여기서 api.login() 을 호출합니다.
-
-        // 지금은 서버 연결 흉내(1초 대기)만 내고 true를 줍니다.
-        // 하지만 구조적으로는 이제 '데이터 레이어'를 거쳐가게 된 것입니다.
-        delay(1000)
+        // TODO: 실제로 토큰이 로컬에 저장되어 있는지 확인하는 로직이 들어갑니다.
+        // 지금은 임시로 true 반환
         return true
     }
+
+    suspend fun attemptLogin(email: String, password: String): LoginResultEntity{
+        val request = LoginRequestDto(email, password)// LoginRequest는 API Service 파일에 정의됨
+        // 실제 API 호출!
+        val response = apiService.login(request)
+
+        // TODO: 받은 토큰을 SharedPreferences나 DataStore에 저장하는 로직 추가 (data layer 역할 필요)
+
+        return response.toDomainLogin()
+    }
 }
+
+
+
+
+
+
+

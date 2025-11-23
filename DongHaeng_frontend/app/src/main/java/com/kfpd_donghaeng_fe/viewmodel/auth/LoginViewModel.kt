@@ -24,9 +24,8 @@ class LoginViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             val current = _uiState.value.currentPage
-            val canGoNext = checkCanLoginUseCase(current)  // 이제 suspend 호출 OK
-
-            if (canGoNext) {
+            val canGoNext = checkCanLoginUseCase(current)
+            if (canGoNext && current <=1) {
                 _uiState.update { currentState ->
                     currentState.copy(currentPage = currentState.currentPage + 1)
                 }

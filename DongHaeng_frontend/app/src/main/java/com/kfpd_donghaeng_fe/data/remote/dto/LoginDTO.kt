@@ -1,16 +1,62 @@
 package com.kfpd_donghaeng_fe.data.remote.dto
 
-import retrofit2.http.Body
-import retrofit2.http.POST
+import com.google.gson.annotations.SerializedName
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginResultEntity
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginUserEntity
 
-// TODO 1: 실제 서버의 Request/Response 데이터 클래스를 정의해야 합니다.
-data class LoginRequest(
-    val email: String,
-    val password: String
+
+// TODO : 영찬님 보낸거 확인하기! ( 일반 로그인 )
+data class LoginRequestDto(
+    @SerializedName("email") val email: String,
+    @SerializedName("password")val password: String
 )
 
-data class TokenResponse(
-    val accessToken: String,
-    val refreshToken: String
+
+data class LoginRespondDto(
+    @SerializedName("token") val token: String,
+    @SerializedName("is_new_user") val isNewUser: Boolean,
+    @SerializedName("user") val user: User
 )
 
+// user 정보
+data class User(
+    @SerializedName("user_id") val userId: Int, // Int로 가정
+    @SerializedName("email") val email: String,
+    @SerializedName("name") val name: String?,
+    @SerializedName("profile_image_url") val profileImageUrl: String?,
+    @SerializedName("user_type") val userType: String?,
+    @SerializedName("companion_score") val companionScore: Double?
+)
+
+
+
+
+//mapping!
+// DTO를 Domain Entity로 변환하는 함수 (Mapper)
+
+fun BaseResponseDto<LoginRespondDto>.toDomainLogin(): LoginResultEntity {
+
+    if (!success) {
+
+        throw Exception(message ?: "로그인 실패: 서버 응답 오류.")
+    }
+
+    val loginData = data ?: throw Exception("로그인 실패: 데이터 본문이 없습니다.")
+
+    // 1. User DTO를 Domain Entity로 변환합니다. (User 상세 정보)
+    val userDomainData = LoginUserEntity(
+        userId = loginData.user.userId,
+        email = loginData.user.email,
+        name = loginData.user.name,
+        profileImageUrl = loginData.user.profileImageUrl,
+        userType = loginData.user.userType,
+        companionScore = loginData.user.companionScore
+    )
+
+    // 2. 토큰 등 핵심 데이터와 User 상세 정보를 포함한 전체 Entity를 반환합니다.
+    return LoginResultEntity(
+        token = loginData.token,
+        isNewUser = loginData.isNewUser,
+        userData = userDomainData // 👈 변환한 사용자 상세 정보를 반드시 포함해야 합니다.
+    )
+}
