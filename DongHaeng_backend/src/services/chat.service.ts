@@ -14,7 +14,6 @@ export const getChatRoomById = async (chatRoomId: bigint, userId: bigint) => {
           scheduledAt: true,
           startAddress: true,
           destinationAddress: true,
-          route: true,
         },
       },
       requester: {
@@ -165,7 +164,6 @@ export const getMyChatRooms = async (
           scheduledAt: true,
           startAddress: true,
           destinationAddress: true,
-          route: true,
         },
       },
       requester: {
