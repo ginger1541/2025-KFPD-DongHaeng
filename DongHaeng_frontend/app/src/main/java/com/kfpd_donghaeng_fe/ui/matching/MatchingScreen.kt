@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching
-/*
+
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,13 +45,14 @@ import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.PermissionChecker
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.GlobalApplication
-import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.matching.componentes.BottomMatchingSheetContent
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
+import com.kfpd_donghaeng_fe.ui.matching.search.MainRouteScreen
+import com.kfpd_donghaeng_fe.util.AppScreens
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -60,6 +62,8 @@ fun MatchingScreen(
     navController: NavHostController,
     checker: PermissionChecker,
     navigator: AppSettingsNavigator,
+    matchingViewModel: MatchingViewModel = hiltViewModel(),
+    startSearch: Boolean = false
 ) {
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
@@ -67,11 +71,40 @@ fun MatchingScreen(
         )
     )
 
+    LaunchedEffect(Unit) {
+        // NEEDY인 경우 바로 BOOKING 모드로 진입
+        if (userType == UserType.NEEDY) {
+            matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
+        }
+    }
+
     var showPermissionAlert by remember { mutableStateOf(false) }
 
     val requester = rememberLocationPermissionRequester(checker, navigator)
     val permissionState = requester.state.value
     val rationaleNeeded = requester.shouldShowRationale.value
+
+    val currentPhase by matchingViewModel.currentPhase.collectAsState()
+
+    // 💡 MainRouteScreen이 지도와 하단 시트 모두를 관리하므로,
+    //    BOOKING/SERVICE_TYPE 등의 경로 설정 플로우는 MainRouteScreen이 Full Screen으로 덮습니다.
+    if (userType == UserType.NEEDY) {
+        MainRouteScreen(
+            // 💡 [핵심 수정] startSearch 값을 MainRouteScreen으로 전달
+            startSearch = startSearch,
+
+            onClose = matchingViewModel::navigateToOverview,
+            onNavToHome = {
+                val homeRoute = AppScreens.HOME_ROUTE.replace("{userType}", userType.name)
+                navController.navigate(homeRoute) {
+                    popUpTo(AppScreens.MATCHING_ROUTE.replace("{userType}", userType.name)) {
+                        inclusive = true
+                    }
+                }
+            }
+        )
+        return
+    }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val fullHeight = maxHeight
@@ -97,7 +130,7 @@ fun MatchingScreen(
                         role = userType,
                         navController = navController,
                         onNavigateToOngoing = {
-                            // 이 함수 내에서 NavController를 사용하여 OngoingScreen으로 이동합니다.
+                            // TODO: 온고잉이 아닐걸~
                             navController.navigateToOngoingScreen()
                         }
                     )
@@ -177,6 +210,16 @@ fun MatchingScreen(
             }
         )
     }
+}
+
+@Composable
+fun BottomMatchingSheetContent(
+    modifier: Modifier,
+    role: UserType,
+    navController: NavHostController,
+    onNavigateToOngoing: () -> Unit
+) {
+    TODO("Not yet implemented")
 }
 
 @Composable
@@ -277,4 +320,4 @@ fun MapContent(
             }
         }
     }
-}*/
+}

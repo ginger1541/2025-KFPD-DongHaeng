@@ -2,6 +2,7 @@ package com.kfpd_donghaeng_fe.di
 
 import com.kfpd_donghaeng_fe.data.remote.api.KakaoPlaceApiService
 import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
+import com.kfpd_donghaeng_fe.data.remote.api.SKRouteApiService
 import com.kfpd_donghaeng_fe.data.repository.PlaceRepositoryImpl
 import com.kfpd_donghaeng_fe.domain.repository.PlaceRepository
 import com.kfpd_donghaeng_fe.data.remote.api.MatchApiService
@@ -20,7 +21,40 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object  NetworkModule {
+object NetworkModule {
+
+    // Kakao API용 OkHttpClient
+    @Provides
+    @Singleton
+    @Named("kakao")
+    fun provideKakaoOkHttpClient(
+        kakaoAuthInterceptor: KakaoAuthInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(kakaoAuthInterceptor) // Kakao 전용
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+    }
+
+    // TODO: 백엔드 연결용
+//    @Provides
+//    @Singleton
+//    @Named("backend")
+//    fun provideBackendOkHttpClient(
+//        // backendAuthInterceptor: BackendAuthInterceptor
+//    ): OkHttpClient {
+//        return OkHttpClient.Builder()
+//            // .addInterceptor(backendAuthInterceptor)
+//            .connectTimeout(10, TimeUnit.SECONDS)
+//            .readTimeout(10, TimeUnit.SECONDS)
+//            .writeTimeout(10, TimeUnit.SECONDS)
+//            .build()
+//    }
+
+    private const val KAKAO_BASE_URL = "https://dapi.kakao.com/"
+    private const val SK_ROUTE_BASE_URL = "https://apis.openapi.sk.com/"
 
     //okhttpclient
     @Provides
@@ -47,9 +81,12 @@ object  NetworkModule {
     @Provides
     @Singleton
     @Named("kakao")
-    fun provideKakaoRetrofit(): Retrofit {
+    fun provideKakaoRetrofit(
+        @Named("kakao") okHttpClient: OkHttpClient
+    ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://dapi.kakao.com/v2/local/search/")
+            .baseUrl(KAKAO_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -103,4 +140,28 @@ object  NetworkModule {
         return retrofit.create(LoginApiService::class.java)
     }
 
+
+    @Provides
+    @Singleton
+    @Named("sk_route")
+    fun provideSkRouteRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(SK_ROUTE_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSKRouteApiService(
+        @Named("sk_route") retrofit: Retrofit
+    ): SKRouteApiService {
+        return retrofit.create(SKRouteApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKakaoAuthInterceptor(): KakaoAuthInterceptor {
+        return KakaoAuthInterceptor()
+    }
 }

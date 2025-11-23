@@ -46,7 +46,7 @@ data class ChatRequestDto(
 data class ChatHistoryResponse(
     val success: Boolean,
     val data: List<ChatMessageDto>,
-    val pagination: PaginationDto
+    val pagination: ChatPaginationDto
 )
 
 data class ChatMessageDto(
@@ -56,7 +56,7 @@ data class ChatMessageDto(
     val createdAt: String
 )
 
-data class PaginationDto(
+data class ChatPaginationDto(
     val hasMore: Boolean,
     val nextBeforeId: Long?
 )

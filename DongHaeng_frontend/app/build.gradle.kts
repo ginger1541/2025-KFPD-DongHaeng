@@ -124,6 +124,9 @@ dependencies {
     implementation("io.socket:socket.io-client:2.1.0")
     //Data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("com.squareup.okhttp3:okhttp:5.3.0")
 
 
 
