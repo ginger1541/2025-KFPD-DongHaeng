@@ -15,6 +15,19 @@ export const createMatch = async (data: {
     },
     include: {
       request: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          latitude: true,
+          longitude: true,
+          startAddress: true,
+          destinationAddress: true,
+          estimatedMinutes: true,
+          scheduledAt: true,
+          route: true,
+          status: true,
+        },
         include: {
           requester: {
             select: {
@@ -44,7 +57,21 @@ export const findMatchById = async (matchId: bigint) => {
   return prisma.match.findUnique({
     where: { matchId },
     include: {
-      request: true,
+      request: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          latitude: true,
+          longitude: true,
+          startAddress: true,
+          destinationAddress: true,
+          estimatedMinutes: true,
+          scheduledAt: true,
+          route: true,
+          status: true,
+        },
+      },
       requester: {
         select: {
           id: true,
@@ -87,7 +114,21 @@ export const findMyMatchesAsHelper = async (userId: bigint) => {
     where: { helperId: userId },
     orderBy: { matchedAt: 'desc' },
     include: {
-      request: true,
+      request: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          latitude: true,
+          longitude: true,
+          startAddress: true,
+          destinationAddress: true,
+          estimatedMinutes: true,
+          scheduledAt: true,
+          route: true,
+          status: true,
+        },
+      },
       requester: {
         select: {
           id: true,
@@ -105,7 +146,21 @@ export const findMyMatchesAsRequester = async (userId: bigint) => {
     where: { requesterId: userId },
     orderBy: { matchedAt: 'desc' },
     include: {
-      request: true,
+      request: {
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          latitude: true,
+          longitude: true,
+          startAddress: true,
+          destinationAddress: true,
+          estimatedMinutes: true,
+          scheduledAt: true,
+          route: true,
+          status: true,
+        },
+      },
       helper: {
         select: {
           id: true,
