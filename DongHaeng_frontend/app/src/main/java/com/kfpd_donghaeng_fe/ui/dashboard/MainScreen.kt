@@ -1,6 +1,8 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -22,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.ui.chat.ChatListScreen
 import com.kfpd_donghaeng_fe.ui.theme.*
 
 
@@ -29,6 +32,7 @@ import com.kfpd_donghaeng_fe.ui.theme.*
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
@@ -74,7 +78,9 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
             // '채팅' 화면
             composable("chat") {
-                ChattingScreen()
+                ChatListScreen(
+                    navController = mainNavController
+                )
             }
 
             // '프로필' 화면
@@ -145,6 +151,7 @@ private data class BottomNavItem(
     val label: String
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
