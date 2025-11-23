@@ -1,121 +1,87 @@
 package com.kfpd_donghaeng_fe.viewmodel.matching
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import com.kfpd_donghaeng_fe.domain.entity.PlaceSearchResult
+import androidx.lifecycle.viewModelScope
+import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateDto
+import com.kfpd_donghaeng_fe.data.repository.MatchRepositoryImpl
+import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
+import com.kfpd_donghaeng_fe.domain.repository.RequestRepository
+import com.kfpd_donghaeng_fe.ui.matching.MatchingPhase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
-
-/*
 @HiltViewModel
-class BookingViewModel @Inject constructor() : ViewModel() {
+class BookingViewModel @Inject constructor(
+    private val requestRepository: RequestRepository
+) : ViewModel() {
 
-    private val _routeInputs = MutableStateFlow<List<LocationInput>>(
-        listOf(
-            LocationInput(
-                id = "start",
-                type = LocationType.START,
-                address = "내 위치: 서울 마포구 신촌로 24길 38-4",
-                isEditable = false
-            ),
-            LocationInput(
-                id = "end",
-                type = LocationType.END,
-                address = "도착지 입력",
-                isEditable = true
-            )
-        )
-    )
-    val routeInputs: StateFlow<List<LocationInput>> = _routeInputs.asStateFlow()
+    // 1. 예약 진행 단계 관리 (Overview -> Booking -> ... -> Payment)
+    private val _currentPhase = MutableStateFlow(MatchingPhase.OVERVIEW)
+    val currentPhase: StateFlow<MatchingPhase> = _currentPhase.asStateFlow()
 
-    /**
-     * 도착지 위치 업데이트 (Domain Entity 사용)
-     */
-    fun updateEndLocation(placeInfo: PlaceSearchResult) {
-        _routeInputs.value = _routeInputs.value.map { input ->
-            if (input.type == LocationType.END) {
-                input.copy(
-                    address = placeInfo.placeName,
-                    placeInfo = placeInfo
+    // 2. 예약 시간 관리
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val _selectedDateTime = MutableStateFlow(LocalDateTime.now().plusHours(1))
+    @RequiresApi(Build.VERSION_CODES.O)
+    val selectedDateTime: StateFlow<LocalDateTime> = _selectedDateTime.asStateFlow()
+
+    // 3. 화면 이동 함수들
+    fun navigateToBooking() { _currentPhase.value = MatchingPhase.BOOKING }
+    fun navigateToServiceType() { _currentPhase.value = MatchingPhase.SERVICE_TYPE }
+    fun navigateToTimeSelection() { _currentPhase.value = MatchingPhase.TIME_SELECTION }
+    fun navigateToRequestDetail() { _currentPhase.value = MatchingPhase.REQUEST_DETAIL }
+    fun navigateToPayment() { _currentPhase.value = MatchingPhase.PAYMENT }
+    fun navigateToOverview() { _currentPhase.value = MatchingPhase.OVERVIEW }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateSelectedTime(newTime: LocalDateTime) {
+        _selectedDateTime.value = newTime
+    }
+
+    // ✅ [핵심] 동행 요청 생성 (API 호출)
+    // 화면에서 "결제하기" 버튼을 누르면 이 함수가 호출됩니다.
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createRequest(
+        start: RouteLocation,
+        end: RouteLocation,
+        description: String?,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                // DTO 생성
+                val requestDto = RequestCreateDto(
+                    startAddress = start.address,
+                    destinationAddress = end.address,
+                    startLatitude = start.latitude ?: 0.0,
+                    startLongitude = start.longitude ?: 0.0,
+                    destinationLatitude = end.latitude ?: 0.0,
+                    destinationLongitude = end.longitude ?: 0.0,
+                    scheduledAt = _selectedDateTime.value.toString(),
+                    estimatedMinutes = 30, // TODO: 지도 API 연동 시 실제 값 사용
+                    serviceType = "SIMPLE_MOVE",
+                    description = description
                 )
-            } else {
-                input
-            }
-        }
-    }
 
-    /**
-     * 경로 초기화
-     */
-    fun resetRoute() {
-        _routeInputs.value = listOf(
-            LocationInput(
-                id = "start",
-                type = LocationType.START,
-                address = "내 위치: 서울 마포구 신촌로 24길 38-4",
-                isEditable = false
-            ),
-            LocationInput(
-                id = "end",
-                type = LocationType.END,
-                address = "도착지 입력",
-                isEditable = true
-            )
-        )
-    }
-
-    /**
-     * 현재 경로 정보 가져오기
-     */
-    fun getRouteInfo(): RouteInfo {
-        val inputs = _routeInputs.value
-        return RouteInfo(
-            start = inputs.find { it.type == LocationType.START },
-            waypoint = inputs.find { it.type == LocationType.WAYPOINT },
-            end = inputs.find { it.type == LocationType.END }
-        )
-    }
-
-
-    fun setMockEndLocationForTest() {
-        val mockPlace = PlaceSearchResult(
-            placeName = "Google KOREA",
-            addressName = "서울 강남구 역삼동 737",
-            roadAddressName = "서울 강남구 역삼로 188",
-            categoryName = "회사",
-            phone = "02-531-9000",
-            x = "127.034785", // 경도 (Longitude)
-            y = "37.502842"  // 위도 (Latitude)
-        )
-        _routeInputs.update { currentList ->
-            currentList.map { input ->
-                if (input.type == LocationType.END) {
-                    input.copy(
-                        placeInfo = mockPlace, // placeInfo 채우기
-                        address = mockPlace.placeName // 표시되는 텍스트도 업데이트
-                    )
-                } else {
-                    input
-                }
+                // Repository 호출 (RequestRepository 사용)
+                requestRepository.createRequest(requestDto)
+                    .onSuccess {
+                        onSuccess()
+                    }
+                    .onFailure { e ->
+                        onError(e.message ?: "예약 요청 실패")
+                    }
+            } catch (e: Exception) {
+                onError("네트워크 오류가 발생했습니다.")
             }
         }
     }
 }
-
-/**
- * 경로 정보 데이터 클래스
- */
-
-
-data class RouteInfo(
-
-    val start: LocationInput?,
-    val waypoint: LocationInput?,
-    val end: LocationInput?
-)
-
-*/

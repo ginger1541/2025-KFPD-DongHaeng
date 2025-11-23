@@ -28,6 +28,7 @@ fun PathInputBox(
     startLocation: RouteLocation?,
     endLocation: RouteLocation?,
     isSelectingStart: Boolean,
+    onSwapClick: () -> Unit,
     onLocationClick: (isStart: Boolean) -> Unit,
     onClose: () -> Unit,
     onClear: () -> Unit,
@@ -68,7 +69,7 @@ fun PathInputBox(
             ) {
                 // 왼쪽: 교체 아이콘 (Swap)
                 IconButton(
-                    onClick = { /* TODO: 출발/도착지 교체 로직 구현 필요 */ },
+                    onClick = onSwapClick,
                     modifier = Modifier.padding(start = 8.dp)
                 ) {
                     Icon(

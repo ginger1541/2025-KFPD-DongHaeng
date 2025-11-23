@@ -1,10 +1,13 @@
 package com.kfpd_donghaeng_fe.data.remote.api
 
 
+import androidx.camera.core.ImageProcessor.Response
 import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
+import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateDto
+import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateResponse
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestDto
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,6 +21,11 @@ interface RequestApiService {
     suspend fun getRequestDetail(
         @Path("requestId") requestId: Long
     ): BaseResponseDto<RequestDto>
+
+    @POST("/api/companions/requests")
+    suspend fun createRequest(
+        @Body request: RequestCreateDto
+    ):BaseResponseDto<RequestCreateResponse>
 }
 
 

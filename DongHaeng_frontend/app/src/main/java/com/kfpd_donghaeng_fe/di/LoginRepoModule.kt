@@ -3,7 +3,9 @@ package com.kfpd_donghaeng_fe.di
 import com.kfpd_donghaeng_fe.data.datasource.TokenLocalDataSourceImpl
 import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
 import com.kfpd_donghaeng_fe.data.repository.LoginRepositoryImpl
+import com.kfpd_donghaeng_fe.data.repository.RequestRepositoryImpl
 import com.kfpd_donghaeng_fe.domain.repository.LoginRepository
+import com.kfpd_donghaeng_fe.domain.repository.RequestRepository
 
 import dagger.Binds
 import dagger.Module
@@ -39,4 +41,10 @@ abstract class SingletonRepositoryModule {
     abstract fun bindLoginRepository(
         loginRepositoryImpl: LoginRepositoryImpl // Hilt는 이 구현체를 만들 수 있습니다 (이미 의존성 경로 완성)
     ): LoginRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRequestRepository(
+        requestRepositoryImpl: RequestRepositoryImpl
+    ): RequestRepository
 }

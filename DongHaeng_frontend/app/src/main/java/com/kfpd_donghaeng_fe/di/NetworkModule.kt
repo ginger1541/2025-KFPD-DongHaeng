@@ -9,6 +9,7 @@ import com.kfpd_donghaeng_fe.domain.repository.PlaceRepository
 import com.kfpd_donghaeng_fe.data.remote.api.MatchApiService
 import com.kfpd_donghaeng_fe.data.remote.api.ChatApiService
 import com.kfpd_donghaeng_fe.data.remote.api.CompanionApiService
+import com.kfpd_donghaeng_fe.data.remote.api.RequestApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,6 +54,12 @@ object NetworkModule {
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRequestApiService(@Named("my_server") retrofit: Retrofit): RequestApiService {
+        return retrofit.create(RequestApiService::class.java)
     }
 
     private const val KAKAO_BASE_URL = "https://dapi.kakao.com/"

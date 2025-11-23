@@ -148,4 +148,16 @@ class PlaceSearchViewModel @Inject constructor(
     // 출발지와 도착지가 모두 선택되었는지 확인하는 Computed Property (옵션)
     val isReadyForRoute: Boolean
         get() = _startLocation.value != null && _endLocation.value != null
+
+    fun swapLocations() {
+        val currentStart = _startLocation.value
+        val currentEnd = _endLocation.value
+
+        // type을 변경해서 저장해야 함 (start -> end, end -> start)
+        val newStart = currentEnd?.copy(type = LocationType.START)
+        val newEnd = currentStart?.copy(type = LocationType.END)
+
+        _startLocation.value = newStart
+        _endLocation.value = newEnd
+    }
 }
