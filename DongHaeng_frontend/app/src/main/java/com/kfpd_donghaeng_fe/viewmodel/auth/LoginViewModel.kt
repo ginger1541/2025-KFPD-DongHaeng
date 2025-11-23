@@ -35,10 +35,18 @@ class LoginViewModel @Inject constructor(
 
     fun MovetoMain(){
         viewModelScope.launch {
-            val canLogin = checkCanLoginUseCase()
-            if (canLogin) {Log.d("LOGIN_CHECK", "로그인 가능 상태입니다. 다음 화면으로 이동합니다.")
-            }else{Log.w("LOGIN_CHECK", "로그인 불가 상태입니다. 오류 메시지를 출력합니다.")}
+            try { // 👈 여기에 try 블록을 시작하고
+                val canLogin = checkCanLoginUseCase("equester@test.com", "test1234")
 
+                if (canLogin.success) {
+                    // 성공 로직
+                } else {
+                    // 실패 로직
+                }
+            } catch (e: Exception) { // 👈 여기에 catch 블록을 추가해야 합니다.
+                // 앱이 꺼지지 않고 여기서 멈춥니다.
+                Log.e("LOGIN_ERROR", "로그인 과정 중 예외 발생: ${e.message}", e) // 👈 여기서 실제 오류를 확인
+            }
         }
     }
     fun MovetoMakeAccount(){

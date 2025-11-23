@@ -16,11 +16,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val tokenDataSource: TokenLocalDataSource
 ) : LoginRepository {
 
-    override suspend fun isLoggedIn(): Boolean {
-        return tokenDataSource.getToken() != null
-    }
-
-    suspend fun attemptLogin(email: String, password: String): LoginResultEntity{
+    override suspend fun attemptLogin(email: String, password: String): LoginResultEntity{
         val request = LoginRequestDto(email, password)// LoginRequest는 API Service 파일에 정의됨
         // 실제 API 호출!
         val response = apiService.login(request)
@@ -30,8 +26,14 @@ class LoginRepositoryImpl @Inject constructor(
         // 2. 받은 토큰을 DataStore에 저장하는 로직
         tokenDataSource.saveToken(loginResult.token)
 
-        return response.toDomainLogin()
+
+        return loginResult
     }
+
+    override suspend fun isLoggedIn(): Boolean {
+        return tokenDataSource.getToken() != null
+    }
+
 }
 
 

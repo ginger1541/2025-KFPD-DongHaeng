@@ -9,8 +9,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -19,7 +22,6 @@ import javax.inject.Singleton
 object  NetworkModule {
 
     //okhttpclient
-    /*
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
@@ -39,7 +41,7 @@ object  NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS) // 읽기 타임아웃
             .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 타임아웃
             .build()
-    }*/
+    }
 
     @Provides
     @Singleton
@@ -73,7 +75,8 @@ object  NetworkModule {
     @Named("my_server") // 이름표 붙이기
     fun provideMyServerRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/") // 에뮬레이터용 로컬 주소
+            //.baseUrl("http://10.0.2.2:8080/") // 에뮬레이터용 로컬 주소
+            .baseUrl("http://34.64.76.147:3000")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
