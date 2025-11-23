@@ -52,7 +52,6 @@ fun BaseResponseDto<LoginRespondDto>.toDomainLogin(): LoginResultEntity {
         companionScore = loginData.user.companionScore
     )
 
-    // 2. 토큰 등 핵심 데이터와 User 상세 정보를 포함한 전체 Entity를 반환합니다.
     return LoginResultEntity(
         success=true,
         isNewUser = loginData.isNewUser,

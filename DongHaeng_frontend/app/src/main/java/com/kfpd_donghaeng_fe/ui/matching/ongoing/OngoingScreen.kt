@@ -16,7 +16,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kfpd_donghaeng_fe.GlobalApplication
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
@@ -29,7 +31,7 @@ fun Background_Map() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White.copy(0.9f)),
+            .background(Color.Blue.copy(0.9f)),
     ) {
         KakaoMapView(
             modifier = Modifier
@@ -47,13 +49,14 @@ fun Background_Map() {
 // 💡 오류 수정: ViewModel 인자를 제거하고, 필요한 이벤트 핸들러만 받습니다.
 // =========================================================================================
 
-var user: Int = 1 // 테스트용 1 = 요청자 2 = 동행자
-var alpha_user2 = 0.9f
+var user: Int = 2// 테스트용 1 = 요청자 2 = 동행자
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OngoingScreen(
     uiState: OngoingEntity,
+    uiState2: OngoingRequestEntity,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
 ) {
@@ -68,11 +71,11 @@ fun OngoingScreen(
                 .fillMaxWidth()
                 .align(Alignment.TopCenter)
         ) {
-            TopSheet(uiState.OngoingPage)
+            TopSheet(uiState,uiState2)
         }
 
         // 동행자(user=2)일 경우 QR 코드 시트
-        if (user == 2) {
+        if (uiState.userType == UserType.NEEDY) {
             // 배경 오버레이
             Box(
                 modifier = Modifier
@@ -90,7 +93,7 @@ fun OngoingScreen(
         }
 
         // 요청자(user=1)일 경우 하단 시트
-        if (user == 1) {
+        if (uiState.userType == UserType.HELPER) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,14 +117,14 @@ fun OngoingScreen(
 @Composable
 fun OngoingRoute(
     viewModel: OngoingViewModel = hiltViewModel(),
-    nextPage:()->Unit,
-    NavigateToReview: () -> Unit
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+    val uiState2 by viewModel.uiState2.collectAsState()
 
     OngoingScreen(
         uiState = uiState,
+        uiState2 = uiState2,
         nextPage=viewModel::nextPage,
         NavigateToReview = viewModel::NavigateToReview
     )

@@ -5,7 +5,7 @@ import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
-import com.kfpd_donghaeng_fe.data.remote.dto.RequestDto
+import com.kfpd_donghaeng_fe.data.remote.dto.OngoingRequestDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -17,7 +17,7 @@ interface RequestApiService {
     @GET("/api/companion-requests/{request_id}")
     suspend fun getRequestDetail(
         @Path("requestId") requestId: Long
-    ): BaseResponseDto<RequestDto>
+    ): BaseResponseDto<OngoingRequestDto>
 }
 
 

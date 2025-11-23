@@ -20,7 +20,7 @@ import kotlin.Int
 
 //요청자, 요청 정보 조회
 //GET /api/companion-requests/{request_id}
-data class RequestDto(
+data class OngoingRequestDto(
     @SerializedName("request_id") val requestId: Long,
     @SerializedName("requester") val request: RequesterDto, //요청자 정보
     @SerializedName ("status") val status : String,//진행정보
@@ -36,21 +36,8 @@ data class RequesterDto(
     @SerializedName ("companion_score") val DHScore : Int, //요청자 동행 점수
     )
 
-
-
 //ongoigview top sheet의 요청자 정보 (요청 장소, 요청 진행 상태 이름, 동행지수)
-fun RequestDto.toDomain() = MatchRequestData(
-    startAddress=startAddress,
-    destinationAddress=destinationAddress,
-    status=status,
-    Name =request.Name,
-    ProfileImageUrl=request.ProfileImageUrl,
-    DHScore=request.DHScore
 
-)
-
-
-//동행 종료 후 동행디테일 정보
 
 
 
