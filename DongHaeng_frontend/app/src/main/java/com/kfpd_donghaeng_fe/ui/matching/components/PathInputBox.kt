@@ -27,24 +27,25 @@ fun PathInputBox(
     isSelectingStart: Boolean, // 현재 어떤 필드가 활성화(검색 대기) 상태인지
     onLocationClick: (isStart: Boolean) -> Unit,
     onClose: () -> Unit,
+    onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .background(Color.White)
             .padding(16.dp)
     ) {
         // 1. 출발지/도착지 입력 Row
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             // (1) 출발/도착 아이콘
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 // 출발지 마커 (오렌지)
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_start),
+                    painter = painterResource(id = R.drawable.ic_start_dot),
                     contentDescription = "출발지",
                     tint = Color.Unspecified, // XML의 색상 사용
                     modifier = Modifier.size(24.dp)
@@ -60,7 +61,7 @@ fun PathInputBox(
                 Spacer(modifier = Modifier.height(4.dp))
                 // 도착지 마커 (회색)
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_destination),
+                    painter = painterResource(id = R.drawable.ic_end_dot),
                     contentDescription = "도착지",
                     tint = Color.Unspecified, // XML의 색상 사용
                     modifier = Modifier.size(24.dp)

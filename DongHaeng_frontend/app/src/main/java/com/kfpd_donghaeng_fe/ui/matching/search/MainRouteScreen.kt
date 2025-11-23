@@ -107,6 +107,7 @@ fun MainRouteScreen(
                 showPlaceSearch = true                          // 검색 화면 띄우기
             },
             onClose = onClose, // 상위 컴포저블(MatchingScreen)에게 닫기 요청
+            onClear = {},
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -183,6 +184,7 @@ fun MainRouteScreen(
                             showPlaceSearch = true
                         },
                         onClose = onClose,
+                        onClear = {},
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(top = 16.dp, start = 16.dp, end = 16.dp)

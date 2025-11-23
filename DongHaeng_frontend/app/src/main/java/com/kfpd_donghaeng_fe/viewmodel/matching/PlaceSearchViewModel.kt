@@ -117,6 +117,13 @@ class PlaceSearchViewModel @Inject constructor(
         _searchResults.value = emptyList()
     }
 
+    fun clearAllLocations() {
+        _startLocation.value = null
+        _endLocation.value = null
+        _searchQuery.value = ""
+        _searchResults.value = emptyList()
+    }
+
     fun selectPlace(place: PlaceSearchResult) {
         addToHistory(place) // 히스토리에 추가
 
