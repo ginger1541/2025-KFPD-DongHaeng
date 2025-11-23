@@ -379,7 +379,7 @@ private fun InfoRow(
         }
     }
 }
-
+/*
 @Preview(showBackground = true, heightDp = 1200)
 @Composable
 fun PreviewRequestDetailScreen() {
@@ -394,4 +394,4 @@ fun PreviewRequestDetailScreen() {
     )
 
     RequestDetailScreen(request = dummyRequest)
-}
+}*/

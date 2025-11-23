@@ -124,6 +124,8 @@ fun QrVerificationDialog(
     }
 }
 
+/*
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewQrVerificationDialog() {
@@ -131,4 +133,4 @@ fun PreviewQrVerificationDialog() {
         onDismiss = {},
         onConfirm = {}
     )
-}
+}*/

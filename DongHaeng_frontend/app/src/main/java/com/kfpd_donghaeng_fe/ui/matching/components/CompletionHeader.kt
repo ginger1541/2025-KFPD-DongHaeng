@@ -63,6 +63,8 @@ fun CompletionHeader(
     }
 }
 
+
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewCompletionHeader() {
@@ -70,4 +72,4 @@ fun PreviewCompletionHeader() {
         totalTime = "18분",
         distance = "2.1km"
     )
-}
+}*/

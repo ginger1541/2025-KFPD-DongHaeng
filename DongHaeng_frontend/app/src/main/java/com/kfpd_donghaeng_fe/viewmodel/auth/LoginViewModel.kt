@@ -36,12 +36,14 @@ class LoginViewModel @Inject constructor(
     fun MovetoMain(){
         viewModelScope.launch {
             try { // 👈 여기에 try 블록을 시작하고
-                val canLogin = checkCanLoginUseCase("equester@test.com", "test1234")
+                val canLogin = checkCanLoginUseCase("requester@test.com", "test1234")
 
                 if (canLogin.success) {
                     // 성공 로직
+                    Log.e("Login", "로그인 성공!")
                 } else {
                     // 실패 로직
+                    Log.e("Login", "로그인 실패!")
                 }
             } catch (e: Exception) { // 👈 여기에 catch 블록을 추가해야 합니다.
                 // 앱이 꺼지지 않고 여기서 멈춥니다.
