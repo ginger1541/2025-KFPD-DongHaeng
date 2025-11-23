@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
 
                             )
                         }
-
+/*
                         composable(AppScreens.ONGOING_SCREEN) {
                             OngoingScreen(
                                 onNavigateToReview = {
@@ -206,7 +206,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigateToReviewScreen()
                                 }
                             )
-                        }
+                        }*/
 
                         // 채팅 상세 화면 경로 추가
                         composable(

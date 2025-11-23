@@ -34,7 +34,7 @@ fun AppNavigation_TestOngoing() {
         startDestination = "login"
     ) {
         composable("signup") {
-            MakeAccountRoute()
+
         }
     }
 }
