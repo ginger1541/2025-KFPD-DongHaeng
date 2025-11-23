@@ -3,7 +3,6 @@ package com.kfpd_donghaeng_fe.viewmodel.matching.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.repository.MatchingRepository
-import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeUiState
 import com.kfpd_donghaeng_fe.ui.matching.home.RequestUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 
 @HiltViewModel
 class MatchingHomeViewModel @Inject constructor(

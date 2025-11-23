@@ -14,9 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.getValue
-import android.R
-import androidx.compose.ui.graphics.Color
-
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
@@ -36,6 +33,7 @@ import com.kakao.vectormap.shape.PolylineStyle
 import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 import com.kfpd_donghaeng_fe.domain.entity.WalkingRoute
+import com.kfpd_donghaeng_fe.GlobalApplication
 
 
 data class MapData(
@@ -43,7 +41,6 @@ data class MapData(
     val markers: List<RouteLocation>,
     val route: WalkingRoute? = null
 )
-import com.kfpd_donghaeng_fe.GlobalApplication
 
 @Composable
 fun KakaoMapView(
@@ -54,14 +51,15 @@ fun KakaoMapView(
     enabled: Boolean = true, // ← 추가
 ) {
     //  ! 추가 ! ( 45번째 줄 return 까지 )
-    if(!enabled_map_emulate){
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(Color(0xFF81D4FA)), // 밝은 파란색
-        )
-        return
-    }
+//    if(!enabled_map_emulate){
+//        Box(
+//            modifier = modifier
+//                .fillMaxSize()
+//                .background(Color(0xFF81D4FA)), // 밝은 파란색
+//        )
+//        return
+//    }
+
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
     // 지도 요소 관리 상태
@@ -130,8 +128,6 @@ fun KakaoMapView(
                             // 레이어에 추가
                             currentPolyline = map.shapeManager?.layer?.addPolyline(options)
 
-                            // 🚀 [수정] 카메라를 경로 전체가 보이도록 이동 (List -> Array 변환)
-                            // 패딩(100)을 주어 경로가 화면에 꽉 차게 보이도록 설정
                             map.moveCamera(
                                 CameraUpdateFactory.fitMapPoints(latLngs.toTypedArray(), 100)
                             )
@@ -167,7 +163,6 @@ private fun updateMap(
     currentMarkers.forEach { labelLayer.remove(it) }
 
     // 3. 새 마커 생성 + TransformMethod 적용
-// 3. 새 마커 생성 + TransformMethod 적용
     val newMarkers = data.markers.mapNotNull { loc ->
         val lat = loc.latitude
         val lng = loc.longitude

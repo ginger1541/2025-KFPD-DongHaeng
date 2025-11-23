@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching.componentes
-/*
+
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.matching.MatchingPhase
 import com.kfpd_donghaeng_fe.ui.matching.components.CompanionMatchingContent
 import com.kfpd_donghaeng_fe.ui.matching.components.RequestConfirmContent
@@ -111,4 +111,4 @@ fun RequesterOverviewContent(onBookClicked: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(60.dp))
     }
-}*/
+}

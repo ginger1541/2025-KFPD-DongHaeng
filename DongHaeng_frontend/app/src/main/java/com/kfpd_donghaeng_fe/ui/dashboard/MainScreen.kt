@@ -1,21 +1,18 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
-
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.Color // Bar 배경색 상용
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,30 +20,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
-import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.theme.*
-/*----------ongoing import ------------*/
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
 import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
-import com.kfpd_donghaeng_fe.ui.theme.BrandOrange // 💡 테마 색상
-import com.kfpd_donghaeng_fe.ui.theme.MediumGray  // 💡 테마 색상
-
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
-import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+import com.kfpd_donghaeng_fe.ui.theme.BrandOrange
+import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
+import com.kfpd_donghaeng_fe.ui.theme.MediumGray
 import com.kfpd_donghaeng_fe.util.navigateToNewSearchFlow
 import com.kfpd_donghaeng_fe.util.navigateToRequestDetail
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
-import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
-
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 
 /**
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
  * @param userType 로그인한 사용자의 유형 (NEEDY or HELPER)
  */
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
-/*
+
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
 
@@ -75,7 +65,6 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
             composable("home") {
                 // Hilt ViewModel은 자동으로 주입됩니다.
-
                 MatchingHomeRoute(
                     userType = userType, // 상위 MainScreen의 userType 인자 사용
 
@@ -96,17 +85,15 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                     }
                 )
             }
-//            // '홈' 화면
-//            composable("home") {
-//                HomeScreen(
-//                    userType = userType,
-//                    navController = mainNavController,
-//                )
-//            }
 
+            // '동행(미션)' 화면
+            // 💡 [수정] 하단바 item의 route인 "matching"과 일치시켰습니다.
             composable("matching") {
-                ScheduleScreen(
-                    navController = mainNavController,
+                OngoingScreen(
+                    onNavigateToReview = {
+                        // ReviewScreen으로 이동합니다.
+                        bottomNavController.navigateToReviewScreen()
+                    }
                 )
             }
 
@@ -146,7 +133,6 @@ private fun BottomNavBar(
     NavigationBar(
         // 💡 1. 바(Bar) 자체의 배경색 설정 (예: 흰색)
         containerColor = Color.White
-        // 💡 (테마의 surface 색상을 사용하려면 MaterialTheme.colorScheme.surface)
     ) {
         navItems.forEach { item ->
             NavigationBarItem(
@@ -160,20 +146,17 @@ private fun BottomNavBar(
                 },
                 label = { Text(item.label) },
 
-                // 💡 2. 아이템 색상 커스텀 (TODO 부분 활성화)
+                // 💡 2. 아이템 색상 커스텀
                 colors = NavigationBarItemDefaults.colors(
-
                     selectedIconColor = BrandOrange,
                     selectedTextColor = BrandOrange,
-
                     unselectedIconColor = MediumGray,
                     unselectedTextColor = MediumGray,
-
                     indicatorColor = BrandOrange.copy(alpha = 0.1f)
                 )
             )
         }
-    }*/
+    }
 }
 
 // 하단바 아이템을 위한 데이터 클래스

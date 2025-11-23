@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching
-/*
+
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -46,11 +46,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.core.content.PermissionChecker
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.GlobalApplication
-import com.kfpd_donghaeng_fe.ui.auth.UserType
-import com.kfpd_donghaeng_fe.ui.matching.componentes.BottomMatchingSheetContent
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
 import com.kfpd_donghaeng_fe.ui.matching.search.MainRouteScreen
@@ -215,6 +213,16 @@ fun MatchingScreen(
 }
 
 @Composable
+fun BottomMatchingSheetContent(
+    modifier: Modifier,
+    role: UserType,
+    navController: NavHostController,
+    onNavigateToOngoing: () -> Unit
+) {
+    TODO("Not yet implemented")
+}
+
+@Composable
 fun MapContent(
     paddingValues: PaddingValues,
     enabled: Boolean,
@@ -312,4 +320,4 @@ fun MapContent(
             }
         }
     }
-}*/
+}

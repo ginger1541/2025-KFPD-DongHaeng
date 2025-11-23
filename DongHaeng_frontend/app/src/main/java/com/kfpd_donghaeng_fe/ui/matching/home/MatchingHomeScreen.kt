@@ -31,13 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.home.MatchingHomeViewModel
 import com.kfpd_donghaeng_fe.R
-import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.matching.home.companion.CompanionHomeContent
 import com.kfpd_donghaeng_fe.ui.matching.home.requester.RequesterHomeContent
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.common.CommonDialog
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
+import androidx.compose.runtime.getValue
 
 @Composable
 fun MatchingHomeRoute(
