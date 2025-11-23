@@ -8,6 +8,7 @@ import com.kfpd_donghaeng_fe.data.repository.PlaceRepositoryImpl
 import com.kfpd_donghaeng_fe.domain.repository.PlaceRepository
 import com.kfpd_donghaeng_fe.data.remote.api.MatchApiService
 import com.kfpd_donghaeng_fe.data.remote.api.ChatApiService
+import com.kfpd_donghaeng_fe.data.remote.api.CompanionApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -176,5 +177,11 @@ object NetworkModule {
     @Singleton
     fun provideKakaoAuthInterceptor(): KakaoAuthInterceptor {
         return KakaoAuthInterceptor()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCompanionApiService(@Named("my_server") retrofit: Retrofit): CompanionApiService {
+        return retrofit.create(CompanionApiService::class.java)
     }
 }

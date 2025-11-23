@@ -2,9 +2,12 @@ package com.kfpd_donghaeng_fe.ui.matching.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,12 +22,11 @@ import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import com.kfpd_donghaeng_fe.ui.theme.MediumGray
 
-// 💡 홈/회사 버튼은 Mockup 이미지를 기반으로 임시로 추가합니다.
 @Composable
 fun PathInputBox(
     startLocation: RouteLocation?,
     endLocation: RouteLocation?,
-    isSelectingStart: Boolean, // 현재 어떤 필드가 활성화(검색 대기) 상태인지
+    isSelectingStart: Boolean,
     onLocationClick: (isStart: Boolean) -> Unit,
     onClose: () -> Unit,
     onClear: () -> Unit,
@@ -34,78 +36,87 @@ fun PathInputBox(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(16.dp)
+            // 상단 상태바 영역만큼 패딩이 필요할 수 있음 (WindowInsets 활용 권장)
+            .statusBarsPadding()
+            .padding(bottom = 16.dp)
     ) {
-        // 1. 출발지/도착지 입력 Row
+        // 1. 상단바 (뒤로가기 + 입력 박스)
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // (1) 출발/도착 아이콘
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // 출발지 마커 (오렌지)
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_start_dot),
-                    contentDescription = "출발지",
-                    tint = Color.Unspecified, // XML의 색상 사용
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                // 구분선 (회색 선)
-                Box(
-                    modifier = Modifier
-                        .width(2.dp)
-                        .height(24.dp)
-                        .background(MediumGray)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                // 도착지 마커 (회색)
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_end_dot),
-                    contentDescription = "도착지",
-                    tint = Color.Unspecified, // XML의 색상 사용
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // (2) 입력 필드
-            Column(modifier = Modifier.weight(1f)) {
-                // 출발지 입력 필드
-                LocationInputRow(
-                    place = startLocation,
-                    placeholder = "출발지 입력",
-                    onSelect = { onLocationClick(true) },
-                    isActive = isSelectingStart
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                // 도착지 입력 필드
-                LocationInputRow(
-                    place = endLocation,
-                    placeholder = "도착지 입력",
-                    onSelect = { onLocationClick(false) },
-                    isActive = !isSelectingStart
-                )
-            }
-
-            // (3) X 버튼 (닫기)
+            // 뒤로가기 버튼
             IconButton(onClick = onClose) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_close_gray),
-                    contentDescription = "닫기",
-                    modifier = Modifier.size(24.dp)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "뒤로가기",
+                    tint = AppColors.PrimaryDarkText
                 )
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // 메인 입력 박스 (통합된 스트로크)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 왼쪽: 출발/도착 입력칸 컬럼
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        // 출발지 입력 행
+                        LocationInputRowWithIcon(
+                            place = startLocation,
+                            placeholder = "출발",
+                            iconResId = R.drawable.ic_start_dot,
+                            iconTint = Color(0xFF4A90E2), // 파란색
+                            onSelect = { onLocationClick(true) }
+                        )
+
+                        // 구분선
+                        Divider(
+                            color = Color(0xFFE0E0E0),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        )
+
+                        // 도착지 입력 행
+                        LocationInputRowWithIcon(
+                            place = endLocation,
+                            placeholder = "도착",
+                            iconResId = R.drawable.ic_end_dot,
+                            iconTint = Color(0xFFE25B4A), // 빨간색
+                            onSelect = { onLocationClick(false) }
+                        )
+                    }
+
+                    // 오른쪽: 교체 아이콘 (Swap)
+                    IconButton(
+                        onClick = { /* TODO: 출발/도착지 교체 로직 구현 필요 */ },
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_swap),
+                            contentDescription = "출발/도착 교체",
+                            tint = MediumGray,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
             }
         }
 
-        Divider(
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-            color = AppColors.LightGray
-        )
-
-        // 2. 홈/회사 버튼 (Mockup)
+        // 2. 하단 태그 (집/회사) - 디자인 유지
         Row(
+            modifier = Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             HomeCompanyTag("집", R.drawable.ic_home)
@@ -114,52 +125,63 @@ fun PathInputBox(
     }
 }
 
-// 경로 입력 Row 컴포넌트
 @Composable
-fun LocationInputRow(
+fun LocationInputRowWithIcon(
     place: RouteLocation?,
     placeholder: String,
-    onSelect: () -> Unit,
-    isActive: Boolean
+    iconResId: Int,
+    iconTint: Color,
+    onSelect: () -> Unit
 ) {
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(36.dp)
-            .background(if (isActive) AppColors.LightGray else Color.Transparent, RoundedCornerShape(8.dp))
+            .height(50.dp)
             .clickable(onClick = onSelect)
             .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.CenterStart
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        // 아이콘
+        Icon(
+            painter = painterResource(id = iconResId),
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(12.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // 텍스트
         if (place != null) {
             Text(
                 text = place.placeName,
                 color = AppColors.PrimaryDarkText,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                maxLines = 1
             )
         } else {
             Text(
                 text = placeholder,
-                color = AppColors.SecondaryText,
+                color = MediumGray, // 플레이스홀더 색상
                 fontSize = 16.sp
             )
         }
     }
 }
 
-// 홈/회사 태그 컴포넌트
+// HomeCompanyTag는 기존과 동일하게 유지
 @Composable
 fun HomeCompanyTag(label: String, iconResId: Int) {
     Row(
         modifier = Modifier
-            .background(AppColors.LightGray, RoundedCornerShape(8.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .background(Color(0xFFF5F5F5), RoundedCornerShape(16.dp))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(id = iconResId),
             contentDescription = label,
-            tint = AppColors.SecondaryText,
+            tint = MediumGray,
             modifier = Modifier.size(16.dp)
         )
         Spacer(Modifier.width(4.dp))

@@ -84,7 +84,8 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
                     // 최근 동행 내역 또는 주변 요청 항목 클릭 시 상세 화면으로 이동
                     onNavigateToRequestDetail = { requestId ->
-                        mainNavController.navigateToRequestDetail(requestId)
+                        // 👇 상세 화면 경로로 이동
+                        mainNavController.navigate("companion_request_detail/$requestId")
                     }
                 )
             }

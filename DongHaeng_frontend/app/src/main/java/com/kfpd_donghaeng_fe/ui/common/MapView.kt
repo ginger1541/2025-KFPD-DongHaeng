@@ -33,6 +33,7 @@ import com.kakao.vectormap.shape.PolylineStyle
 import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 import com.kfpd_donghaeng_fe.domain.entity.WalkingRoute
+import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.GlobalApplication
 
 
@@ -65,6 +66,7 @@ fun KakaoMapView(
     // 지도 요소 관리 상태
     val labelManager = remember { mutableStateOf<LabelManager?>(null) }
     var currentMarkers by remember { mutableStateOf<List<Label>>(emptyList()) }
+    var currentLabels by remember { mutableStateOf<List<Label>>(emptyList()) }
     var kakaoMapState by remember { mutableStateOf<KakaoMap?>(null) }
     var currentPolyline by remember { mutableStateOf<Polyline?>(null) }
     var lastRoute by remember { mutableStateOf<WalkingRoute?>(null) }
@@ -84,7 +86,7 @@ fun KakaoMapView(
                     object : KakaoMapReadyCallback() {
                         override fun onMapReady(map: KakaoMap) {
                             kakaoMapState = map
-                            // 지도 로드 직후에는 기본 위치로 한 번만 이동
+                            // 초기 위치 설정 (서울 시청 근처 or 전달받은 좌표)
                             val position = LatLng.from(locationY, locationX)
                             map.moveCamera(CameraUpdateFactory.newCenterPosition(position))
                             map.moveCamera(CameraUpdateFactory.zoomTo(15))
@@ -96,38 +98,57 @@ fun KakaoMapView(
         update = { view ->
             if (enabled) {
                 kakaoMapState?.let { map ->
-                    // 1. 경로가 없을 때 초기 위치 이동 (딱 한 번만 수행하여 사용자 조작 허용)
+                    // 1. 초기 위치 이동 (경로 데이터가 없을 때만 수행)
                     if (route == null && !isInitialMoveDone) {
                         val target = LatLng.from(locationY, locationX)
                         map.moveCamera(CameraUpdateFactory.newCenterPosition(target))
                         isInitialMoveDone = true
                     }
 
-                    // 2. 경로 그리기 (데이터가 변경되었을 때만 실행)
+                    // 2. 경로 및 라벨 업데이트 (데이터가 변경되었을 때)
                     if (route != lastRoute) {
-                        lastRoute = route // 변경 사항 반영
+                        lastRoute = route
 
-                        // 기존 경로 삭제
-                        currentPolyline?.let {
-                            map.shapeManager?.layer?.remove(it)
-                            currentPolyline = null
-                        }
+                        // (1) 기존 요소 삭제 (초기화)
+                        currentPolyline?.let { map.shapeManager?.layer?.remove(it) }
+                        currentPolyline = null
 
-                        // 새 경로 그리기
+                        val labelLayer = map.labelManager?.layer
+                        currentLabels.forEach { labelLayer?.remove(it) }
+                        currentLabels = emptyList()
+
+                        // (2) 새 경로 및 라벨 그리기
                         if (route != null && route.points.isNotEmpty()) {
                             val latLngs = route.points.map { point ->
                                 LatLng.from(point.latitude, point.longitude)
                             }
 
-                            val style = PolylineStyle.from(20f, Color.parseColor("#FF8216")) // 두께와 색상
-                            val options = PolylineOptions.from(
+                            // --- 🚩 폴리라인(경로선) 그리기 ---
+                            val lineStyle = PolylineStyle.from(20f, Color.parseColor("#FF8216")) // 주황색
+                            val lineOptions = PolylineOptions.from(
                                 MapPoints.fromLatLng(latLngs),
-                                style
+                                lineStyle
                             )
+                            currentPolyline = map.shapeManager?.layer?.addPolyline(lineOptions)
 
-                            // 레이어에 추가
-                            currentPolyline = map.shapeManager?.layer?.addPolyline(options)
+                            // --- 🚩 출발/도착 라벨(아이콘) 추가 ---
+                            val newLabels = mutableListOf<Label>()
 
+                            // 출발지 (ic_start)
+                            val startPos = latLngs.first()
+                            val startStyle = LabelStyle.from(R.drawable.ic_start)
+                            val startOptions = LabelOptions.from("start", startPos).setStyles(startStyle)
+                            labelLayer?.addLabel(startOptions)?.let { newLabels.add(it) }
+
+                            // 도착지 (ic_destination)
+                            val endPos = latLngs.last()
+                            val endStyle = LabelStyle.from(R.drawable.ic_destination)
+                            val endOptions = LabelOptions.from("end", endPos).setStyles(endStyle)
+                            labelLayer?.addLabel(endOptions)?.let { newLabels.add(it) }
+
+                            currentLabels = newLabels
+
+                            // 카메라를 경로가 다 보이도록 이동
                             map.moveCamera(
                                 CameraUpdateFactory.fitMapPoints(latLngs.toTypedArray(), 100)
                             )

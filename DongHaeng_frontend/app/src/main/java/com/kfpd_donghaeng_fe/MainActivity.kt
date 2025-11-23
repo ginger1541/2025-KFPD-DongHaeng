@@ -41,6 +41,7 @@ import com.kfpd_donghaeng_fe.ui.auth.LoginRoute
 import com.kfpd_donghaeng_fe.ui.auth.onboarding.OnboardingScreen
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImpl
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
+import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,7 +67,7 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = "splash" // 상수 사용
+                        startDestination = "home/NEEDY" // 상수 사용
                     ) {
 
                         // "signup" 화면 정의
@@ -221,6 +222,25 @@ class MainActivity : ComponentActivity() {
                             ChatDetailScreen(
                                 chatRoomId = chatRoomId,
                                 onBackClick = { navController.popBackStack() } // 뒤로가기
+                            )
+                        }
+
+                        // 요청 상세 화면
+                        composable(
+                            route = "companion_request_detail/{requestId}",
+                            arguments = listOf(navArgument("requestId") { type = NavType.LongType })
+                        ) { backStackEntry ->
+                            val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
+
+                            CompanionRequestDetailScreen(
+                                requestId = requestId,
+                                onBackClick = { navController.popBackStack() },
+                                onMatchSuccess = { chatRoomId ->
+                                    // 매칭 성공 시 채팅방으로 이동 (스택 정리 옵션은 선택)
+                                    navController.navigate("chat_detail/$chatRoomId") {
+                                        popUpTo("home/HELPER")
+                                    }
+                                }
                             )
                         }
 

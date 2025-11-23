@@ -86,12 +86,17 @@ fun MatchingHomeRoute(
         }
 
         is MatchingHomeUiState.HelperState -> {
-            val helperState = uiState as MatchingHomeUiState.HelperState // as 캐스팅 추가
+            val helperState = uiState as MatchingHomeUiState.HelperState
             CompanionHomeContent(
                 nearbyRequests = helperState.nearbyRequests,
                 onSearchClick = { onNavigateToSearch(userType) },
                 onChangeLocationClick = onNavigateToChangeLocation,
-                onRequestClick = onNavigateToRequestDetail
+                onRequestClick = { requestId ->
+                    // 👇 여기를 수정해서 상세 화면으로 이동시킵니다.
+                    // 기존: onNavigateToRequestDetail(requestId) (이 함수가 mainNavController를 호출해야 함)
+                    // MainScreen.kt에서 navigate 로직을 확인하세요.
+                    onNavigateToRequestDetail(requestId)
+                }
             )
         }
     }
