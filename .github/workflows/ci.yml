@@ -1,0 +1,118 @@
+name: CI - Test & Lint
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'DongHaeng_backend/**'
+      - '.github/workflows/ci.yml'
+  push:
+    branches: [develop]
+    paths:
+      - 'DongHaeng_backend/**'
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./DongHaeng_backend
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: dongheng_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      redis:
+        image: redis:7.0-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: DongHaeng_backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint check
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format -- --check
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Run database migrations
+        run: npm run prisma:migrate:prod
+        env:
+          DATABASE_URL: mysql://root:test_password@localhost:3306/dongheng_test
+
+      - name: Run tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: mysql://root:test_password@localhost:3306/dongheng_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: test-secret
+          JWT_REFRESH_SECRET: test-refresh-secret
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        if: success()
+        with:
+          files: ./DongHaeng_backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./DongHaeng_backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./DongHaeng_backend
+          file: ./DongHaeng_backend/Dockerfile
+          push: false
+          tags: dongheng-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm dongheng-backend:test node --version

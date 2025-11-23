@@ -1,0 +1,450 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 1. USERS (사용자)
+// ============================================
+model User {
+  id                     BigInt    @id @default(autoincrement()) @map("user_id")
+  email                  String    @unique @db.VarChar(255)
+  passwordHash           String    @map("password_hash") @db.VarChar(255)
+  name                   String    @db.VarChar(100)
+  phone                  String    @unique @db.VarChar(20)
+  profileImageUrl        String?   @map("profile_image_url") @db.VarChar(500)
+  bio                    String?   @db.Text
+  userType               UserType  @map("user_type")
+  birthDate              DateTime  @map("birth_date") @db.Date
+  gender                 Gender
+  isVerified             Boolean   @default(false) @map("is_verified")
+  verificationMethod     String?   @map("verification_method") @db.VarChar(50)
+  companionScore         Decimal   @default(0) @map("companion_score") @db.Decimal(5, 2)
+  totalCompanions        Int       @default(0) @map("total_companions")
+  totalVolunteerMinutes  Int       @default(0) @map("total_volunteer_minutes")
+  totalPoints            Int       @default(0) @map("total_points")
+  isActive               Boolean   @default(true) @map("is_active")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  lastLoginAt            DateTime? @map("last_login_at")
+
+  // Relations
+  userLocations        UserLocation[]
+  companionRequests    CompanionRequest[]
+  matchesAsRequester   Match[]              @relation("RequesterMatches")
+  matchesAsHelper      Match[]              @relation("HelperMatches")
+  reviewsWritten       Review[]             @relation("ReviewerReviews")
+  reviewsReceived      Review[]             @relation("RevieweeReviews")
+  badges               Badge[]
+  pointsHistory        PointsHistory[]
+  volunteerHours       VolunteerHour[]
+  notifications        Notification[]
+  reportsAsReporter    Report[]             @relation("ReporterReports")
+  reportsAsReported    Report[]             @relation("ReportedUserReports")
+  blocksAsBlocker      BlockedUser[]        @relation("BlockerBlocks")
+  blocksAsBlocked      BlockedUser[]        @relation("BlockedBlocks")
+  qrAuthentications    QrAuthentication[]
+  sentMessages         ChatMessage[]
+
+  @@index([email], map: "idx_email")
+  @@index([phone], map: "idx_phone")
+  @@index([userType], map: "idx_user_type")
+  @@index([companionScore(sort: Desc)], map: "idx_companion_score")
+  @@map("users")
+}
+
+enum UserType {
+  requester
+  helper
+  both
+}
+
+enum Gender {
+  male
+  female
+  prefer_not_to_say
+}
+
+// ============================================
+// 2. USER_LOCATIONS (실시간 위치)
+// ============================================
+model UserLocation {
+  id          BigInt   @id @default(autoincrement()) @map("location_id")
+  userId      BigInt   @map("user_id")
+  // coordinates POINT - MySQL의 POINT 타입은 Unsupported로 처리
+  coordinates Unsupported("POINT")?
+  latitude    Decimal  @db.Decimal(10, 8)
+  longitude   Decimal  @db.Decimal(11, 8)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_id")
+  @@index([isActive], map: "idx_is_active")
+  // @@index([coordinates], map: "idx_coordinates", type: Spatial) - Prisma는 SPATIAL INDEX를 직접 지원하지 않으므로 마이그레이션 파일에서 수동 추가
+  @@map("user_locations")
+}
+
+// ============================================
+// 3. COMPANION_REQUESTS (동행 요청)
+// ============================================
+model CompanionRequest {
+  id                 BigInt             @id @default(autoincrement()) @map("request_id")
+  requesterId        BigInt             @map("requester_id")
+  title              String             @db.VarChar(200)
+  description        String?            @db.Text
+  // startLocation POINT
+  startLocation      Unsupported("POINT")?  @map("start_location")
+  // destination POINT
+  destination        Unsupported("POINT")?
+  latitude           Decimal            @db.Decimal(10, 7)
+  longitude          Decimal            @db.Decimal(10, 7)
+  startAddress       String             @map("start_address") @db.VarChar(500)
+  destinationAddress String             @map("destination_address") @db.VarChar(500)
+  estimatedMinutes   Int                @map("estimated_minutes")
+  // PDF 요구사항 1-1: 동행 예약 일시 (필수)
+  scheduledAt        DateTime           @map("scheduled_at")
+  // PDF 요구사항 1-2: 경로 정보 (선택)
+  // JSON: { coord_type, total_distance_meters, total_duration_seconds, estimated_price, points[] }
+  route              Json?
+  status             RequestStatus      @default(pending)
+  viewCount          Int                @default(0) @map("view_count")
+  requestedAt        DateTime           @default(now()) @map("requested_at")
+  expiresAt          DateTime?          @map("expires_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  requester User    @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  match     Match?
+
+  @@index([requesterId], map: "idx_requester_id")
+  @@index([status], map: "idx_status")
+  @@index([requestedAt(sort: Desc)], map: "idx_requested_at")
+  @@index([scheduledAt(sort: Asc)], map: "idx_scheduled_at")
+  // @@index([startLocation], map: "idx_start_location", type: Spatial) - 수동 추가 필요
+  @@map("companion_requests")
+}
+
+enum RequestStatus {
+  pending       // 대기중
+  matching      // 매칭중
+  in_progress   // 진행중
+  completed     // 완료
+  cancelled     // 취소
+}
+
+// ============================================
+// 4. MATCHES (매칭 및 동행)
+// ============================================
+model Match {
+  matchId                 BigInt       @id @default(autoincrement()) @map("match_id")
+  requestId               BigInt       @unique @map("request_id")
+  requesterId             BigInt       @map("requester_id")
+  helperId                BigInt       @map("helper_id")
+  status                  MatchStatus  @default(pending)
+  matchedAt               DateTime     @default(now()) @map("matched_at")
+  startedAt               DateTime?    @map("started_at")
+  completedAt             DateTime?    @map("completed_at")
+  actualMinutes           Int?         @map("actual_minutes")
+  earnedPoints            Int?         @map("earned_points")
+  earnedVolunteerMinutes  Int?         @map("earned_volunteer_minutes")
+  createdAt               DateTime     @default(now()) @map("created_at")
+  updatedAt               DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  request            CompanionRequest   @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requester          User               @relation("RequesterMatches", fields: [requesterId], references: [id], onDelete: Cascade)
+  helper             User               @relation("HelperMatches", fields: [helperId], references: [id], onDelete: Cascade)
+  qrAuthentications  QrAuthentication[]
+  chatMessages       ChatMessage[]
+  reviews            Review[]
+  volunteerHours     VolunteerHour[]
+  reports            Report[]
+
+  @@index([requesterId], map: "idx_requester_id")
+  @@index([helperId], map: "idx_helper_id")
+  @@index([status], map: "idx_status")
+  @@index([matchedAt(sort: Desc)], map: "idx_matched_at")
+  @@index([requesterId, matchedAt(sort: Desc)], map: "idx_requester_matched_at")
+  @@index([helperId, matchedAt(sort: Desc)], map: "idx_helper_matched_at")
+  @@map("matches")
+}
+
+enum MatchStatus {
+  pending      // 수락대기
+  in_progress  // 진행중
+  completed    // 완료
+  cancelled    // 취소
+}
+
+// ============================================
+// 5. QR_AUTHENTICATIONS (QR 인증)
+// ============================================
+model QrAuthentication {
+  id            BigInt       @id @default(autoincrement()) @map("auth_id")
+  matchId       BigInt       @map("match_id")
+  authType      AuthType     @map("auth_type")
+  qrCode        String       @unique @db.VarChar(255)
+  scannedByUserId BigInt?    @map("scanned_by_user_id")
+  // scanLocation POINT
+  scanLocation  Unsupported("POINT")? @map("scan_location")
+  scannedAt     DateTime?    @map("scanned_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  match        Match  @relation(fields: [matchId], references: [matchId], onDelete: Cascade)
+  scannedByUser User? @relation(fields: [scannedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([matchId], map: "idx_match_id")
+  @@index([qrCode], map: "idx_qr_code")
+  @@map("qr_authentications")
+}
+
+enum AuthType {
+  start  // 시작
+  end    // 종료
+}
+
+// ============================================
+// 6. CHAT_MESSAGES (채팅)
+// ============================================
+model ChatMessage {
+  id             BigInt    @id @default(autoincrement()) @map("message_id")
+  matchId        BigInt    @map("match_id")
+  senderId       BigInt    @map("sender_id")
+  messageContent String    @map("message_content") @db.Text
+  isRead         Boolean   @default(false) @map("is_read")
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  match  Match @relation(fields: [matchId], references: [matchId], onDelete: Cascade)
+  sender User  @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([matchId], map: "idx_match_id")
+  @@index([senderId], map: "idx_sender_id")
+  @@index([createdAt(sort: Desc)], map: "idx_created_at")
+  @@map("chat_messages")
+}
+
+// ============================================
+// 7. REVIEWS (리뷰)
+// ============================================
+model Review {
+  id             BigInt   @id @default(autoincrement()) @map("review_id")
+  matchId        BigInt   @map("match_id")
+  reviewerId     BigInt   @map("reviewer_id")
+  revieweeId     BigInt   @map("reviewee_id")
+  rating         Int      // 1-5
+  comment        String?  @db.Text
+  selectedBadges Json?    @map("selected_badges") // JSON: ['친절해요', '시간 잘 지켰어요']
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  match    Match @relation(fields: [matchId], references: [matchId], onDelete: Cascade)
+  reviewer User  @relation("ReviewerReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee User  @relation("RevieweeReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, reviewerId], map: "unique_match_reviewer")
+  @@index([revieweeId], map: "idx_reviewee_id")
+  @@index([rating], map: "idx_rating")
+  @@map("reviews")
+}
+
+// ============================================
+// 8. BADGE_TYPES (배지 종류)
+// ============================================
+model BadgeType {
+  id                 BigInt   @id @default(autoincrement()) @map("badge_type_id")
+  badgeName          String   @unique @map("badge_name") @db.VarChar(100)
+  badgeIconUrl       String?  @map("badge_icon_url") @db.VarChar(500)
+  description        String?  @db.Text
+  unlockCondition    Json     @map("unlock_condition") // JSON: {"type": "companion_count", "threshold": 10}
+  requiredCompanions Int      @default(0) @map("required_companions")
+  requiredPoints     Int      @default(0) @map("required_points")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  // Relations
+  badges Badge[]
+
+  @@map("badge_types")
+}
+
+// ============================================
+// 9. BADGES (사용자 획득 배지)
+// ============================================
+model Badge {
+  id          BigInt   @id @default(autoincrement()) @map("badge_id")
+  userId      BigInt   @map("user_id")
+  badgeTypeId BigInt   @map("badge_type_id")
+  earnedAt    DateTime @default(now()) @map("earned_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeType BadgeType @relation(fields: [badgeTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeTypeId], map: "unique_user_badge")
+  @@index([userId], map: "idx_user_id")
+  @@index([badgeTypeId], map: "idx_badge_type_id")
+  @@map("badges")
+}
+
+// ============================================
+// 10. POINTS_HISTORY (포인트 내역)
+// ============================================
+model PointsHistory {
+  id              BigInt            @id @default(autoincrement()) @map("history_id")
+  userId          BigInt            @map("user_id")
+  pointsChange    Int               @map("points_change") // +/- 값
+  transactionType TransactionType   @map("transaction_type")
+  sourceType      SourceType        @map("source_type")
+  referenceId     BigInt?           @map("reference_id") // match_id 등
+  description     String?           @db.Text
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_id")
+  @@index([transactionType], map: "idx_transaction_type")
+  @@index([createdAt(sort: Desc)], map: "idx_created_at")
+  @@map("points_history")
+}
+
+enum TransactionType {
+  earn   // 획득
+  spend  // 사용
+  expire // 만료
+}
+
+enum SourceType {
+  companion     // 동행 완료
+  reward_usage  // 보상 사용
+  event         // 이벤트
+  admin         // 관리자
+}
+
+// ============================================
+// 11. VOLUNTEER_HOURS (봉사 시간)
+// ============================================
+model VolunteerHour {
+  id              BigInt    @id @default(autoincrement()) @map("record_id")
+  userId          BigInt    @map("user_id")
+  matchId         BigInt    @map("match_id")
+  minutes         Int       // 분 단위
+  isSyncedTo1365  Boolean   @default(false) @map("is_synced_to_1365")
+  syncReferenceId String?   @map("sync_reference_id") @db.VarChar(255)
+  syncedAt        DateTime? @map("synced_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match Match @relation(fields: [matchId], references: [matchId], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_id")
+  @@index([matchId], map: "idx_match_id")
+  @@index([isSyncedTo1365], map: "idx_is_synced")
+  @@map("volunteer_hours")
+}
+
+// ============================================
+// 12. NOTIFICATIONS (알림)
+// ============================================
+model Notification {
+  id               BigInt           @id @default(autoincrement()) @map("notification_id")
+  userId           BigInt           @map("user_id")
+  notificationType NotificationType @map("notification_type")
+  title            String           @db.VarChar(200)
+  content          String           @db.Text
+  data             Json?            // JSON: {"type": "match_request", "match_id": 123}
+  isRead           Boolean          @default(false) @map("is_read")
+  readAt           DateTime?        @map("read_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_id")
+  @@index([isRead], map: "idx_is_read")
+  @@index([createdAt(sort: Desc)], map: "idx_created_at")
+  @@map("notifications")
+}
+
+enum NotificationType {
+  match_request    // 매칭 요청
+  match_accepted   // 매칭 수락
+  companion_start  // 동행 시작
+  message          // 메시지
+  badge_earned     // 배지 획득
+  system           // 시스템
+}
+
+// ============================================
+// 13. REPORTS (신고)
+// ============================================
+model Report {
+  id              BigInt      @id @default(autoincrement()) @map("report_id")
+  reporterId      BigInt      @map("reporter_id")
+  reportedUserId  BigInt      @map("reported_user_id")
+  matchId         BigInt?     @map("match_id")
+  reportType      ReportType  @map("report_type")
+  description     String      @db.Text
+  status          ReportStatus @default(pending)
+  adminNote       String?     @map("admin_note") @db.Text
+  resolvedAt      DateTime?   @map("resolved_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  reporter     User   @relation("ReporterReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User   @relation("ReportedUserReports", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  match        Match? @relation(fields: [matchId], references: [matchId], onDelete: SetNull)
+
+  @@index([reportedUserId], map: "idx_reported_user_id")
+  @@index([status], map: "idx_status")
+  @@index([createdAt(sort: Desc)], map: "idx_created_at")
+  @@map("reports")
+}
+
+enum ReportType {
+  inappropriate_behavior // 불쾌한 행동
+  no_show                // 노쇼
+  safety_threat          // 안전 위협
+  other                  // 기타
+}
+
+enum ReportStatus {
+  pending   // 접수
+  reviewing // 검토중
+  completed // 완료
+  rejected  // 기각
+}
+
+// ============================================
+// 14. BLOCKED_USERS (차단)
+// ============================================
+model BlockedUser {
+  id        BigInt   @id @default(autoincrement()) @map("block_id")
+  blockerId BigInt   @map("blocker_id")
+  blockedId BigInt   @map("blocked_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  blocker User @relation("BlockerBlocks", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("BlockedBlocks", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId], map: "unique_blocker_blocked")
+  @@index([blockerId], map: "idx_blocker_id")
+  @@index([blockedId], map: "idx_blocked_id")
+  @@map("blocked_users")
+}

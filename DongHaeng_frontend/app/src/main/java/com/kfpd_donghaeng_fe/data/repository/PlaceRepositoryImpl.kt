@@ -9,15 +9,16 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
 /**
  * PlaceRepository 구현체
  * Kakao API를 통해 장소 검색
  */
+
 @Singleton
 class PlaceRepositoryImpl @Inject constructor(
     private val apiService: KakaoPlaceApiService
 ) : PlaceRepository {
-
     override suspend fun searchPlaces(
         query: String,
         longitude: String?,

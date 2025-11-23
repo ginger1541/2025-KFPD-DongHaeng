@@ -1,0 +1,63 @@
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# 환경변수 (보안)
+.env
+.env.local
+.env.*.local
+
+# 빌드 결과물
+dist
+build
+*.tsbuildinfo
+
+# 테스트
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+tests/
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+logs
+*.log
+
+# 문서
+*.md
+docs/
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Prisma (스키마는 포함, 마이그레이션은 제외)
+prisma/migrations/
+
+# 기타
+.editorconfig
+.prettierrc
+.eslintrc.js
+.husky

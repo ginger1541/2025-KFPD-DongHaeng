@@ -23,7 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.R
-import com.kfpd_donghaeng_fe.ui.auth.UserType
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.chat.ChatListScreen
 import com.kfpd_donghaeng_fe.ui.theme.*
 
@@ -89,6 +89,11 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
             }
         }
     }
+}
+
+@Composable
+fun HomeScreen(userType: UserType, navController: NavHostController) {
+    TODO("Not yet implemented")
 }
 
 /**
