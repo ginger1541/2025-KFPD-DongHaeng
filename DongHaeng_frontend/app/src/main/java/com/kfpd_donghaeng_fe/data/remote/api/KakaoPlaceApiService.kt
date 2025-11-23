@@ -19,3 +19,4 @@ interface KakaoPlaceApiService {
         @Query("size") size: Int = 15
     ): Response<KakaoPlaceResponse>
 }
+

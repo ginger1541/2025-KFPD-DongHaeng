@@ -1,12 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.dashboard
 
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,7 +25,7 @@ import com.kfpd_donghaeng_fe.ui.theme.*
  */
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
-
+/*
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
 
@@ -135,7 +129,7 @@ private fun BottomNavBar(
                 )
             )
         }
-    }
+    }*/
 }
 
 // 하단바 아이템을 위한 데이터 클래스
