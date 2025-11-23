@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -25,30 +26,27 @@ import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.Request
 import com.kfpd_donghaeng_fe.data.findRequestById
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
 import com.kfpd_donghaeng_fe.ui.matching.RequestDetailScreen
 import com.kfpd_donghaeng_fe.ui.matching.ReviewScreen
-import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
-import com.kfpd_donghaeng_fe.util.navigateTo
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
-//import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
-import androidx.compose.runtime.LaunchedEffect
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
+import com.kfpd_donghaeng_fe.ui.auth.LoginRoute
+import com.kfpd_donghaeng_fe.ui.auth.onboarding.OnboardingScreen
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImpl
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.util.AppScreens
-import com.kfpd_donghaeng_fe.util.navigateToHomeAfterSignUp
-import kotlinx.coroutines.delay // 딜레이를 위해 필요
+
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 
 
-
-//  기존 mainactivty 오류 파티라서 .. 주석 처리 해놨어요!
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -61,28 +59,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             KFPD_DongHaeng_FETheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
 
                     NavHost(
                         navController = navController,
-                        startDestination = AppScreens.SIGN_UP // 상수 사용
+                        startDestination = "splash" // 상수 사용
                     ) {
 
                         // "signup" 화면 정의
                         composable("signup") {
-//                            SignUpScreen(
-//                                onNavigateBack = {
-//                                    // ...
-//                                },
-//                                // userType을 받는 람다
-//                                onSignUpComplete = { userType ->
-//                                    // "home/NEEDY" 또는 "home/HELPER"로 이동
-//                                    navController.navigateToHomeAfterSignUp(userType)
-//                                }
-//                            )
+//
                             MakeAccountRoute()
                         }
 
@@ -104,6 +93,30 @@ class MainActivity : ComponentActivity() {
                                 mainNavController = navController // 상위 NavHostController 전달
                             )
                         }
+
+                        composable("splash") {
+                            LaunchedEffect(Unit) {
+                                delay(2000L)
+                                navController.navigate("login") {
+                                    popUpTo("splash") { inclusive = true }
+                                }
+                            }
+                            OnboardingScreen(
+                                uiState = LoginAccountUiState(),
+                                onNextClick = {},
+                                MovetoMakeAccount = {},
+                                page = 0 // 주황색 배경, 흰색 로고 (스플래시 디자인)
+                            )
+                        }
+                        composable("login"){
+                            LoginRoute(onNavigateToMakeAccount = {
+                                navController.navigate("signup") {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            },)
+                        }
+
+
 
                         // MATCHING 경로 정의
 //                        composable(
@@ -217,3 +230,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

@@ -161,6 +161,10 @@ private fun ThankYouMessageSection(
     }
 }
 
+
+
+/*
+
 @Preview(showBackground = true, heightDp = 1400)
 @Composable
 fun PreviewReviewScreen() {
@@ -169,4 +173,4 @@ fun PreviewReviewScreen() {
         distance = "2.1km",
         earnedPoints = 250
     )
-}
+}*/

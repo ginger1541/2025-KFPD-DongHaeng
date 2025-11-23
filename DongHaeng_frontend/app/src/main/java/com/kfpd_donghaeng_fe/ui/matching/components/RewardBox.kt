@@ -126,6 +126,8 @@ fun RewardRow(
     }
 }
 
+
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewRewardBox() {
@@ -133,4 +135,4 @@ fun PreviewRewardBox() {
         points = 250,
         volunteerTime = "0h 9m"
     )
-}
+}*/

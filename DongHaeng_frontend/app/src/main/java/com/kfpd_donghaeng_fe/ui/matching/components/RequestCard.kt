@@ -124,6 +124,7 @@ fun LocationRow(
     }
 }
 
+
 @Composable
 fun LabelBox(text: String, backgroundColor: Color, textColor: Color) {
     Box(

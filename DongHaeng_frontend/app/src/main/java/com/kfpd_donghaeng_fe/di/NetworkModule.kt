@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.di
 
+import com.kfpd_donghaeng_fe.data.remote.api.AuthInterceptor
 import com.kfpd_donghaeng_fe.data.remote.api.KakaoPlaceApiService
 import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
 import com.kfpd_donghaeng_fe.data.remote.api.SKRouteApiService
@@ -38,20 +39,20 @@ object NetworkModule {
             .build()
     }
 
-    // TODO: 백엔드 연결용
-//    @Provides
-//    @Singleton
-//    @Named("backend")
-//    fun provideBackendOkHttpClient(
-//        // backendAuthInterceptor: BackendAuthInterceptor
-//    ): OkHttpClient {
-//        return OkHttpClient.Builder()
-//            // .addInterceptor(backendAuthInterceptor)
-//            .connectTimeout(10, TimeUnit.SECONDS)
-//            .readTimeout(10, TimeUnit.SECONDS)
-//            .writeTimeout(10, TimeUnit.SECONDS)
-//            .build()
-//    }
+    //TODO: 백엔드 연결용
+    @Provides
+    @Singleton
+    @Named("backend")
+    fun provideBackendOkHttpClient(
+        // backendAuthInterceptor: BackendAuthInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            // .addInterceptor(backendAuthInterceptor)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+    }
 
     private const val KAKAO_BASE_URL = "https://dapi.kakao.com/"
     private const val SK_ROUTE_BASE_URL = "https://apis.openapi.sk.com/"
@@ -67,14 +68,26 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            // 💡 이전에 오류를 낸 'http' 대신 'https'를 사용해야 합니다!
+            .baseUrl("http://34.64.76.147:3000")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor, // 토근용
         loggingInterceptor: HttpLoggingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor) // 로깅 인터셉터 추가
-            .connectTimeout(30, TimeUnit.SECONDS) // 연결 타임아웃
-            .readTimeout(30, TimeUnit.SECONDS) // 읽기 타임아웃
-            .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 타임아웃
+            // 💡 AuthInterceptor가 반드시 OkHttpClient에 추가되어야 합니다.
+            .addInterceptor(authInterceptor)
+            .addInterceptor(loggingInterceptor)
+            // ...
             .build()
     }
 

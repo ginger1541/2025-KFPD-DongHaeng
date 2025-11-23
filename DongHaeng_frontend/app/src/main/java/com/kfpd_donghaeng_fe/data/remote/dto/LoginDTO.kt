@@ -13,7 +13,6 @@ data class LoginRequestDto(
 
 
 data class LoginRespondDto(
-    @SerializedName("token") val token: String,
     @SerializedName("is_new_user") val isNewUser: Boolean,
     @SerializedName("user") val user: User
 )
@@ -56,8 +55,7 @@ fun BaseResponseDto<LoginRespondDto>.toDomainLogin(): LoginResultEntity {
     // 2. 토큰 등 핵심 데이터와 User 상세 정보를 포함한 전체 Entity를 반환합니다.
     return LoginResultEntity(
         success=true,
-        token = loginData.token,
         isNewUser = loginData.isNewUser,
-        userData = userDomainData // 👈 변환한 사용자 상세 정보를 반드시 포함해야 합니다.
+        userData = userDomainData
     )
 }
