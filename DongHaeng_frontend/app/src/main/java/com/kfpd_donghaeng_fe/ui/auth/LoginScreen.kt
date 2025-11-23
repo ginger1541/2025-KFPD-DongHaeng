@@ -31,7 +31,8 @@ fun LoginRoute(
     LoginScreen(
         uiState = uiState,
         onNextClick = viewModel::login,
-        MovetoMakeAccount = viewModel :: MovetoMakeAccount
+        MovetoMakeAccount = viewModel :: MovetoMakeAccount,
+        MovetoMain = viewModel :: MovetoMain
 
 
     )
@@ -43,6 +44,7 @@ fun LoginScreen(
     uiState: LoginAccountUiState,
     onNextClick: () -> Unit,
     MovetoMakeAccount : () -> Unit,
+    MovetoMain:()->Unit,
 
     ) {
     when (uiState.currentPage) {
@@ -54,7 +56,8 @@ fun LoginScreen(
         )
         1->LoginPage(
             uiState = uiState,
-            onNextClick = onNextClick
+            onNextClick = onNextClick,
+            MovetoMain=MovetoMain
         )
 
     }

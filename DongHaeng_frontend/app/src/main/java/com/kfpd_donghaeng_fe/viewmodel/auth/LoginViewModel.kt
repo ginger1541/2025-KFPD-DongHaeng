@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.viewmodel.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
@@ -24,12 +25,20 @@ class LoginViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             val current = _uiState.value.currentPage
-            val canGoNext = checkCanLoginUseCase(current)
-            if (canGoNext && current <=1) {
+            if (current<=1) {
                 _uiState.update { currentState ->
                     currentState.copy(currentPage = currentState.currentPage + 1)
                 }
             }
+        }
+    }
+
+    fun MovetoMain(){
+        viewModelScope.launch {
+            val canLogin = checkCanLoginUseCase()
+            if (canLogin) {Log.d("LOGIN_CHECK", "로그인 가능 상태입니다. 다음 화면으로 이동합니다.")
+            }else{Log.w("LOGIN_CHECK", "로그인 불가 상태입니다. 오류 메시지를 출력합니다.")}
+
         }
     }
     fun MovetoMakeAccount(){

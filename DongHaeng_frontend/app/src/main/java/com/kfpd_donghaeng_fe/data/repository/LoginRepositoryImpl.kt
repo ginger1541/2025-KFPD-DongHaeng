@@ -1,5 +1,7 @@
 package com.kfpd_donghaeng_fe.data.repository
 
+import androidx.datastore.core.DataStore
+import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
 import com.kfpd_donghaeng_fe.domain.repository.LoginRepository
 import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
 
@@ -10,13 +12,12 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.LoginResultEntity
 import javax.inject.Inject
 
 class LoginRepositoryImpl @Inject constructor(
-    private val apiService: LoginApiService
+    private val apiService: LoginApiService,
+    private val tokenDataSource: TokenLocalDataSource
 ) : LoginRepository {
 
     override suspend fun isLoggedIn(): Boolean {
-        // TODO: 실제로 토큰이 로컬에 저장되어 있는지 확인하는 로직이 들어갑니다.
-        // 지금은 임시로 true 반환
-        return true
+        return tokenDataSource.getToken() != null
     }
 
     suspend fun attemptLogin(email: String, password: String): LoginResultEntity{
@@ -24,7 +25,10 @@ class LoginRepositoryImpl @Inject constructor(
         // 실제 API 호출!
         val response = apiService.login(request)
 
-        // TODO: 받은 토큰을 SharedPreferences나 DataStore에 저장하는 로직 추가 (data layer 역할 필요)
+        val loginResult = response.toDomainLogin()
+
+        // 2. 받은 토큰을 DataStore에 저장하는 로직
+        tokenDataSource.saveToken(loginResult.token)
 
         return response.toDomainLogin()
     }

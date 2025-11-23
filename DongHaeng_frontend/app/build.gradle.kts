@@ -61,6 +61,7 @@ fun getApiKey(propertyKey: String): String {
 dependencies {
 
 
+    implementation(libs.androidx.datastore.core)
     val cameraVersion = "1.3.0" // 최신 안정 버전 확인 필요
 
     implementation("androidx.camera:camera-core:$cameraVersion")
@@ -118,6 +119,9 @@ dependencies {
 
     // ViewModel 사용을 위해 필요할 수 있습니다.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3") // 최신 버전 확인 후 사용
+
+    //Data store
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
 
 

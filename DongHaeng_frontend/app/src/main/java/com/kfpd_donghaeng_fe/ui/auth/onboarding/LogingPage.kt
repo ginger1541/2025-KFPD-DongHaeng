@@ -47,6 +47,7 @@ import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 fun LoginPage(
     uiState: LoginAccountUiState,
     onNextClick: () -> Unit,
+    MovetoMain:()->Unit,
 ) {
     // 💡 로그인 입력 상태 관리 (이전에 안내해 드린 코드 기반)
     var idText by remember { mutableStateOf("") }
@@ -103,7 +104,7 @@ fun LoginPage(
                 modifier = Modifier
                     .offset(y = -100.dp)
                     .padding(horizontal = 20.dp),
-            ){LoginPageButton("로그인", {})}
+            ){LoginPageButton("로그인", MovetoMain)}
             Row(
                 modifier = Modifier
                     .offset(y = -80.dp),
