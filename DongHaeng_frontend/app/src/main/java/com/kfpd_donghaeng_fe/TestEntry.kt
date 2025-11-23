@@ -31,6 +31,8 @@ class TestEntry: ComponentActivity() {
     }
 }
 
+
+//TODO: utill 로 옮겨야 함
 @Composable
 fun AppNavigation_TestLogin() {
     val navController = rememberNavController()

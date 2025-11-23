@@ -1,15 +1,14 @@
 package com.kfpd_donghaeng_fe.domain.usecase
 
+import com.kfpd_donghaeng_fe.domain.repository.LoginRepository
 import jakarta.inject.Inject
 
-// 생성자에서 LoginRepository를 제거합니다.
-class LoginUseCase @Inject constructor() {
-
-    // ViewModel에서 current를 넘겨주고 있으므로 파라미터는 유지합니다.
+class LoginUseCase @Inject constructor(
+    private val loginRepository: LoginRepository // 👈 다시 주입받습니다!
+) {
     suspend operator fun invoke(currentPage: Int): Boolean {
-
-        // 리포지토리 없이 그냥 무조건 "통과(true)"라고 거짓말을 합니다.
-        // 나중에 실제 로직이 필요할 때 다시 리포지토리를 연결하면 됩니다.
-        return true
+        // 예시: 페이지가 마지막 단계라면 실제 로그인 요청
+        // 현재 로직에 맞춰 수정이 필요할 수 있지만, 일단 연결부터 합니다.
+        return loginRepository.isLoggedIn()
     }
 }

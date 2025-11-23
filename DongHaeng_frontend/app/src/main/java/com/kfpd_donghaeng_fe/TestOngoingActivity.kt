@@ -24,6 +24,8 @@ class TestOngoingActivity: ComponentActivity() {
     }
 }
 
+//TODO : utill 로 옮겨야함!
+
 @Composable
 fun AppNavigation_TestOngoing() {
     val navController = rememberNavController()

@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 
 
+
+//공통 버튼 ( 하단 )
 @Composable
 fun LoginPageButton(Text: String, Onclick: () -> Unit) {
     Button(
