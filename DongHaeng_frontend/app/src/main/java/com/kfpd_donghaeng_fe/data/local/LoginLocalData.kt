@@ -6,6 +6,8 @@ interface TokenLocalDataSource {
     suspend fun saveToken(token: String)
     suspend fun getToken(): String?
     suspend fun deleteToken()
+    suspend fun saveUserType(type: String)
+    suspend fun getUserType(): String?
 }
 
 

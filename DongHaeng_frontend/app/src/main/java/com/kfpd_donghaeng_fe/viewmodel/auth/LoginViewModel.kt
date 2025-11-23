@@ -6,11 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltViewModel
@@ -22,6 +25,10 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginAccountUiState(currentPage = 0))
     // 외부용 (읽기 전용)
     val uiState = _uiState.asStateFlow()
+
+    private val _loginEvent = MutableSharedFlow<Boolean>()
+    val loginEvent: SharedFlow<Boolean> = _loginEvent.asSharedFlow()
+
     fun login() {
         viewModelScope.launch {
             val current = _uiState.value.currentPage
@@ -41,6 +48,7 @@ class LoginViewModel @Inject constructor(
                 if (canLogin.success) {
                     // 성공 로직
                     Log.e("Login", "로그인 성공!")
+                    _loginEvent.emit(true)
                 } else {
                     // 실패 로직
                     Log.e("Login", "로그인 실패!")

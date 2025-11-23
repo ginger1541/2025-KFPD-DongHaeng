@@ -9,12 +9,14 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.auth.onboarding.LoginPage
 import com.kfpd_donghaeng_fe.ui.auth.onboarding.OnboardingScreen
 import com.kfpd_donghaeng_fe.viewmodel.auth.LoginViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 
 @Composable
 fun LoginRoute(
     // ✅ 부모로부터 메인 화면으로 이동하는 함수를 전달받습니다.
     onNavigateToMakeAccount: () -> Unit,
+    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -25,6 +27,14 @@ fun LoginRoute(
         if (uiState.currentPage == 2) {
             // 전달받은 내비게이션 실행 함수를 호출합니다.
             onNavigateToMakeAccount()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loginEvent.collectLatest { isSuccess ->
+            if (isSuccess) {
+                onLoginSuccess() // 메인 화면으로 이동!
+            }
         }
     }
 

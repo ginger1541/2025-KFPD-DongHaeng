@@ -20,7 +20,8 @@ data class LoginUserEntity(
 
 
 data class LoginResultEntity(
-    val success:Boolean,
-    val isNewUser:Boolean, // 👈 신규 유저 여부 포함
-    val userData: LoginUserEntity
+    val success: Boolean,
+    val isNewUser: Boolean,
+    val userData: LoginUserEntity,
+    val token: String
 )

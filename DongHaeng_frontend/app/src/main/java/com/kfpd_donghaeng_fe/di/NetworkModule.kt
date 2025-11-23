@@ -132,9 +132,12 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("my_server")
-    fun provideMyServerRetrofit(): Retrofit {
+    fun provideMyServerRetrofit(
+        okHttpClient: OkHttpClient // 👈 주입 받기!
+    ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://34.64.76.147:3000/") // API 가이드 주소로 변경
+            .baseUrl("http://34.64.76.147:3000/")
+            .client(okHttpClient) // 👈 ⭐️⭐️⭐️ 핵심! 이걸 빼먹어서 그동안 안 된 겁니다.
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

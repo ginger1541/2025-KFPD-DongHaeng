@@ -7,13 +7,17 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +27,7 @@ import androidx.navigation.navArgument
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.chat.ChatDetailScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
+import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.Request
 import com.kfpd_donghaeng_fe.data.findRequestById
@@ -43,10 +48,10 @@ import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImp
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -60,194 +65,179 @@ class MainActivity : ComponentActivity() {
         setContent {
             KFPD_DongHaeng_FETheme {
                 Surface(
-                    //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = "home/NEEDY" // 상수 사용
-                    ) {
+                    // SplashViewModel 주입
+                    val splashViewModel: SplashViewModel = hiltViewModel()
+                    val startDest by splashViewModel.startDestination.collectAsState()
 
-                        // "signup" 화면 정의
-                        composable("signup") {
-//
-                            MakeAccountRoute()
+                    // startDest가 결정되기 전에는 로딩 화면 표시
+                    if (startDest == null) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MainOrange)
                         }
-
-                        // "home" 화면 정의
-                        composable(
-                            route = AppScreens.HOME_ROUTE,
-
-                            // {userType} 인자에 대한 정보 정의는 유지
-                            arguments = listOf(navArgument("userType") {
-                                type = NavType.StringType // 문자열 타입
-                            })
-                        ) { backStackEntry ->
-                            // 주소에서 userType 값 꺼내기
-                            val userTypeString = backStackEntry.arguments?.getString("userType")
-                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
-
-                            MainScreen(
-                                userType = userType,
-                                mainNavController = navController // 상위 NavHostController 전달
-                            )
-                        }
-
-                        composable("splash") {
-                            LaunchedEffect(Unit) {
-                                delay(2000L)
-                                navController.navigate("login") {
-                                    popUpTo("splash") { inclusive = true }
-                                }
+                    } else {
+                        NavHost(
+                            navController = navController,
+                            startDestination = startDest!! // 동적으로 결정된 시작 경로
+                        ) {
+                            // "signup" 화면 정의
+                            composable("signup") {
+                                MakeAccountRoute()
                             }
-                            OnboardingScreen(
-                                uiState = LoginAccountUiState(),
-                                onNextClick = {},
-                                MovetoMakeAccount = {},
-                                page = 0 // 주황색 배경, 흰색 로고 (스플래시 디자인)
-                            )
-                        }
-                        composable("login"){
-                            LoginRoute(onNavigateToMakeAccount = {
-                                navController.navigate("signup") {
-                                    popUpTo("login") { inclusive = true }
-                                }
-                            },)
-                        }
 
-
-
-                        // MATCHING 경로 정의
-//                        composable(
-//                            // 경로 상수 사용
-//                            route = AppScreens.MATCHING_ROUTE,
-//                            arguments = listOf(navArgument("userType") {
-//                                type = NavType.StringType
-//                            })
-//                        ) { backStackEntry ->
-//                            val userTypeString = backStackEntry.arguments?.getString("userType")
-//                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
-//
-//                            MatchingScreen(
-//                                userType = userType,
-//                                navController = navController,
-//                                checker = permissionChecker,
-//                                navigator = appSettingsNavigator
-//                            )
-//                        }
-
-                        composable(
-                            // 💡 [필수 수정]: startSearch 쿼리 파라미터를 경로에 추가합니다.
-                            route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}",
-                            arguments = listOf(
-                                navArgument("userType") {
+                            // "home" 화면 정의
+                            composable(
+                                route = AppScreens.HOME_ROUTE,
+                                arguments = listOf(navArgument("userType") {
                                     type = NavType.StringType
-                                },
-                                // 💡 [필수 추가]: startSearch 인자 정의를 추가합니다.
-                                navArgument("startSearch") {
-                                    type = NavType.BoolType
-                                    defaultValue = false // 기본값은 false
+                                })
+                            ) { backStackEntry ->
+                                val userTypeString = backStackEntry.arguments?.getString("userType")
+                                val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+
+                                MainScreen(
+                                    userType = userType,
+                                    mainNavController = navController
+                                )
+                            }
+
+                            composable("splash") {
+                                LaunchedEffect(Unit) {
+                                    delay(2000L)
+                                    navController.navigate("login") {
+                                        popUpTo("splash") { inclusive = true }
+                                    }
                                 }
-                            )
-                        ) { backStackEntry ->
-                            val userTypeString = backStackEntry.arguments?.getString("userType")
-                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+                                OnboardingScreen(
+                                    uiState = LoginAccountUiState(),
+                                    onNextClick = {},
+                                    MovetoMakeAccount = {},
+                                    page = 0
+                                )
+                            }
 
-                            // 💡 [필수 추가]: startSearch 인자 값을 읽어서 전달합니다.
-                            val startSearch = backStackEntry.arguments?.getBoolean("startSearch") ?: false
-
-                            MatchingScreen(
-                                userType = userType,
-                                navController = navController,
-                                checker = permissionChecker,
-                                navigator = appSettingsNavigator,
-                                startSearch = startSearch // 인자 전달
-                            )
-                        }
-
-                        // 임시 요청상세 경로
-                        composable(
-                            route = AppScreens.REQUEST_DETAIL_SCREEN, // "request_detail_route/{requestId}"
-                            arguments = listOf(navArgument("requestId") {
-                                type = NavType.LongType
-                                defaultValue = -1L
-                            })
-                        ) { backStackEntry ->
-
-                            // 1. 경로 인자 추출
-                            val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
-
-                            // 2. ID를 사용하여 더미 Request 객체 찾기
-                            val request = findRequestById(requestId)
-
-                            if (request != null) {
-                                RequestDetailScreen(
-                                    request = request,
-                                    onBackClick = { navController.popBackStack() },
-                                    onAcceptClick = {
-                                        navController.navigateToOngoingScreen()
+                            composable("login") {
+                                LoginRoute(
+                                    // 회원가입 화면으로 이동
+                                    onNavigateToMakeAccount = {
+                                        navController.navigate("signup") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    },
+                                    // ✅ [추가] 로그인 성공 시 홈 화면으로 이동!
+                                    onLoginSuccess = {
+                                        // 로그인 스택을 지우고 홈으로 이동 (뒤로가기 방지)
+                                        navController.navigate("home/NEEDY") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
                                     }
                                 )
-                            } else {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Text("요청 ID ($requestId)를 찾을 수 없습니다.")
-                                }
                             }
-                        }
 
-                        composable(AppScreens.REVIEW_SCREEN) {
-                            ReviewScreen(
+                            // MATCHING 경로 정의
+                            composable(
+                                route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}",
+                                arguments = listOf(
+                                    navArgument("userType") {
+                                        type = NavType.StringType
+                                    },
+                                    navArgument("startSearch") {
+                                        type = NavType.BoolType
+                                        defaultValue = false
+                                    }
+                                )
+                            ) { backStackEntry ->
+                                val userTypeString = backStackEntry.arguments?.getString("userType")
+                                val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+                                val startSearch = backStackEntry.arguments?.getBoolean("startSearch") ?: false
 
-                            )
-                        }
+                                MatchingScreen(
+                                    userType = userType,
+                                    navController = navController,
+                                    checker = permissionChecker,
+                                    navigator = appSettingsNavigator,
+                                    startSearch = startSearch
+                                )
+                            }
 
-                        composable(AppScreens.ONGOING_SCREEN) {
-                            OngoingScreen(
-                                onNavigateToReview = {
-                                    // ReviewScreen으로 이동합니다. (스택 정리 로직은 navigateToReviewScreen 내부에 있을 수 있음)
-                                    navController.navigateToReviewScreen()
-                                }
-                            )
-                        }
+                            // 임시 요청상세 경로
+                            composable(
+                                route = AppScreens.REQUEST_DETAIL_SCREEN,
+                                arguments = listOf(navArgument("requestId") {
+                                    type = NavType.LongType
+                                    defaultValue = -1L
+                                })
+                            ) { backStackEntry ->
+                                val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
+                                val request = findRequestById(requestId)
 
-                        // 채팅 상세 화면 경로 추가
-                        composable(
-                            route = "chat_detail/{chatRoomId}",
-                            arguments = listOf(navArgument("chatRoomId") { type = NavType.LongType })
-                        ) { backStackEntry ->
-                            val chatRoomId = backStackEntry.arguments?.getLong("chatRoomId") ?: 0L
-
-                            ChatDetailScreen(
-                                chatRoomId = chatRoomId,
-                                onBackClick = { navController.popBackStack() } // 뒤로가기
-                            )
-                        }
-
-                        // 요청 상세 화면
-                        composable(
-                            route = "companion_request_detail/{requestId}",
-                            arguments = listOf(navArgument("requestId") { type = NavType.LongType })
-                        ) { backStackEntry ->
-                            val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
-
-                            CompanionRequestDetailScreen(
-                                requestId = requestId,
-                                onBackClick = { navController.popBackStack() },
-                                onMatchSuccess = { chatRoomId ->
-                                    // 매칭 성공 시 채팅방으로 이동 (스택 정리 옵션은 선택)
-                                    navController.navigate("chat_detail/$chatRoomId") {
-                                        popUpTo("home/HELPER")
+                                if (request != null) {
+                                    RequestDetailScreen(
+                                        request = request,
+                                        onBackClick = { navController.popBackStack() },
+                                        onAcceptClick = {
+                                            navController.navigateToOngoingScreen()
+                                        }
+                                    )
+                                } else {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text("요청 ID ($requestId)를 찾을 수 없습니다.")
                                     }
                                 }
-                            )
-                        }
+                            }
 
+                            composable(AppScreens.REVIEW_SCREEN) {
+                                ReviewScreen()
+                            }
+
+                            composable(AppScreens.ONGOING_SCREEN) {
+                                OngoingScreen(
+                                    onNavigateToReview = {
+                                        navController.navigateToReviewScreen()
+                                    }
+                                )
+                            }
+
+                            // 채팅 상세 화면 경로 추가
+                            composable(
+                                route = "chat_detail/{chatRoomId}",
+                                arguments = listOf(navArgument("chatRoomId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val chatRoomId = backStackEntry.arguments?.getLong("chatRoomId") ?: 0L
+
+                                ChatDetailScreen(
+                                    chatRoomId = chatRoomId,
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+
+                            // 요청 상세 화면
+                            composable(
+                                route = "companion_request_detail/{requestId}",
+                                arguments = listOf(navArgument("requestId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
+
+                                CompanionRequestDetailScreen(
+                                    requestId = requestId,
+                                    onBackClick = { navController.popBackStack() },
+                                    onMatchSuccess = { chatRoomId ->
+                                        navController.navigate("chat_detail/$chatRoomId") {
+                                            popUpTo("home/HELPER")
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
-

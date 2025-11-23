@@ -21,12 +21,23 @@ class RequestRepositoryImpl @Inject constructor(
     override suspend fun createRequest(requestDto: RequestCreateDto): Result<RequestCreateResponse> {
         return try {
             val response = apiService.createRequest(requestDto)
+
             if (response.isSuccessful && response.body()?.success == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                Result.failure(Exception(response.body()?.message ?: "요청 생성 실패"))
+                // 🔍 [디버깅] 실패 원인 상세 분석
+                val code = response.code()
+                val errorBody = response.errorBody()?.string() // 서버가 보낸 에러 메시지 원본
+                val message = response.body()?.message
+
+                android.util.Log.e("API_ERROR", "요청 실패 - Code: $code, Msg: $message")
+                android.util.Log.e("API_ERROR", "ErrorBody: $errorBody")
+
+                Result.failure(Exception("API 오류($code): $message"))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
+            android.util.Log.e("API_ERROR", "네트워크 예외 발생: ${e.message}")
             Result.failure(e)
         }
     }

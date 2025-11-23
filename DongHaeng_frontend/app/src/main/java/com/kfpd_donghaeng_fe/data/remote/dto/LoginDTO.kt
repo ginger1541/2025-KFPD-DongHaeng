@@ -13,38 +13,40 @@ data class LoginRequestDto(
 
 
 data class LoginRespondDto(
-    @SerializedName("is_new_user") val isNewUser: Boolean,
-    @SerializedName("user") val user: User
+    @SerializedName("is_new_user") val isNewUser: Boolean, // 명세서엔 없는데 기존 코드에 있어서 유지 (필요없으면 삭제)
+    @SerializedName("user") val user: UserDto,             // 명세서의 data.user
+    @SerializedName("tokens") val tokens: TokensDto        // 💡 명세서의 data.tokens
 )
 
 // user 정보
-data class User(
-    @SerializedName("user_id") val userId: Int, // Int로 가정
+data class UserDto(
+    @SerializedName("id") val id: Int,
     @SerializedName("email") val email: String,
-    @SerializedName("name") val name: String?,
-    @SerializedName("profile_image_url") val profileImageUrl: String?,
-    @SerializedName("user_type") val userType: String?,
-    @SerializedName("companion_score") val companionScore: Double?
+    @SerializedName("name") val name: String,
+    @SerializedName("userType") val userType: String,
+    @SerializedName("profileImageUrl") val profileImageUrl: String?,
+    @SerializedName("companionScore") val companionScore: Double
 )
 
-
+data class TokensDto(
+    @SerializedName("accessToken") val accessToken: String,
+    @SerializedName("refreshToken") val refreshToken: String
+)
 
 
 //mapping!
 // DTO를 Domain Entity로 변환하는 함수 (Mapper)
 
 fun BaseResponseDto<LoginRespondDto>.toDomainLogin(): LoginResultEntity {
-
     if (!success) {
-
         throw Exception(message ?: "로그인 실패: 서버 응답 오류.")
     }
 
     val loginData = data ?: throw Exception("로그인 실패: 데이터 본문이 없습니다.")
 
-    // 1. User DTO를 Domain Entity로 변환합니다. (User 상세 정보)
+    // DTO -> Entity 변환
     val userDomainData = LoginUserEntity(
-        userId = loginData.user.userId,
+        userId = loginData.user.id,
         email = loginData.user.email,
         name = loginData.user.name,
         profileImageUrl = loginData.user.profileImageUrl,
@@ -52,10 +54,12 @@ fun BaseResponseDto<LoginRespondDto>.toDomainLogin(): LoginResultEntity {
         companionScore = loginData.user.companionScore
     )
 
-    // 2. 토큰 등 핵심 데이터와 User 상세 정보를 포함한 전체 Entity를 반환합니다.
     return LoginResultEntity(
-        success=true,
-        isNewUser = loginData.isNewUser,
-        userData = userDomainData
+        success = true,
+        isNewUser = loginData.isNewUser, // 명세에 없으면 false 처리 등을 고려
+        userData = userDomainData,
+
+        // 💡 핵심: 토큰을 꺼내서 Entity에 담습니다.
+        token = loginData.tokens.accessToken
     )
 }

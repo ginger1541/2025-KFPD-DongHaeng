@@ -18,6 +18,7 @@ class TokenLocalDataSourceImpl @Inject constructor(
     companion object {
         // stringPreferencesKey 임포트 필요
         private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
+        private val USER_TYPE_KEY = stringPreferencesKey("user_type")
     }
 
     override suspend fun saveToken(token: String) {
@@ -41,5 +42,18 @@ class TokenLocalDataSourceImpl @Inject constructor(
         dataStore.edit { preferences ->
             preferences.remove(AUTH_TOKEN_KEY)
         }
+    }
+
+    override suspend fun saveUserType(type: String) {
+        dataStore.edit { preferences ->
+            preferences[USER_TYPE_KEY] = type
+        }
+    }
+
+    // ✅ [추가] 유저 타입 조회 구현
+    override suspend fun getUserType(): String? {
+        return dataStore.data
+            .map { preferences -> preferences[USER_TYPE_KEY] }
+            .firstOrNull()
     }
 }

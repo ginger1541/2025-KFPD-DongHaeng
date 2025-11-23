@@ -30,11 +30,6 @@ data class RouteInfoDto(
     val points: List<PointDto>?
 )
 
-data class PointDto(
-    val lat: Double,
-    val lng: Double
-)
-
 data class RequesterProfileDto(
     val id: Long,
     val name: String,

@@ -1,7 +1,5 @@
 package com.kfpd_donghaeng_fe.data.remote.api
 
-
-import androidx.camera.core.ImageProcessor.Response
 import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
@@ -13,6 +11,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.Response
 
 
 // 매칭된 요청,요청자  상세 정보
@@ -25,7 +24,7 @@ interface RequestApiService {
     @POST("/api/companions/requests")
     suspend fun createRequest(
         @Body request: RequestCreateDto
-    ):BaseResponseDto<RequestCreateResponse>
+    ):Response<BaseResponseDto<RequestCreateResponse>>
 }
 
 

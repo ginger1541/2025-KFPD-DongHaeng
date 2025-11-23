@@ -90,14 +90,9 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 )
             }
 
-            // '동행(미션)' 화면
-            // 💡 [수정] 하단바 item의 route인 "matching"과 일치시켰습니다.
             composable("matching") {
-                OngoingScreen(
-                    onNavigateToReview = {
-                        // ReviewScreen으로 이동합니다.
-                        bottomNavController.navigateToReviewScreen()
-                    }
+                ScheduleScreen(
+                    navController = mainNavController // 상세 화면 이동을 위해 메인 네비게이션 전달
                 )
             }
 
