@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kfpd_donghaeng_fe.R
+/*
 import com.kfpd_donghaeng_fe.domain.entity.PlaceSearchResult
 import com.kfpd_donghaeng_fe.ui.matching.search.PlaceSearchScreen
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
@@ -30,6 +31,8 @@ import com.kfpd_donghaeng_fe.ui.theme.AppColors.PrimaryDarkText
 import com.kfpd_donghaeng_fe.ui.theme.AppColors.SecondaryText
 import com.kfpd_donghaeng_fe.viewmodel.matching.BookingViewModel
 
+
+/*
 // UI State Models
 data class LocationInput(
     val id: String,
@@ -350,4 +353,4 @@ fun LocationInputRow(
             modifier = Modifier.weight(1f)
         )
     }
-}
+}*/

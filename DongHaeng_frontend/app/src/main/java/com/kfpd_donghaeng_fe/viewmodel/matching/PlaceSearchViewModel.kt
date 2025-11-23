@@ -1,5 +1,7 @@
 package com.kfpd_donghaeng_fe.viewmodel.matching
 
+
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.entity.LocationType

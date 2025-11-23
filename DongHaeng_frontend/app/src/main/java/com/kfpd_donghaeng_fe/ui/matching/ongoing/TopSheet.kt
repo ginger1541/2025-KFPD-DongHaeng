@@ -15,8 +15,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image // 1. Image 컴포저블 자체를 사용하기 위해 필요
-import com.kfpd_donghaeng_fe.R // 3. 프로젝트의 리소스(R) 클래스 사용을 위해 필요
-import com.kfpd_donghaeng_fe.ui.matching.ongoing.ChattingScreen
+import com.kfpd_donghaeng_fe.R // 3. 프로젝트의 리소스(R) 클래스 사용을 위해 필요-
 // --- 기존 import 및 함수 (UserProfile, Contact, RequestPlace)는 동일하다고 가정 ---
 
 
@@ -31,7 +30,7 @@ val MainOrange = Color(0xFFEA7A34)
 
 @Composable
 fun MsgImg_Onclick(){
-    ChattingScreen() // TODO: 클릭시 화면 넘어가기 로직 추가
+    // TODO: 클릭시 화면 넘어가기 로직 추가
 }
 
 
@@ -195,8 +194,6 @@ fun Batch(
             requestPlaceContent()
         }
 
-        // 💡 [수정] 프로필, 연락처, 거리 텍스트를 하나의 Column으로 묶어 관리
-        // 💡 [수정] 프로필, 연락처, 거리 텍스트를 하나의 Column으로 묶어 관리
 
         Column(modifier = Modifier.fillMaxWidth()) {
             // 2. 프로필 + 연락처 아이콘

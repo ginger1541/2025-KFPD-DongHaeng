@@ -1,5 +1,5 @@
 package com.kfpd_donghaeng_fe.ui.matching
-
+/*
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -36,6 +36,8 @@ import com.kfpd_donghaeng_fe.domain.entity.LocationPermissionState
 import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
+
+
 import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
 import com.kfpd_donghaeng_fe.ui.matching.components.SearchBar
 import com.kfpd_donghaeng_fe.ui.matching.components.SheetHandleBar
@@ -44,7 +46,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.content.PermissionChecker
 import androidx.navigation.NavHostController
+import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.ui.auth.UserType
 import com.kfpd_donghaeng_fe.ui.matching.componentes.BottomMatchingSheetContent
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
@@ -233,7 +237,7 @@ fun MapContent(
                 .zIndex(0f),
             locationY = locationY,
             locationX = locationX,
-            enabled = enabled
+            enabled = GlobalApplication.isMapLoaded
         )
 
         // 오버레이: 검색바 + 정렬 버튼
@@ -308,4 +312,4 @@ fun MapContent(
             }
         }
     }
-}
+}*/

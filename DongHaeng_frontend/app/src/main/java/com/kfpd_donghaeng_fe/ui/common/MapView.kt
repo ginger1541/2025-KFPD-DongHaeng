@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.getValue
 import android.R
+import androidx.compose.ui.graphics.Color
 
 import com.kakao.vectormap.KakaoMap
 import com.kakao.vectormap.KakaoMapReadyCallback
@@ -41,6 +43,7 @@ data class MapData(
     val markers: List<RouteLocation>,
     val route: WalkingRoute? = null
 )
+import com.kfpd_donghaeng_fe.GlobalApplication
 
 @Composable
 fun KakaoMapView(
@@ -50,6 +53,15 @@ fun KakaoMapView(
     route: WalkingRoute? = null,
     enabled: Boolean = true, // ← 추가
 ) {
+    //  ! 추가 ! ( 45번째 줄 return 까지 )
+    if(!enabled_map_emulate){
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xFF81D4FA)), // 밝은 파란색
+        )
+        return
+    }
     val context = LocalContext.current
     val mapView = remember { MapView(context) }
     // 지도 요소 관리 상태

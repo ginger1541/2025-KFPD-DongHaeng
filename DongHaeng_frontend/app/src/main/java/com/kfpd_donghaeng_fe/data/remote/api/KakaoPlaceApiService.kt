@@ -19,3 +19,4 @@ interface KakaoPlaceApiService {
         @Query("size") size: Int = 15
     ): Response<KakaoPlaceResponse> // DTO 이름은 이미 정의되어 있다고 가정
 }
+
