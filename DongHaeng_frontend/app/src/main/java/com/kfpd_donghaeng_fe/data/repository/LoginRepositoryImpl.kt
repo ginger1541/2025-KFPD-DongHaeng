@@ -24,7 +24,7 @@ class LoginRepositoryImpl @Inject constructor(
         val loginResult = response.toDomainLogin()
 
         // 2. 받은 토큰을 DataStore에 저장하는 로직
-        tokenDataSource.saveToken(loginResult.token)
+        //tokenDataSource.saveToken(loginResult.token)
 
 
         return loginResult
