@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.content.PermissionChecker
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,10 +22,26 @@ import androidx.navigation.navArgument
 import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import androidx.navigation.NavHostController
+import com.kfpd_donghaeng_fe.data.Request
+import com.kfpd_donghaeng_fe.data.findRequestById
+import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
+import com.kfpd_donghaeng_fe.ui.matching.RequestDetailScreen
+import com.kfpd_donghaeng_fe.ui.matching.ReviewScreen
+import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeRoute
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
+import com.kfpd_donghaeng_fe.util.navigateTo
+import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
+import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
 //import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
-
 import androidx.compose.runtime.LaunchedEffect
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
+import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
+import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImpl
+import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
+import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.util.navigateToHomeAfterSignUp
 import kotlinx.coroutines.delay // 딜레이를 위해 필요
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,7 +50,7 @@ import dagger.hilt.android.AndroidEntryPoint
 //  기존 mainactivty 오류 파티라서 .. 주석 처리 해놨어요!
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-/*
+
     private val permissionChecker: PermissionChecker by lazy { AndroidPermissionChecker(this) }
     private val appSettingsNavigator: AppSettingsNavigator by lazy { AndroidAppSettingsNavigatorImpl(this) }
 
@@ -57,16 +72,17 @@ class MainActivity : ComponentActivity() {
 
                         // "signup" 화면 정의
                         composable("signup") {
-                            SignUpScreen(
-                                onNavigateBack = {
-                                    // ...
-                                },
-                                // userType을 받는 람다
-                                onSignUpComplete = { userType ->
-                                    // "home/NEEDY" 또는 "home/HELPER"로 이동
-                                    navController.navigateToHomeAfterSignUp(userType)
-                                }
-                            )
+//                            SignUpScreen(
+//                                onNavigateBack = {
+//                                    // ...
+//                                },
+//                                // userType을 받는 람다
+//                                onSignUpComplete = { userType ->
+//                                    // "home/NEEDY" 또는 "home/HELPER"로 이동
+//                                    navController.navigateToHomeAfterSignUp(userType)
+//                                }
+//                            )
+                            MakeAccountRoute()
                         }
 
                         // "home" 화면 정의
@@ -87,22 +103,52 @@ class MainActivity : ComponentActivity() {
                                 mainNavController = navController // 상위 NavHostController 전달
                             )
                         }
+
                         // MATCHING 경로 정의
+//                        composable(
+//                            // 경로 상수 사용
+//                            route = AppScreens.MATCHING_ROUTE,
+//                            arguments = listOf(navArgument("userType") {
+//                                type = NavType.StringType
+//                            })
+//                        ) { backStackEntry ->
+//                            val userTypeString = backStackEntry.arguments?.getString("userType")
+//                            val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+//
+//                            MatchingScreen(
+//                                userType = userType,
+//                                navController = navController,
+//                                checker = permissionChecker,
+//                                navigator = appSettingsNavigator
+//                            )
+//                        }
+
                         composable(
-                            // 경로 상수 사용
-                            route = AppScreens.MATCHING_ROUTE,
-                            arguments = listOf(navArgument("userType") {
-                                type = NavType.StringType
-                            })
+                            // 💡 [필수 수정]: startSearch 쿼리 파라미터를 경로에 추가합니다.
+                            route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}",
+                            arguments = listOf(
+                                navArgument("userType") {
+                                    type = NavType.StringType
+                                },
+                                // 💡 [필수 추가]: startSearch 인자 정의를 추가합니다.
+                                navArgument("startSearch") {
+                                    type = NavType.BoolType
+                                    defaultValue = false // 기본값은 false
+                                }
+                            )
                         ) { backStackEntry ->
                             val userTypeString = backStackEntry.arguments?.getString("userType")
                             val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
+
+                            // 💡 [필수 추가]: startSearch 인자 값을 읽어서 전달합니다.
+                            val startSearch = backStackEntry.arguments?.getBoolean("startSearch") ?: false
 
                             MatchingScreen(
                                 userType = userType,
                                 navController = navController,
                                 checker = permissionChecker,
-                                navigator = appSettingsNavigator
+                                navigator = appSettingsNavigator,
+                                startSearch = startSearch // 인자 전달
                             )
                         }
 
@@ -155,5 +201,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }*/
+    }
 }

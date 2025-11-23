@@ -26,7 +26,7 @@ fun SheetHandleBar() {
         Divider(
             color = AppColors.SheetHandleColor,
             modifier = Modifier
-                .width(40.dp)
+                .width(95.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .height(4.dp)
         )

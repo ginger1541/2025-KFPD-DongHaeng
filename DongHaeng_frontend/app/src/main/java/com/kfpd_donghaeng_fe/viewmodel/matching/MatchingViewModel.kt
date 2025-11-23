@@ -5,12 +5,16 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.kakao.vectormap.LatLng
+import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.ui.matching.MatchingPhase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 data class LocationInput(
     val id: Int,
@@ -21,9 +25,8 @@ data class LocationInput(
 
 data class LatLng(val latitude: Double, val longitude: Double)
 
-enum class LocationType { START, WAYPOINT, END }
-
-open class MatchingViewModel : ViewModel() {
+@HiltViewModel
+class MatchingViewModel @Inject constructor() : ViewModel() {
     // 1. 요청자 모달 내부 상태 (Overview -> Booking -> Confirm)
     private val _currentPhase = MutableStateFlow(MatchingPhase.OVERVIEW)
     val currentPhase: StateFlow<MatchingPhase> = _currentPhase
@@ -31,6 +34,9 @@ open class MatchingViewModel : ViewModel() {
     // 2. 💡 시간 피커 모달 표시 상태 추가
     private val _showTimePicker = MutableStateFlow(false)
     val showTimePicker: StateFlow<Boolean> = _showTimePicker
+
+    private val _isDirectSearchStart = MutableStateFlow(false)
+    val isDirectSearchStart: StateFlow<Boolean> = _isDirectSearchStart.asStateFlow()
 
     // 3. 경로 입력 상태 (초기 상태 설정)
     private val initialLocations = listOf(
@@ -82,20 +88,34 @@ open class MatchingViewModel : ViewModel() {
     val confirmedTimes: androidx.compose.runtime.State<Pair<String, String>> = _confirmedTimes
 
 
-    fun navigateToBooking() {
+    fun navigateToBooking(isDirectSearch: Boolean = false) {
         _currentPhase.value = MatchingPhase.BOOKING
+        _isDirectSearchStart.value = isDirectSearch // 인자 값을 _isDirectSearchStart에 저장
     }
 
     fun navigateToOverview() {
         _currentPhase.value = MatchingPhase.OVERVIEW
+        _isDirectSearchStart.value = false // 검색 상태 초기화
     }
+
+    fun navigateToServiceType() {
+        _currentPhase.value = MatchingPhase.SERVICE_TYPE
+    }
+
     fun navigateToTimeSelection() {
         _currentPhase.value = MatchingPhase.TIME_SELECTION
     }
 
-    fun navigateToConfirm() {
-        _currentPhase.value = MatchingPhase.CONFIRM
+    fun navigateToRequestDetail() {
+        _currentPhase.value = MatchingPhase.REQUEST_DETAIL
     }
+
+    fun navigateToPayment() {
+        // TODO: 여기서 SK API 예상 경로/요금 계산 로직을 호출해야 함.
+        _currentPhase.value = MatchingPhase.PAYMENT
+    }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateSelectedTime(newDateTime: LocalDateTime) {
@@ -108,22 +128,6 @@ open class MatchingViewModel : ViewModel() {
         // TODO: 서버에서 예상 요금 계산
 
         _currentPhase.value = MatchingPhase.CONFIRM
-    }
-
-    fun addWaypoint() {
-        val newId = (_routeInputs.value.maxOfOrNull { it.id } ?: 0) + 1
-        val lastIndex = _routeInputs.value.lastIndex
-
-        val newWaypoint = LocationInput(
-            id = newId,
-            address = "경유지 입력",
-            type = LocationType.WAYPOINT,
-            isEditable = true
-        )
-
-        val newList = _routeInputs.value.toMutableList()
-        newList.add(lastIndex, newWaypoint)
-        _routeInputs.value = newList
     }
 
     fun removeLocation(locationId: Int) {

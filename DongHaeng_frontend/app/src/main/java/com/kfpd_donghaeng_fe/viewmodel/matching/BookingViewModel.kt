@@ -33,55 +33,11 @@ class BookingViewModel @Inject constructor() : ViewModel() {
     val routeInputs: StateFlow<List<LocationInput>> = _routeInputs.asStateFlow()
 
     /**
-     * 경유지 추가 (최대 1개)
-     */
-    fun addWaypoint() {
-        val currentList = _routeInputs.value
-        val hasWaypoint = currentList.any { it.type == LocationType.WAYPOINT }
-
-        if (!hasWaypoint) {
-            val newWaypoint = LocationInput(
-                id = "waypoint_${System.currentTimeMillis()}",
-                type = LocationType.WAYPOINT,
-                address = "경유지 입력",
-                isEditable = true
-            )
-            val newList = currentList.toMutableList()
-            // 도착지 바로 앞에 추가
-            newList.add(newList.size - 1, newWaypoint)
-            _routeInputs.value = newList
-        }
-    }
-
-    /**
-     * 경유지 제거
-     */
-    fun removeWaypoint() {
-        _routeInputs.value = _routeInputs.value.filter { it.type != LocationType.WAYPOINT }
-    }
-
-    /**
      * 도착지 위치 업데이트 (Domain Entity 사용)
      */
     fun updateEndLocation(placeInfo: PlaceSearchResult) {
         _routeInputs.value = _routeInputs.value.map { input ->
             if (input.type == LocationType.END) {
-                input.copy(
-                    address = placeInfo.placeName,
-                    placeInfo = placeInfo
-                )
-            } else {
-                input
-            }
-        }
-    }
-
-    /**
-     * 경유지 위치 업데이트 (Domain Entity 사용)
-     */
-    fun updateWaypointLocation(placeInfo: PlaceSearchResult) {
-        _routeInputs.value = _routeInputs.value.map { input ->
-            if (input.type == LocationType.WAYPOINT) {
                 input.copy(
                     address = placeInfo.placeName,
                     placeInfo = placeInfo

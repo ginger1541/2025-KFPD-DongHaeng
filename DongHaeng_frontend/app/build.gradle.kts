@@ -120,8 +120,10 @@ dependencies {
     // ViewModel 사용을 위해 필요할 수 있습니다.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3") // 최신 버전 확인 후 사용
 
-    //Data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("com.squareup.okhttp3:okhttp:5.3.0")
 
 
 
