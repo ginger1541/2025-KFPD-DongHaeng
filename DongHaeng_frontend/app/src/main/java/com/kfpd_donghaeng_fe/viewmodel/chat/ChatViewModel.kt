@@ -35,13 +35,20 @@ class ChatViewModel @Inject constructor(
     private var myUserId: Long = -1
 
     // 1. 초기화: 소켓 연결 및 목록 로드
-    fun initialize(token: String, userId: Long) {
-        myUserId = userId
-        repository.initialize(token)
-        loadChatRooms()
-
-        // 실시간 메시지 수신 대기
+    init {
+        // 💡 [수정] ViewModel 생성 시점에 ID 로드 및 초기화 진행
         viewModelScope.launch {
+            // 1. ID 로드 (ChatRepository에 위임)
+            myUserId = repository.getMyUserId()
+            Log.d("ChatVM", "Loaded User ID: $myUserId")
+
+            // 2. 소켓 연결 (ChatRepository에 위임)
+            repository.connectSocket()
+
+            // 3. 목록 로드
+            loadChatRooms()
+
+            // 4. 실시간 메시지 수신 대기 (기존 로직과 동일)
             repository.observeNewMessages().collect { data ->
                 val senderId = data.optLong("senderId")
                 val message = data.optString("message")
@@ -91,9 +98,9 @@ class ChatViewModel @Inject constructor(
                         type = MessageType.MATCHING_CARD,
                         matchingInfo = MatchingInfoUiModel(
                             date = req.scheduledAt ?: "날짜 미정",
-                            startPlace = req.startAddress,
+                            startPlace = req.startAddress ?: "출발지 미정", // ⬅️ Null일 경우 대체값 제공
                             startTime = "출발",
-                            endPlace = req.endAddress,
+                            endPlace = req.endAddress ?: "도착지 미정",     // ⬅️ Null일 경우 대체값 제공
                             endTime = "도착",
                             cost = 0 // 가격 정보는 API detail에 없으면 추가 필요
                         )

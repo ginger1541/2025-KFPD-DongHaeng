@@ -31,6 +31,9 @@ class LoginRepositoryImpl @Inject constructor(
         loginResult.userData.userType?.let { type ->
             tokenDataSource.saveUserType(type)
         }
+
+        tokenDataSource.saveUserId(loginResult.userData.userId.toLong())
+
         return loginResult
     }
 
