@@ -39,6 +39,10 @@ import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 import com.kfpd_donghaeng_fe.domain.entity.WalkingRoute
 import com.kfpd_donghaeng_fe.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 data class MapData(
     val center: LatLng,
@@ -64,7 +68,37 @@ fun KakaoMapView(
 //        )
 //        return
 //    }
+
     val context = LocalContext.current
+    val mapView = remember { MapView(context) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    Log.d("KakaoMap", "Lifecycle: ON_RESUME")
+                    try { mapView.resume() } catch (e: Exception) { e.printStackTrace() }
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    Log.d("KakaoMap", "Lifecycle: ON_PAUSE")
+                    try { mapView.pause() } catch (e: Exception) { e.printStackTrace() }
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    // onMapDestroy 콜백에서 처리되기도 하지만 안전장치
+                    // mapView.finish() // 필요시 호출
+                }
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            // 화면이 완전히 끝날 땐 finish()가 호출되어야 함
+        }
+    }
 
     val markerBitmaps = remember {
         mapOf(
@@ -83,7 +117,6 @@ fun KakaoMapView(
         )
     }
 
-    val mapView = remember { MapView(context) }
     // 지도 요소 관리 상태
     val labelManager = remember { mutableStateOf<LabelManager?>(null) }
     var currentMarkers by remember { mutableStateOf<List<Label>>(emptyList()) }
@@ -116,6 +149,12 @@ fun KakaoMapView(
                             val position = LatLng.from(locationY, locationX)
                             map.moveCamera(CameraUpdateFactory.newCenterPosition(position))
                             map.moveCamera(CameraUpdateFactory.zoomTo(15))
+
+                            if (!isInitialMoveDone) {
+                                val position = LatLng.from(locationY, locationX)
+                                map.moveCamera(CameraUpdateFactory.newCenterPosition(position))
+                                isInitialMoveDone = true
+                            }
                         }
                     }
                 )
