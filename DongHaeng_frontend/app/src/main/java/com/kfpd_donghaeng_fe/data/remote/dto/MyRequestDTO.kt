@@ -15,7 +15,8 @@ data class MyRequestItemDto(
     @SerializedName("estimatedMinutes") val estimatedMinutes: Int,
     @SerializedName("scheduledAt") val scheduledAt: String,
     @SerializedName("status") val status: String, // "pending", "matching", "completed" 등
-
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
     @SerializedName("route") val route: MyRequestRouteDto?, // Route는 null일 수 있음
     @SerializedName("match") val match: MyRequestMatchDto?  // Match도 null일 수 있음
 )

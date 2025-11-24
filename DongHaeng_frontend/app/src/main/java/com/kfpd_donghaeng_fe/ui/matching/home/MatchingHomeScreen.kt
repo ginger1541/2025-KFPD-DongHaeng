@@ -41,6 +41,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.common.CommonDialog
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import androidx.compose.runtime.getValue
+import com.kfpd_donghaeng_fe.data.Request
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -49,7 +50,8 @@ fun MatchingHomeRoute(
     viewModel: MatchingHomeViewModel = hiltViewModel(),
     onNavigateToSearch: (UserType) -> Unit,
     onNavigateToChangeLocation: () -> Unit,
-    onNavigateToRequestDetail: (Long) -> Unit
+    onNavigateToMyRequestDetail: (Request) -> Unit,
+    onNavigateToRequestDetail: (Long) -> Unit,
 ) {
     LaunchedEffect(userType) {
         viewModel.setUserType(userType)
@@ -84,7 +86,13 @@ fun MatchingHomeRoute(
             RequesterHomeContent(
                 recentTrips = needyState.recentTrips,
                 onSearchClick = { onNavigateToSearch(userType) },
-                onHistoryClick = { /* TODO: 해당 도착지/목적지 바꾸기 */}
+                onHistoryClick = { requestId ->
+                    // ID로 리스트에서 객체 찾아서 전달
+                    val request = needyState.recentTrips.find { it.id == requestId }?.toRequest()
+                    if (request != null) {
+                        onNavigateToMyRequestDetail(request)
+                    }
+                }
             )
         }
 

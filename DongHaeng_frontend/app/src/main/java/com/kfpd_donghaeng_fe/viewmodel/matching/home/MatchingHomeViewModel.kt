@@ -72,10 +72,8 @@ class MatchingHomeViewModel @Inject constructor(
     }
 
     private suspend fun loadNeedyHome() {
-        // 1. 리포지토리에서 데이터 가져오기
-        val requests = requestRepository.getRequestList()
+        val requests = requestRepository.getRequestList() // Request 리스트 가져옴 (좌표 포함되어야 함)
 
-        // 2. UI 모델로 변환
         val uiList = requests.map { req ->
             RequestUiModel(
                 id = req.id,
@@ -84,18 +82,19 @@ class MatchingHomeViewModel @Inject constructor(
                 to = req.arrival,
                 departTime = req.departureTime,
                 arriveTime = req.arrivalTime,
-                distanceLabel = req.distance
+                distanceLabel = req.distance,
+                startLat = req.startLatitude,
+                startLng = req.startLongitude,
+                endLat = req.endLatitude,
+                endLng = req.endLongitude
             )
         }
-
-        // 3. 상태 업데이트
         _uiState.value = MatchingHomeUiState.NeedyState(recentTrips = uiList)
     }
 
-    // ✅ [핵심 수정] 날짜 및 거리 계산 로직 추가
     @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun loadHelperHome() {
-        // 1. 📍 임시 내 위치 (광주) - 백엔드 테스트용
+        // 1. 📍 임시 내 위치 (광주)
         val myLat = 35.1595
         val myLng = 126.8526
 
@@ -116,7 +115,7 @@ class MatchingHomeViewModel @Inject constructor(
             }
 
             val uiList = dtoList.map { dto ->
-                // --- 📅 날짜 포맷팅 로직 ---
+                // --- 📅 날짜 포맷팅 ---
                 val zdt = try {
                     ZonedDateTime.parse(dto.scheduledAt)
                 } catch (e: Exception) {
@@ -125,7 +124,6 @@ class MatchingHomeViewModel @Inject constructor(
                 val today = ZonedDateTime.now().toLocalDate()
                 val reqDate = zdt.toLocalDate()
 
-                // "오늘", "내일", "11월 25일" 형식으로 변환
                 val dateLabelStr = when {
                     reqDate.isEqual(today) -> "오늘"
                     reqDate.isEqual(today.plusDays(1)) -> "내일"
@@ -135,12 +133,10 @@ class MatchingHomeViewModel @Inject constructor(
                 val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
                 val arriveTimeStr = zdt.plusMinutes(30).format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
 
-                // --- 📏 거리 계산 로직 ---
-                // dto에 위경도가 없다면 0.0 처리 (서버 데이터 확인 필요)
+                // --- 📏 거리 계산 ---
                 val targetLat = dto.latitude ?: 0.0
                 val targetLng = dto.longitude ?: 0.0
 
-                // 거리 계산 함수 호출
                 val distanceMeters = calculateDistance(myLat, myLng, targetLat, targetLng)
 
                 val distanceLabelStr = if (targetLat == 0.0 || targetLng == 0.0) {
@@ -153,12 +149,18 @@ class MatchingHomeViewModel @Inject constructor(
 
                 RequestUiModel(
                     id = dto.requestId,
-                    dateLabel = dateLabelStr,        // ✅ "오늘", "11월 24일" 등
+                    dateLabel = dateLabelStr,
                     from = dto.startAddress,
                     to = dto.destinationAddress,
                     departTime = timeStr,
                     arriveTime = arriveTimeStr,
-                    distanceLabel = distanceLabelStr // ✅ "내 위치에서 1.2km"
+                    distanceLabel = distanceLabelStr,
+
+                    // ✅ [추가된 부분] 좌표 정보 매핑
+                    startLat = targetLat,
+                    startLng = targetLng,
+                    endLat = 0.0, // 주변 요청 목록에는 도착지 좌표가 없으므로 0.0 처리 (상세화면에서 다시 로드됨)
+                    endLng = 0.0
                 )
             }
 

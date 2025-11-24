@@ -30,6 +30,7 @@ import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.chat.ChatListScreen
 import com.kfpd_donghaeng_fe.ui.theme.*
+import com.kfpd_donghaeng_fe.util.AppScreens
 
 
 /**
@@ -71,21 +72,31 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 MatchingHomeRoute(
                     userType = userType, // 상위 MainScreen의 userType 인자 사용
 
-                    // 💡 FIX: 검색 바 클릭 시 레거시 화면을 건너뛰고 새 검색 플로우로 바로 이동합니다.
+                    // 1. 검색 바 클릭 시
                     onNavigateToSearch = { userTypeForSearch ->
                         mainNavController.navigateToNewSearchFlow(userTypeForSearch)
                     },
 
-                    // TODO: 위치 변경 화면으로 이동 로직 구현
+                    // 2. 위치 변경 (TODO)
                     onNavigateToChangeLocation = {
-                        // (예: 지도에서 위치 설정 화면으로 이동)
                         // mainNavController.navigateToChangeLocation()
                     },
 
-                    // 최근 동행 내역 또는 주변 요청 항목 클릭 시 상세 화면으로 이동
+                    // 3. [동행자용] 주변 요청 클릭 시 -> "수락 상세 화면" 이동
                     onNavigateToRequestDetail = { requestId ->
-                        // 👇 상세 화면 경로로 이동
                         mainNavController.navigate("companion_request_detail/$requestId")
+                    },
+
+                    // ✅ 4. [요청자용] 내 요청 클릭 시 -> "예약(지도) 화면"으로 데이터 전달하며 이동
+                    onNavigateToMyRequestDetail = { request ->
+                        // 쿼리 파라미터로 데이터 전달
+                        val route = "${AppScreens.MATCHING_BASE}/${userType.name}" +
+                                "?startName=${request.departure}" +
+                                "&startLat=${request.startLatitude}&startLng=${request.startLongitude}" +
+                                "&endName=${request.arrival}" +
+                                "&endLat=${request.endLatitude}&endLng=${request.endLongitude}"
+
+                        mainNavController.navigate(route)
                     }
                 )
             }

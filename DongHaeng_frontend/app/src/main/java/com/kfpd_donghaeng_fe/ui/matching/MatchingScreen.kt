@@ -53,6 +53,7 @@ import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
 import com.kfpd_donghaeng_fe.ui.matching.search.MainRouteScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.viewmodel.matching.PlaceSearchViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -62,14 +63,33 @@ fun MatchingScreen(
     navController: NavHostController,
     checker: PermissionChecker,
     navigator: AppSettingsNavigator,
+    placeSearchViewModel: PlaceSearchViewModel = hiltViewModel(),
     matchingViewModel: MatchingViewModel = hiltViewModel(),
-    startSearch: Boolean = false
+    startSearch: Boolean = false,
+    preFilledData: PreFilledRouteData? = null
 ) {
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
             initialValue = BottomSheetValue.Expanded
         )
     )
+
+    LaunchedEffect(preFilledData) {
+        if (preFilledData != null) {
+            placeSearchViewModel.setRoute(
+                startName = preFilledData.startName,
+                startLat = preFilledData.startLat,
+                startLng = preFilledData.startLng,
+                endName = preFilledData.endName,
+                endLat = preFilledData.endLat,
+                endLng = preFilledData.endLng
+            )
+            // 바로 예약 모드로 진입
+            matchingViewModel.navigateToBooking(isDirectSearch = false)
+        } else if (userType == UserType.NEEDY) {
+            matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
+        }
+    }
 
     LaunchedEffect(Unit) {
         // NEEDY인 경우 바로 BOOKING 모드로 진입
@@ -321,3 +341,8 @@ fun MapContent(
         }
     }
 }
+
+data class PreFilledRouteData(
+    val startName: String, val startLat: Double, val startLng: Double,
+    val endName: String, val endLat: Double, val endLng: Double
+)

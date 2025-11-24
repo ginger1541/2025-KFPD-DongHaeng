@@ -8,6 +8,10 @@ data class Request(
     val departureTime: String,
     val arrivalTime: String,
     val distance: String,
-    val duration: String,      // ✅ [추가] 소요 시간 (예: "18분")
-    val pricePoints: Int
+    val duration: String,
+    val pricePoints: Int,
+    val startLatitude: Double,
+    val startLongitude: Double,
+    val endLatitude: Double,
+    val endLongitude: Double
 )

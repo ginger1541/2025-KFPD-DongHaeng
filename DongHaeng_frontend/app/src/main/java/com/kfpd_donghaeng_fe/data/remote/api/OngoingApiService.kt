@@ -21,7 +21,7 @@ interface RequestApiService {
     @GET("/api/companion-requests/{request_id}")
     suspend fun getRequestDetail(
         @Path("requestId") requestId: Long
-    ): BaseResponseDto<MyRequestItemDto>
+    ): Response<BaseResponseDto<MyRequestItemDto>>
 
     @POST("/api/companions/requests")
     suspend fun createRequest(

@@ -160,4 +160,32 @@ class PlaceSearchViewModel @Inject constructor(
         _startLocation.value = newStart
         _endLocation.value = newEnd
     }
+
+    fun setRoute(
+        startName: String, startLat: Double, startLng: Double,
+        endName: String, endLat: Double, endLng: Double
+    ) {
+        // 출발지 설정
+        _startLocation.value = RouteLocation(
+            id = "start_$startName",
+            type = LocationType.START,
+            placeName = startName,
+            address = startName,
+            latitude = startLat,
+            longitude = startLng
+        )
+
+        // 도착지 설정
+        _endLocation.value = RouteLocation(
+            id = "end_$endName",
+            type = LocationType.END,
+            placeName = endName,
+            address = endName,
+            latitude = endLat,
+            longitude = endLng
+        )
+
+        // 시작 선택 상태 해제
+        // _isSelectingStart.value = false
+    }
 }

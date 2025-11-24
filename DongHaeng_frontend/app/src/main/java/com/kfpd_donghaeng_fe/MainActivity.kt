@@ -44,6 +44,7 @@ import com.kfpd_donghaeng_fe.ui.auth.onboarding.OnboardingScreen
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImpl
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
+import com.kfpd_donghaeng_fe.ui.matching.PreFilledRouteData
 import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.RequesterDetailViewModel
@@ -147,27 +148,56 @@ class MainActivity : ComponentActivity() {
 
                             // MATCHING 경로 정의
                             composable(
-                                route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}",
+                                // 1. URL 구조 정의: 기본 인자 + 선택적 쿼리 파라미터들(?key=value 형태)
+                                route = "${AppScreens.MATCHING_BASE}/{userType}?startSearch={startSearch}&startName={startName}&startLat={startLat}&startLng={startLng}&endName={endName}&endLat={endLat}&endLng={endLng}",
+
+                                // 2. 인자 타입 및 기본값 설정
                                 arguments = listOf(
-                                    navArgument("userType") {
-                                        type = NavType.StringType
-                                    },
-                                    navArgument("startSearch") {
-                                        type = NavType.BoolType
-                                        defaultValue = false
-                                    }
+                                    navArgument("userType") { type = NavType.StringType },
+                                    navArgument("startSearch") { type = NavType.BoolType; defaultValue = false },
+
+                                    // 데이터 전달용 인자들 (없을 수도 있으므로 nullable 처리)
+                                    navArgument("startName") { type = NavType.StringType; nullable = true },
+                                    navArgument("startLat") { type = NavType.FloatType; defaultValue = 0f },
+                                    navArgument("startLng") { type = NavType.FloatType; defaultValue = 0f },
+                                    navArgument("endName") { type = NavType.StringType; nullable = true },
+                                    navArgument("endLat") { type = NavType.FloatType; defaultValue = 0f },
+                                    navArgument("endLng") { type = NavType.FloatType; defaultValue = 0f },
                                 )
                             ) { backStackEntry ->
+                                // 3. 인자 값 꺼내기
                                 val userTypeString = backStackEntry.arguments?.getString("userType")
                                 val userType = UserType.valueOf(userTypeString ?: UserType.NEEDY.name)
                                 val startSearch = backStackEntry.arguments?.getBoolean("startSearch") ?: false
 
+                                // 전달된 경로 데이터 꺼내기
+                                val startName = backStackEntry.arguments?.getString("startName")
+                                val startLat = backStackEntry.arguments?.getFloat("startLat") ?: 0f
+                                val startLng = backStackEntry.arguments?.getFloat("startLng") ?: 0f
+                                val endName = backStackEntry.arguments?.getString("endName") ?: ""
+                                val endLat = backStackEntry.arguments?.getFloat("endLat") ?: 0f
+                                val endLng = backStackEntry.arguments?.getFloat("endLng") ?: 0f
+
+                                // 4. 데이터 객체 생성 (startName이 있을 때만 만듦)
+                                val preFilledData = if (startName != null) {
+                                    PreFilledRouteData(
+                                        startName = startName,
+                                        startLat = startLat.toDouble(),
+                                        startLng = startLng.toDouble(),
+                                        endName = endName,
+                                        endLat = endLat.toDouble(),
+                                        endLng = endLng.toDouble()
+                                    )
+                                } else null
+
+                                // 5. 화면 렌더링 (데이터 전달)
                                 MatchingScreen(
                                     userType = userType,
                                     navController = navController,
                                     checker = permissionChecker,
                                     navigator = appSettingsNavigator,
-                                    startSearch = startSearch
+                                    startSearch = startSearch,
+                                    preFilledData = preFilledData // ✅ 여기서 전달!
                                 )
                             }
 

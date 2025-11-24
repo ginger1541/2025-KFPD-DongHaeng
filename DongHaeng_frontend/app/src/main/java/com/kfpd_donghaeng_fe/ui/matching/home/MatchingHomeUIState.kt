@@ -25,9 +25,12 @@ data class RequestUiModel(
     val departTime: String,
     val arriveTime: String,
     val distanceLabel: String,
+    val startLat: Double,
+    val startLng: Double,
+    val endLat: Double,
+    val endLng: Double
 )
 
-// 💡 변환 로직 업데이트
 fun RequestUiModel.toRequest(): Request {
     return Request(
         id = this.id,
@@ -37,7 +40,11 @@ fun RequestUiModel.toRequest(): Request {
         departureTime = this.departTime,
         arrivalTime = this.arriveTime,
         distance = this.distanceLabel,
-        duration = "0분", // ✅ [추가] 홈 화면 모델에서 변환 시엔 기본값 (상세 화면에선 API로 채움)
-        pricePoints = 0
+        duration = "0분", // (상세화면용)
+        pricePoints = 0,
+        startLatitude = this.startLat,
+        startLongitude = this.startLng,
+        endLatitude = this.endLat,
+        endLongitude = this.endLng
     )
 }
