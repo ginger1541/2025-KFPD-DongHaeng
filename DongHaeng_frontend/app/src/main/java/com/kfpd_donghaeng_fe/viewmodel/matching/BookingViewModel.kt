@@ -85,10 +85,10 @@ class BookingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 // 💡 ISO 8601 형식으로 변환 (타임존 포함)
-                val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                val scheduledAtString = _selectedDateTime.value
-                    .atZone(ZoneId.of("Asia/Seoul")) // 한국 시간대
-                    .format(formatter)
+
+                val koreanFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                val localTimeStr = _selectedDateTime.value.format(koreanFormatter)
+                val scheduledAtString = "${localTimeStr}+09:00"
 
                 Log.d("MatchingViewModel", "변환된 scheduledAt: $scheduledAtString")
 
