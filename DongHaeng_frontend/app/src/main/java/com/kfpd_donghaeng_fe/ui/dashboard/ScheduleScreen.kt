@@ -240,7 +240,7 @@ fun RouteInfoView(startLoc: String, endLoc: String, startTime: String, estTime: 
                 modifier = Modifier
                     .size(12.dp)
                     .border(2.dp, BrandOrange, CircleShape)
-                    .background(Color.White, CircleShape)
+                    .background(BrandOrange, CircleShape)
             )
         }
 
