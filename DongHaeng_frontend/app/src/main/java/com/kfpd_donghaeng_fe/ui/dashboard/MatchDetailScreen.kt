@@ -43,7 +43,7 @@ fun MatchDetailScreen(
     navController: NavController,
     viewModel: MatchDetailViewModel = hiltViewModel()
 ) {
-    // TODO: 실제 로그인한 유저 ID를 가져와야 함 (임시: 12345L)
+    // TODO: 실제 로그인한 유저 ID를 가져와야 함
     val myUserId = 12345L
 
     // 화면 진입 시 데이터 로드
@@ -212,7 +212,7 @@ fun MatchDetailScreen(
                         }
 
                         Button(
-                            onClick = { /* 동행 시작 페이지 이동 로직 */ },
+                            onClick = { TODO(/* 동행 시작 페이지 이동 로직 */) },
                             colors = ButtonDefaults.buttonColors(containerColor = BrandOrange),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f).height(56.dp)
@@ -245,7 +245,7 @@ fun MatchDetailScreen(
             title = { Text("취소 완료", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
             text = {
                 Text(
-                    "동행 취소가 완료되었습니다.\n확인 버튼을 누르면 홈으로 이동합니다.",
+                    "동행 취소가 완료되었습니다.\n확인 버튼을 누르면 동행 화면으로 이동합니다.",
                     fontSize = 14.sp,
                     color = TextBlack,
                     textAlign = TextAlign.Center
@@ -326,7 +326,7 @@ fun ReservationCard(request: MatchRequestDetails) {
                         modifier = Modifier
                             .size(12.dp)
                             .border(2.dp, BrandOrange, CircleShape)
-                            .background(Color.White, CircleShape)
+                            .background(BrandOrange, CircleShape)
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))

@@ -31,7 +31,7 @@ import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
 import com.kfpd_donghaeng_fe.ui.matching.RequestDetailScreen
-import com.kfpd_donghaeng_fe.ui.matching.ReviewScreen
+import com.kfpd_donghaeng_fe.ui.dashboard.MatchDetailScreen
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingScreen
 import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
@@ -248,6 +248,21 @@ class MainActivity : ComponentActivity() {
                                         Text("요청 정보를 찾을 수 없습니다.")
                                     }
                                 }
+                            }
+
+                            // 예약 상세 화면 경로
+                            composable(
+                                route = "match_detail_screen/{matchId}", // 👈 ScheduleScreen에서 호출한 주소와 일치해야 함
+                                arguments = listOf(navArgument("matchId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                // 1. 넘어온 matchId 꺼내기
+                                val matchId = backStackEntry.arguments?.getLong("matchId") ?: -1L
+
+                                // 2. 상세 화면 보여주기
+                                MatchDetailScreen(
+                                    matchId = matchId,
+                                    navController = navController
+                                )
                             }
 
                             // 채팅 상세 화면 경로 추가
