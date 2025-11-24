@@ -142,7 +142,8 @@ private fun MatchingHomeScreen(
 @Composable
 fun MatchingSearchBar(
     placeholder: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
+        .background(Color.White),
     onClick: () -> Unit,
 ) {
     Surface(

@@ -48,8 +48,15 @@ data class RequesterProfileDto(
 )
 
 data class MatchResponseDto(
-    @SerializedName("matchId") val matchId: Long,
-    @SerializedName("chatRoomId") val chatRoomId: Long,
-    @SerializedName("status") val status: String,
-    @SerializedName("matchedAt") val matchedAt: String
+    @SerializedName(value = "matchId", alternate = ["match_id", "MatchId"])
+    val matchId: Long,
+
+    @SerializedName(value = "chatRoomId", alternate = ["chat_room_id", "ChatRoomId"])
+    val chatRoomId: Long,
+
+    @SerializedName(value = "status", alternate = ["Status"])
+    val status: String,
+
+    @SerializedName(value = "matchedAt", alternate = ["matched_at", "MatchedAt"])
+    val matchedAt: String
 )

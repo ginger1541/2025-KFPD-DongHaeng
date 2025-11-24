@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.matching.home.requester
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
 import com.kfpd_donghaeng_fe.ui.matching.home.RequestUiModel
 
 
@@ -39,6 +41,7 @@ fun RequesterHomeContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp)
+            .background(Color.White)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
