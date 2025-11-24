@@ -14,10 +14,12 @@ data class NearbyRequestDto(
     @SerializedName("request_id", alternate = ["id"]) val requestId: Long,
     @SerializedName("title") val title: String,
 
-    // 💡 수정: 서버의 snake_case 키와 매핑하고, null 가능하도록 ? 추가
     @SerializedName("start_address", alternate = ["startAddress"]) val startAddress: String?,
     @SerializedName("destination_address", alternate = ["destinationAddress"]) val destinationAddress: String?,
-    @SerializedName("scheduled_at", alternate = ["scheduledAt"]) val scheduledAt: String?,
+
+    @SerializedName("scheduledAt", alternate = ["scheduled_at"]) val scheduledAt: String?,
+
+    @SerializedName("estimatedMinutes", alternate = ["estimated_minutes"]) val estimatedMinutes: Int?,
 
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?

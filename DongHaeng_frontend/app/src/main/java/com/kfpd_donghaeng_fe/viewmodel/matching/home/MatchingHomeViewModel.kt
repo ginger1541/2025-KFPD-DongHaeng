@@ -130,8 +130,11 @@ class MatchingHomeViewModel @Inject constructor(
                     else -> zdt.format(DateTimeFormatter.ofPattern("M월 d일", Locale.KOREA))
                 }
 
-                val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
-                val arriveTimeStr = zdt.plusMinutes(30).format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
+                val timeStr = zdt.format(DateTimeFormatter.ofPattern("H시 m분 출발", Locale.KOREA))
+
+                val estimatedMin = dto.estimatedMinutes?.toLong() ?: 30L
+                val arriveTimeStr = zdt.plusMinutes(estimatedMin)
+                    .format(DateTimeFormatter.ofPattern("H시 m분 도착", Locale.KOREA))
 
                 // --- 📏 거리 계산 ---
                 val targetLat = dto.latitude ?: 0.0
@@ -150,8 +153,8 @@ class MatchingHomeViewModel @Inject constructor(
                 RequestUiModel(
                     id = dto.requestId,
                     dateLabel = dateLabelStr,
-                    from = dto.startAddress ?: "출발지 미정", // null이면 기본값 사용
-                    to = dto.destinationAddress ?: "목적지 미정", // null이면 기본값 사용
+                    from = dto.startAddress ?: "출발지 미정",
+                    to = dto.destinationAddress ?: "목적지 미정",
                     departTime = timeStr,
                     arriveTime = arriveTimeStr,
                     distanceLabel = distanceLabelStr,

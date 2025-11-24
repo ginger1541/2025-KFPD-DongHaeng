@@ -5,22 +5,38 @@ package com.kfpd_donghaeng_fe.data.remote.dto
 import com.google.gson.annotations.SerializedName
 
 data class RequestCreateDto(
-    @SerializedName("title") val title: String, // 💡 "출발지 -> 도착지" 형태로 자동 생성
-    @SerializedName("description") val description: String?, // 💡 사용자가 입력한 요청사항
+    @SerializedName(value = "title", alternate = ["Title"])
+    val title: String,
 
-    @SerializedName("startAddress") val startAddress: String,
-    @SerializedName("destinationAddress") val destinationAddress: String,
+    @SerializedName(value = "description", alternate = ["Description"])
+    val description: String?,
 
-    @SerializedName("startLatitude") val startLatitude: Double,
-    @SerializedName("startLongitude") val startLongitude: Double,
+    @SerializedName(value = "startAddress", alternate = ["start_address", "StartAddress"])
+    val startAddress: String,
 
-    @SerializedName("destinationLatitude") val destinationLatitude: Double,
-    @SerializedName("destinationLongitude") val destinationLongitude: Double,
+    @SerializedName(value = "destinationAddress", alternate = ["destination_address", "DestinationAddress"])
+    val destinationAddress: String,
 
-    @SerializedName("estimatedMinutes") val estimatedMinutes: Int,
-    @SerializedName("scheduledAt") val scheduledAt: String, // "2025-12-01T15:00:00+09:00"
+    @SerializedName(value = "startLatitude", alternate = ["start_latitude", "StartLatitude"])
+    val startLatitude: Double,
 
-    @SerializedName("route") val route: RouteCreateDto
+    @SerializedName(value = "startLongitude", alternate = ["start_longitude", "StartLongitude"])
+    val startLongitude: Double,
+
+    @SerializedName(value = "destinationLatitude", alternate = ["destination_latitude", "DestinationLatitude"])
+    val destinationLatitude: Double,
+
+    @SerializedName(value = "destinationLongitude", alternate = ["destination_longitude", "DestinationLongitude"])
+    val destinationLongitude: Double,
+
+    @SerializedName(value = "estimatedMinutes", alternate = ["estimated_minutes", "EstimatedMinutes"])
+    val estimatedMinutes: Int,
+
+    @SerializedName(value = "scheduledAt", alternate = ["scheduled_at", "ScheduledAt"])
+    val scheduledAt: String,
+
+    @SerializedName(value = "route", alternate = ["Route"])
+    val route: RouteCreateDto
 )
 
 data class RouteCreateDto(
