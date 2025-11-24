@@ -18,8 +18,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import coil.compose.AsyncImage
 import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
+import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 // 필요한 import: androidx.compose.ui.draw.shadow, androidx.compose.ui.draw.clip
@@ -27,9 +30,13 @@ import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 
 
 @Composable
-fun QRSheet(page: Int, modifier: Modifier = Modifier) {
-    // 실제 QR 코드 이미지 리소스 ID를 사용해야 합니다.
-    val qrCodeImage = painterResource(id = R.drawable.ic_qrcode)
+fun QRSheet(
+    uiState: QREntity,
+    page: Int,
+    modifier: Modifier = Modifier) {
+
+
+    //val qrCodeImage = painterResource(id = R.drawable.ic_qrcode)
     val cornerShape = RoundedCornerShape(20.dp)
 
     // Box를 사용하여 배경과 그림자, 둥근 모서리를 처리합니다.
@@ -69,15 +76,18 @@ fun QRSheet(page: Int, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(20.dp))
 
             // QR 코드 이미지 (크게)
-            Image(
-                painter = qrCodeImage,
-                contentDescription = "QR Code for companion",
-                modifier = Modifier
-                    .size(200.dp)
+           val imgurl=uiState.qrImageUrl
+            AsyncImage(
+                model =imgurl, // 💡 imgurl (URL)을 model 파라미터로 전달
+                contentDescription = "QR Code Image", // 접근성 설명을 추가
+                modifier = modifier.size(200.dp), // 원하는 크기로 설정
+                       // (선택 사항) 로드 실패 시 표시할 이미지
             )
         }
     }
 }
+
+
 
 /*
 // Preview는 생략합니다.

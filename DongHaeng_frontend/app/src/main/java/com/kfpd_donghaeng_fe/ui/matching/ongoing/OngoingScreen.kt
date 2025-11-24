@@ -19,8 +19,10 @@ import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
+import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 
 // =========================================================================================
 // 1. Map Composable
@@ -57,6 +59,7 @@ var user: Int = 2// 테스트용 1 = 요청자 2 = 동행자
 fun OngoingScreen(
     uiState: OngoingEntity,
     uiState2: OngoingRequestEntity,
+    uiState3:QREntity,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
 ) {
@@ -88,7 +91,7 @@ fun OngoingScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                QRSheet(page = 0)
+                QRSheet(uiState3,page = 0)
             }
         }
 
@@ -117,14 +120,20 @@ fun OngoingScreen(
 @Composable
 fun OngoingRoute(
     viewModel: OngoingViewModel = hiltViewModel(),
+    viewModel2: QRViewModel = hiltViewModel(),
 ) {
+
+
 
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
+    val uiState3 by viewModel2.uiState3.collectAsState()
+    //val uiState3: QREntity = viewModel2.uiState3.collectAsState().value
 
     OngoingScreen(
         uiState = uiState,
         uiState2 = uiState2,
+        uiState3=uiState3,
         nextPage=viewModel::nextPage,
         NavigateToReview = viewModel::NavigateToReview
     )

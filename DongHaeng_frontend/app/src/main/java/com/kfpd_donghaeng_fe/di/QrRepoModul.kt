@@ -5,6 +5,9 @@ import com.kfpd_donghaeng_fe.data.remote.api.EndQRApiService
 import com.kfpd_donghaeng_fe.data.remote.api.EndQRScanApiService
 import com.kfpd_donghaeng_fe.data.remote.api.StartQRApiService
 import com.kfpd_donghaeng_fe.data.remote.api.StartQRScanApiService
+import com.kfpd_donghaeng_fe.data.repository.OngoingQRRepositoryImpl
+import com.kfpd_donghaeng_fe.domain.repository.OngoingQRRepository
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,4 +46,15 @@ object QRApiServiceModule {
     fun provideEndQRScanApiService(retrofit: Retrofit): EndQRScanApiService {
         return retrofit.create(EndQRScanApiService::class.java)
     }
+}
+
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindOngoingQRRepository(
+        ongoingQRRepositoryImpl: OngoingQRRepositoryImpl // 💡 Hilt가 이 구현체의 생성자를 찾아서 생성합니다.
+    ): OngoingQRRepository
 }

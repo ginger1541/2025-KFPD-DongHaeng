@@ -19,6 +19,19 @@ data class QREntity(  // qr 생성
     val qrType : QRTypes,
     val qrScanned : Boolean,
 )
+{
+    companion object {
+        /**
+         * 초기 상태 또는 데이터가 로드되지 않았을 때 사용되는 더미 객체입니다.
+         * 모든 필드는 Null이 아닌 안전한 기본값으로 초기화됩니다.
+         */
+        val Empty = QREntity(
+            qrCode = "",
+            qrImageUrl = "", // 👈 빈 URL 문자열
+            qrType = QRTypes.NONE,
+            qrScanned = false
+        )
+    }}
 
 
 sealed interface QRScanResultEntity
