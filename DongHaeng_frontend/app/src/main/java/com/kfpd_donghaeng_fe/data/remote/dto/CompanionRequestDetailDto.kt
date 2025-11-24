@@ -58,5 +58,16 @@ data class MatchResponseDto(
     val status: String,
 
     @SerializedName(value = "matchedAt", alternate = ["matched_at", "MatchedAt"])
-    val matchedAt: String
+    val matchedAt: String,
+
+    @SerializedName("route", alternate = ["Route", "path_info"]) // 다양한 이름 대응
+val route: RouteDto? = null
 )
+
+//data class RouteDto(
+//    @SerializedName("total_distance_meters", alternate = ["totalDistance", "distance"])
+//    val totalDistanceMeters: Int?,
+//
+//    @SerializedName("points", alternate = ["path", "coordinates"])
+//    val points: List<PointDto>?
+//)

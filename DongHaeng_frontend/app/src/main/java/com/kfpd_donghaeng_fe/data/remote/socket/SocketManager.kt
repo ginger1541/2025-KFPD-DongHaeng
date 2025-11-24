@@ -75,4 +75,38 @@ class SocketManager @Inject constructor() {
         socket?.on("chat:message", listener)
         awaitClose { socket?.off("chat:message", listener) }
     }
+
+    /**
+     * 동행 중 위치 공유
+     */
+
+    fun joinMatch(matchId: Long) {
+        val data = JSONObject().put("matchId", matchId)
+        socket?.emit("join:match", data)
+        Log.d("Socket", "Join Match: $matchId")
+    }
+
+    // 내 위치 전송 (주기적으로 호출)
+    fun sendLocation(matchId: Long, lat: Double, lng: Double) {
+        val data = JSONObject().apply {
+            put("matchId", matchId)
+            put("latitude", lat)
+            put("longitude", lng)
+        }
+        socket?.emit("location:update", data) // 서버 이벤트명에 맞춰 수정 필요
+    }
+
+    // 상대방 위치 수신
+    fun observePartnerLocation(): Flow<Pair<Double, Double>> = callbackFlow {
+        val listener = io.socket.emitter.Emitter.Listener { args ->
+            if (args.isNotEmpty()) {
+                val data = args[0] as JSONObject
+                val lat = data.optDouble("latitude")
+                val lng = data.optDouble("longitude")
+                trySend(lat to lng)
+            }
+        }
+        socket?.on("location:update", listener)
+        awaitClose { socket?.off("location:update", listener) }
+    }
 }
