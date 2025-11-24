@@ -104,6 +104,7 @@ fun OngoingScreen(
 
                }
                 else->BottomSheet(
+
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
