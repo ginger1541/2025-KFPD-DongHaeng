@@ -28,9 +28,6 @@ import com.kfpd_donghaeng_fe.ui.dashboard.MainScreen
 import com.kfpd_donghaeng_fe.ui.chat.ChatDetailScreen
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
-import androidx.navigation.NavHostController
-import com.kfpd_donghaeng_fe.data.Request
-import com.kfpd_donghaeng_fe.data.findRequestById
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.ui.matching.MatchingScreen
 import com.kfpd_donghaeng_fe.ui.matching.RequestDetailScreen
@@ -49,6 +46,7 @@ import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
+import com.kfpd_donghaeng_fe.viewmodel.matching.RequesterDetailViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -173,7 +171,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 임시 요청상세 경로
+                            // 요청자 홈 요청 상세
                             composable(
                                 route = AppScreens.REQUEST_DETAIL_SCREEN,
                                 arguments = listOf(navArgument("requestId") {
@@ -182,33 +180,44 @@ class MainActivity : ComponentActivity() {
                                 })
                             ) { backStackEntry ->
                                 val requestId = backStackEntry.arguments?.getLong("requestId") ?: -1L
-                                val request = findRequestById(requestId)
 
-                                if (request != null) {
+                                // 1. 뷰모델 주입
+                                val viewModel: RequesterDetailViewModel = hiltViewModel()
+
+                                // 2. 화면 진입 시 데이터 로드 (한 번만 실행)
+                                LaunchedEffect(requestId) {
+                                    if (requestId != -1L) {
+                                        viewModel.loadRequest(requestId)
+                                    }
+                                }
+
+                                // 3. 상태 관찰
+                                val request by viewModel.uiState.collectAsState()
+                                val isLoading by viewModel.isLoading.collectAsState()
+
+                                // 4. UI 표시 분기 처리
+                                if (isLoading) {
+                                    // 로딩 중일 때
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(color = MainOrange)
+                                    }
+                                } else if (request != null) {
+                                    // 데이터 로드 성공 시 화면 표시
                                     RequestDetailScreen(
-                                        request = request,
+                                        request = request!!,
                                         onBackClick = { navController.popBackStack() },
                                         onAcceptClick = {
+                                            // 요청자는 '수락' 대신 '상태 확인'이나 다른 동작이 필요할 수 있습니다.
+                                            // 일단은 화면 이동 없이 두거나, 필요 시 구현
                                             navController.navigateToOngoingScreen()
                                         }
                                     )
                                 } else {
+                                    // 데이터가 없을 때 (에러 또는 로드 실패)
                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Text("요청 ID ($requestId)를 찾을 수 없습니다.")
+                                        Text("요청 정보를 찾을 수 없습니다.")
                                     }
                                 }
-                            }
-
-                            composable(AppScreens.REVIEW_SCREEN) {
-                                ReviewScreen()
-                            }
-
-                            composable(AppScreens.ONGOING_SCREEN) {
-                                OngoingScreen(
-                                    onNavigateToReview = {
-                                        navController.navigateToReviewScreen()
-                                    }
-                                )
                             }
 
                             // 채팅 상세 화면 경로 추가
@@ -224,7 +233,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 요청자 홈화면 - 요청 상세 화면
+                            // 동행자 홈화면 - 요청 상세 화면
                             composable(
                                 route = "companion_request_detail/{requestId}",
                                 arguments = listOf(navArgument("requestId") { type = NavType.LongType })

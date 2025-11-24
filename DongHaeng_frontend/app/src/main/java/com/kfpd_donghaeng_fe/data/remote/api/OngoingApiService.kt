@@ -1,6 +1,8 @@
 package com.kfpd_donghaeng_fe.data.remote.api
 
 import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
+import com.kfpd_donghaeng_fe.data.remote.dto.MyRequestItemDto
+import com.kfpd_donghaeng_fe.data.remote.dto.MyRequestResponseData
 import com.kfpd_donghaeng_fe.data.remote.dto.QRDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
@@ -19,12 +21,15 @@ interface RequestApiService {
     @GET("/api/companion-requests/{request_id}")
     suspend fun getRequestDetail(
         @Path("requestId") requestId: Long
-    ): BaseResponseDto<RequestDto>
+    ): BaseResponseDto<MyRequestItemDto>
 
     @POST("/api/companions/requests")
     suspend fun createRequest(
         @Body request: RequestCreateDto
     ):Response<BaseResponseDto<RequestCreateResponse>>
+
+    @GET("/api/companions/requests")
+    suspend fun getMyRequests(): Response<BaseResponseDto<MyRequestResponseData>>
 }
 
 

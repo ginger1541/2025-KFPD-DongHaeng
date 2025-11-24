@@ -27,14 +27,17 @@ data class RequestUiModel(
     val distanceLabel: String,
 )
 
+// 💡 변환 로직 업데이트
 fun RequestUiModel.toRequest(): Request {
     return Request(
-        id = this.id.toInt(),
+        id = this.id,
+        date = this.dateLabel,
         departure = this.from,
         arrival = this.to,
         departureTime = this.departTime,
-        travelTime = this.arriveTime,
+        arrivalTime = this.arriveTime,
         distance = this.distanceLabel,
+        duration = "0분", // ✅ [추가] 홈 화면 모델에서 변환 시엔 기본값 (상세 화면에선 API로 채움)
         pricePoints = 0
     )
 }

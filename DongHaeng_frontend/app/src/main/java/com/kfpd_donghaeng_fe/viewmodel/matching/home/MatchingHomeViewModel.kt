@@ -11,6 +11,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.kfpd_donghaeng_fe.data.repository.CompanionRepository
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+import com.kfpd_donghaeng_fe.domain.repository.RequestRepository
 import com.kfpd_donghaeng_fe.ui.matching.home.MatchingHomeUiState
 import com.kfpd_donghaeng_fe.ui.matching.home.RequestUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,6 +33,7 @@ import kotlin.math.*
 @HiltViewModel
 class MatchingHomeViewModel @Inject constructor(
     private val companionRepository: CompanionRepository,
+    private val requestRepository: RequestRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -70,7 +72,24 @@ class MatchingHomeViewModel @Inject constructor(
     }
 
     private suspend fun loadNeedyHome() {
-        _uiState.value = MatchingHomeUiState.NeedyState(recentTrips = emptyList())
+        // 1. 리포지토리에서 데이터 가져오기
+        val requests = requestRepository.getRequestList()
+
+        // 2. UI 모델로 변환
+        val uiList = requests.map { req ->
+            RequestUiModel(
+                id = req.id,
+                dateLabel = req.date,
+                from = req.departure,
+                to = req.arrival,
+                departTime = req.departureTime,
+                arriveTime = req.arrivalTime,
+                distanceLabel = req.distance
+            )
+        }
+
+        // 3. 상태 업데이트
+        _uiState.value = MatchingHomeUiState.NeedyState(recentTrips = uiList)
     }
 
     // ✅ [핵심 수정] 날짜 및 거리 계산 로직 추가

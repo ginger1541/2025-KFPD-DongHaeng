@@ -1,21 +1,153 @@
 package com.kfpd_donghaeng_fe.data.repository
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.kfpd_donghaeng_fe.data.Request
 import com.kfpd_donghaeng_fe.data.remote.api.RequestApiService
+import com.kfpd_donghaeng_fe.data.remote.dto.MyRequestItemDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateResponse
 import com.kfpd_donghaeng_fe.domain.repository.RequestRepository
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Inject
 
 class RequestRepositoryImpl @Inject constructor(
     private val apiService: RequestApiService
 ) : RequestRepository {
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getRequestList(): List<Request> {
-        TODO("Not yet implemented")
+        Log.d("RequestRepo", "📡 [요청] 내 요청 목록 조회 시작 (GET /api/companions/requests)")
+
+        return try {
+            val response = apiService.getMyRequests()
+
+            Log.d("RequestRepo", "📩 [응답] HTTP 상태 코드: ${response.code()}")
+
+            if (response.isSuccessful) {
+                val body = response.body()
+                Log.d("RequestRepo", "✅ [성공] 응답 본문: $body")
+
+                if (body?.success == true) {
+                    val dtoList = body.data?.requests
+
+                    if (dtoList == null) {
+                        Log.e("RequestRepo", "⚠️ data.requests가 null입니다!")
+                        return emptyList()
+                    }
+
+                    Log.d("RequestRepo", "📦 [데이터] 파싱 전 개수: ${dtoList.size}")
+
+                    val resultList = dtoList.mapNotNull { dto ->
+                        try {
+                            convertDtoToDomain(dto)
+                        } catch (e: Exception) {
+                            Log.e("RequestRepo", "⚠️ [매핑 오류] ID(${dto.id}) 변환 실패: ${e.message}")
+                            null // 변환 실패한 항목은 제외
+                        }
+                    }
+
+                    Log.d("RequestRepo", "✨ [완료] 최종 반환 개수: ${resultList.size}")
+                    resultList
+                } else {
+                    Log.e("RequestRepo", "❌ [실패] success가 false입니다. 메시지: ${body?.message}")
+                    emptyList()
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("RequestRepo", "🔥 [API 오류] 에러 내용: $errorBody")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("RequestRepo", "💥 [예외 발생] 네트워크 오류: ${e.message}", e)
+            emptyList()
+        }
     }
 
+    // 💡 복잡한 변환 로직을 함수로 분리했습니다.
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun convertDtoToDomain(dto: MyRequestItemDto): Request {
+        // 날짜/시간 포맷팅
+        val zdt = try {
+            ZonedDateTime.parse(dto.scheduledAt)
+        } catch (e: Exception) {
+            Log.w("RequestRepo", "날짜 파싱 실패 (${dto.scheduledAt}), 현재 시간 사용")
+            ZonedDateTime.now()
+        }
+
+        val dateStr = zdt.format(DateTimeFormatter.ofPattern("M월 d일", Locale.KOREA))
+        val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
+        val arriveTimeStr = zdt.plusMinutes(dto.estimatedMinutes.toLong())
+            .format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
+
+        // 거리 포맷팅
+        val distanceStr = dto.route?.totalDistanceMeters?.let { meters ->
+            if (meters < 1000) "${meters}m" else String.format("%.1fkm", meters / 1000.0)
+        } ?: "거리 정보 없음"
+
+        return Request(
+            id = dto.id,
+            date = dateStr,
+            departure = dto.startAddress,
+            arrival = dto.destinationAddress,
+            departureTime = timeStr,
+            arrivalTime = arriveTimeStr,
+            distance = distanceStr,
+            duration = "${dto.estimatedMinutes}분", // 소요 시간
+            pricePoints = 0
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun getRequestById(id: Long): Request {
-        TODO("Not yet implemented")
+        return try {
+            // ✅ 이제 response.body()!!.data는 MyRequestItemDto 타입입니다.
+            val response = apiService.getRequestDetail(id)
+
+            if (response.success && response.data != null) { // BaseResponseDto 구조에 따라 success/data 접근
+                val dto = response.data!! // 여기서 dto는 MyRequestItemDto
+
+                // 날짜 변환 로직
+                val zdt = try {
+                    ZonedDateTime.parse(dto.scheduledAt) // ✅ 이제 참조 가능
+                } catch (e: Exception) {
+                    ZonedDateTime.now()
+                }
+
+                val dateStr = zdt.format(DateTimeFormatter.ofPattern("M월 d일", Locale.KOREA))
+                val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
+
+                // 예상 도착 시간 계산
+                val arriveTimeStr = zdt.plusMinutes(dto.estimatedMinutes.toLong()) // ✅ 참조 가능
+                    .format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
+
+                // 거리 정보 처리
+                val distanceStr = dto.route?.totalDistanceMeters?.let { meters -> // ✅ 참조 가능
+                    if (meters < 1000) "${meters}m" else String.format("%.1fkm", meters / 1000.0)
+                } ?: "거리 정보 없음"
+
+                // 최종적으로 'Request' (UI/도메인 모델) 객체 생성하여 반환
+                Request(
+                    id = dto.id,
+                    date = dateStr,
+                    departure = dto.startAddress,
+                    arrival = dto.destinationAddress,
+                    departureTime = timeStr,
+                    arrivalTime = arriveTimeStr,
+                    distance = distanceStr,
+                    duration = "${dto.estimatedMinutes}분",
+                    pricePoints = 0 // 포인트 정보가 없다면 0
+                )
+            } else {
+                throw Exception("상세 조회 실패: ${response.message}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     override suspend fun createRequest(requestDto: RequestCreateDto): Result<RequestCreateResponse> {
