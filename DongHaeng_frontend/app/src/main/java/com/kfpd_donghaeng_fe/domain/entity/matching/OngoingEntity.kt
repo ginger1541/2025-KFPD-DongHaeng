@@ -1,5 +1,19 @@
 package com.kfpd_donghaeng_fe.domain.entity.matching
 
-data class MatchingState(
-    val OngoingPage : Int =0
+import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
+
+data class OngoingEntity(
+    val OngoingPage : Int =0,
+    val userType: UserType? = UserType.HELPER
+
+)
+
+data class OngoingRequestEntity(
+    val requestId: Long=0,
+    val startAddress : String ="start",
+    val destinationAddress: String = "end" ,
+    val status: String="stuats" ,
+    val Name : String ="hi",
+    val ProfileImageUrl: String ?=null,
+    val DHScore:Int=90,
 )
