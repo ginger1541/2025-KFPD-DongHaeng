@@ -29,7 +29,7 @@ export const createRequest = async (data: {
       scheduledAt: data.scheduledAt,
       route: data.route,
       status: 'pending',
-      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2시간 후 만료
+      expiresAt: new Date(Date.now() + 1024 * 60 * 60 * 1000), // 1024시간 후 만료 (약 43일, 개발용)
     },
     include: {
       requester: {
