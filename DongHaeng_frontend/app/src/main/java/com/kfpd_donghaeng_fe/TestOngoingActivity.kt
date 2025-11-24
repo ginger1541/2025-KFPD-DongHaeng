@@ -3,12 +3,17 @@ package com.kfpd_donghaeng_fe
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kfpd_donghaeng_fe.ui.auth.MakeAccountRoute
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingRoute
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
+import com.kfpd_donghaeng_fe.util.navigateToReviewScreen
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -25,16 +30,19 @@ class TestOngoingActivity: ComponentActivity() {
 }
 
 //TODO : utill 로 옮겨야함!
-
 @Composable
 fun AppNavigation_TestOngoing() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "ongoing"
     ) {
-        composable("signup") {
-            MakeAccountRoute()
+        composable("review_screen") {
+            Text("Review Screen")
+        }
+        composable("ongoing") {
+            OngoingRoute()
         }
     }
 }
+

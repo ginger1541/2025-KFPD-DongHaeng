@@ -38,6 +38,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".TestOngoingActivity"
+            android:exported="true"
+            android:label="ongoing테스트 시작점"
+            android:theme="@style/Theme.KFPD_DongHaeng_FE">  </activity>
+
+        <activity
             android:name=".TestEntry"
             android:exported="true"
             android:label="테스트 시작점"

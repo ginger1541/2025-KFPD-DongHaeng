@@ -6,7 +6,7 @@ data class MakeAccountUiState(
     val currentPage: Int = 0,          // 페이지 번호
     val nickname: String = "",         // 닉네임
     val bio: String = "",              // 자기소개
-    val userType: UserType? = null,    // 유저 타입
+    val userType: UserType?=null,    // 유저 타입
     val selectedUserType : UserType?=null,
     var userInfoUiState: UserInfoUiState = UserInfoUiState()
 
