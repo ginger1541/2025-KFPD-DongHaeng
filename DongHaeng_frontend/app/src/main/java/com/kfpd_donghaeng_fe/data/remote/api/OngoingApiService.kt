@@ -8,7 +8,6 @@ import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateResponse
-import com.kfpd_donghaeng_fe.data.remote.dto.RequestDto
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
