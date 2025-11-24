@@ -2,12 +2,12 @@ package com.kfpd_donghaeng_fe.data.repository
 
 import androidx.datastore.core.DataStore
 import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
+import com.kfpd_donghaeng_fe.data.mapper.toDomainLogin
 import com.kfpd_donghaeng_fe.domain.repository.LoginRepository
 import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
 
 import com.kfpd_donghaeng_fe.data.remote.dto.LoginRequestDto
 
-import com.kfpd_donghaeng_fe.data.remote.dto.toDomainLogin
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginResultEntity
 import javax.inject.Inject
 
@@ -31,6 +31,9 @@ class LoginRepositoryImpl @Inject constructor(
         loginResult.userData.userType?.let { type ->
             tokenDataSource.saveUserType(type)
         }
+
+        tokenDataSource.saveUserId(loginResult.userData.userId.toLong())
+
         return loginResult
     }
 

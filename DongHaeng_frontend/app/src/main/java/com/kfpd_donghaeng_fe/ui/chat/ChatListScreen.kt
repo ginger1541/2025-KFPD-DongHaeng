@@ -38,13 +38,6 @@ fun ChatListScreen(
     // ViewModel 데이터 관찰
     val chatRooms by viewModel.chatRooms.collectAsState()
 
-    // 화면 진입 시 초기화 (실제 앱에서는 로그인 시 저장된 토큰 사용)
-    LaunchedEffect(Unit) {
-        // TODO: 실제 토큰과 내 User ID를 넣어주세요. (예: DataStore나 SharedPreferences에서 가져옴)
-        // 여기서는 테스트를 위해 임시 값을 넣습니다.
-        viewModel.initialize("TEST_TOKEN", 12345L)
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()

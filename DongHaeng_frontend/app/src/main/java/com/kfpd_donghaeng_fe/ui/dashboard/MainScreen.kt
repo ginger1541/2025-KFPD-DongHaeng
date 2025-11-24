@@ -40,7 +40,6 @@ import com.kfpd_donghaeng_fe.util.AppScreens
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen(userType: UserType, mainNavController: NavHostController) {
-/*
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
 
@@ -192,5 +191,5 @@ fun MainScreenPreview() {
             userType = UserType.NEEDY,
             mainNavController = rememberNavController()
         )
-    }*/
+    }
 }

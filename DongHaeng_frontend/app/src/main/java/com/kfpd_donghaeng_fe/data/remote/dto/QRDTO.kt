@@ -57,3 +57,10 @@ data class QRScanResponseDto(
 
 
 
+
+// 동행 시작(QR스캔)
+data class QRScanRequest(
+    @SerializedName("qr_code") val qrCode: String,      // 스캔한 QR 코드 문자열
+    @SerializedName("latitude") val latitude: Double,   // 스캔한 위치 위도
+    @SerializedName("longitude") val longitude: Double  // 스캔한 위치 경도
+)

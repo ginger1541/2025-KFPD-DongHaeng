@@ -268,14 +268,27 @@ class MainActivity : ComponentActivity() {
                             // 채팅 상세 화면 경로 추가
                             composable(
                                 route = "chat_detail/{chatRoomId}",
-                                arguments = listOf(navArgument("chatRoomId") { type = NavType.LongType })
+                                arguments = listOf(navArgument("chatRoomId") {
+                                    type = NavType.LongType
+                                    // ⚠️ defaultValue = 0L 을 제거하거나,
+                                    // 문제가 발생할 경우를 대비하여 여기서 유효성 검사
+                                })
                             ) { backStackEntry ->
-                                val chatRoomId = backStackEntry.arguments?.getLong("chatRoomId") ?: 0L
+                                // 💡 [수정] null일 경우 에러 처리 대신 -1L 등의 명확한 값 사용
+                                val chatRoomId = backStackEntry.arguments?.getLong("chatRoomId") ?: -1L
 
-                                ChatDetailScreen(
-                                    chatRoomId = chatRoomId,
-                                    onBackClick = { navController.popBackStack() }
-                                )
+                                // 💡 [추가] chatRoomId가 유효하지 않으면 화면을 표시하지 않음
+                                if (chatRoomId > 0L) {
+                                    ChatDetailScreen(
+                                        chatRoomId = chatRoomId,
+                                        onBackClick = { navController.popBackStack() }
+                                    )
+                                } else {
+                                    // 유효하지 않은 ID 처리 (예: 텍스트 표시)
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text("유효하지 않은 채팅방 ID입니다.")
+                                    }
+                                }
                             }
 
                             // 동행자 홈화면 - 요청 상세 화면

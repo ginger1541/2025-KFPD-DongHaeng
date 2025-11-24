@@ -22,6 +22,7 @@ class SocketManager @Inject constructor() {
         try {
             val options = IO.Options().apply {
                 auth = mapOf("token" to token) // JWT 토큰 인증
+                transports = arrayOf("websocket")
             }
             socket = IO.socket(BASE_URL, options)
 
@@ -47,15 +48,19 @@ class SocketManager @Inject constructor() {
     // 채팅방 입장 (매칭 참여) [cite: 615]
     fun joinRoom(matchId: Long) {
         val data = JSONObject().put("matchId", matchId)
+        // 👇 [추가된 로그] 채팅방 입장 시도 확인
+        Log.d("SocketManager", "ATTEMPT: join:match for ID: $matchId")
         socket?.emit("join:match", data)
     }
 
-    // 메시지 전송 [cite: 629, 631, 632]
+    // 메시지 전송
     fun sendMessage(matchId: Long, message: String) {
         val data = JSONObject().apply {
             put("matchId", matchId)
             put("message", message)
         }
+        // 👇 [추가된 로그] 메시지 전송 시도 확인
+        Log.d("SocketManager", "ATTEMPT: chat:send to ID: $matchId. Message: $message")
         socket?.emit("chat:send", data)
     }
 

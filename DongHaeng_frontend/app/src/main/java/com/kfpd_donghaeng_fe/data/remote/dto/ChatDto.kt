@@ -16,12 +16,23 @@ data class ChatRoomDetailResponse(
 
 // 채팅방 정보 DTO
 data class ChatRoomDto(
-    @SerializedName("chatRoomId") val chatRoomId: Long,
-    @SerializedName("matchId") val matchId: Long,
-    @SerializedName("partner") val partner: ChatPartnerDto,
-    @SerializedName("lastMessage") val lastMessage: LastMessageDto?,
-    @SerializedName("unreadCount") val unreadCount: Int,
-    @SerializedName("request") val request: ChatRequestDto? // 매칭 카드 정보용
+    @SerializedName("chatRoomId", alternate = ["chat_room_id", "chatroomid", "ChatRoomId"])
+    val chatRoomId: Long,
+
+    @SerializedName("matchId", alternate = ["match_id", "matchid", "MatchId"])
+    val matchId: Long,
+
+    @SerializedName("partner", alternate = ["Partner", "PARTNER"])
+    val partner: ChatPartnerDto,
+
+    @SerializedName("lastMessage", alternate = ["last_message", "lastmessage", "LastMessage"])
+    val lastMessage: LastMessageDto?,
+
+    @SerializedName("unreadCount", alternate = ["unread_count", "unreadcount", "UnreadCount"])
+    val unreadCount: Int,
+
+    @SerializedName("request", alternate = ["Request", "REQUEST"])
+    val request: ChatRequestDto?
 )
 
 data class ChatPartnerDto(
@@ -37,9 +48,14 @@ data class LastMessageDto(
 )
 
 data class ChatRequestDto(
+    @SerializedName("scheduledAt", alternate = ["scheduled_at", "scheduledat", "ScheduledAt"])
     val scheduledAt: String?,
-    val startAddress: String,
-    val endAddress: String
+
+    @SerializedName("startAddress", alternate = ["start_address", "startaddress", "StartAddress"])
+    val startAddress: String?,
+
+    @SerializedName("endAddress", alternate = ["end_address", "endaddress", "EndAddress"])
+    val endAddress: String?
 )
 
 // 메시지 히스토리 응답
@@ -50,9 +66,16 @@ data class ChatHistoryResponse(
 )
 
 data class ChatMessageDto(
+    @SerializedName("messageId", alternate = ["message_id", "messageid", "MessageId"])
     val messageId: Long,
+
+    @SerializedName("senderId", alternate = ["sender_id", "senderid", "SenderId"])
     val senderId: Long,
+
+    @SerializedName("message", alternate = ["Message", "MESSAGE"])
     val message: String,
+
+    @SerializedName("createdAt", alternate = ["created_at", "createdat", "CreatedAt"])
     val createdAt: String
 )
 
