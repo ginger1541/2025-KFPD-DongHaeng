@@ -23,6 +23,7 @@ import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
@@ -71,10 +72,15 @@ fun BtnEndDH(nextPage: () -> Unit ,modifier: Modifier = Modifier) {
 
 // QR 버튼
 @Composable
-fun BtnQR(onClick: () -> Unit) {
+fun BtnQR(onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,onClick: () -> Unit) {
     val QRCamImg = painterResource(id = R.drawable.qr_cam_icon)
     Button(
-        onClick = onClick,
+        onClick = {
+            val matchId = 1L // 실제 Match ID
+            //val qrType = if (page == 0) QRTypes.START else QRTypes.END
+            val qrType=QRTypes.START
+            val scanData = QRScandEntity.Empty
+            onScanRequest(scanData,qrType,matchId)},
         modifier = Modifier
             .width(200.dp)
             .height(160.dp), // 직사각형
@@ -136,10 +142,10 @@ fun SheetTop(page: Int) {
 
 // 중간 컨텐츠
 @Composable
-fun SheetMiddle( nextPage: () -> Unit, page: Int) {
+fun SheetMiddle( onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit, nextPage: () -> Unit, page: Int) {
     Spacer(modifier = Modifier.height(16.dp)) // 패딩 줄임
     when(page) {
-        0,2 -> BtnQR( onClick = nextPage)
+        0,2 -> BtnQR(onScanRequest, onClick = nextPage)
         1 -> {
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -164,13 +170,13 @@ fun SheetMiddle( nextPage: () -> Unit, page: Int) {
 // 시트 내부 전체
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, nextPage:()->Unit,page: Int,onEndDH: () -> Unit) {
+fun SheetInside(onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,scope: CoroutineScope, sheetState: SheetState, onCloseRequest: () -> Unit, nextPage:()->Unit,page: Int,onEndDH: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SheetTop(page)
-        SheetMiddle(nextPage,page)
+        SheetMiddle(onScanRequest,nextPage,page)
         Spacer(modifier = Modifier.height(20.dp)) // 간격 줄임
         SheetButtonBatch(
             scope, sheetState, onCloseRequest, page,
@@ -187,6 +193,7 @@ fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: (
 fun BottomSheet(uiState: OngoingEntity,
                 resultUiState: QRScanResultEntity,
                 locateUiState:QRScandEntity,
+                onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
                 nextPage:()->Unit,
                 NavigateToReview: () -> Unit
 ) {
@@ -209,7 +216,7 @@ fun BottomSheet(uiState: OngoingEntity,
             BottomSheetDefaults.DragHandle(color = Color.Gray, width = 40.dp) // 얇게
         },
         sheetContent = {
-            SheetInside(scope, bottomSheetState, onCloseRequest = {}, nextPage= nextPage,page = page,onEndDH = onEndDH,)
+            SheetInside(onScanRequest,scope, bottomSheetState, onCloseRequest = {}, nextPage= nextPage,page = page,onEndDH = onEndDH,)
         },
         content = {
             //Background_Map()
