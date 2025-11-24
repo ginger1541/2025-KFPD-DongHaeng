@@ -35,6 +35,31 @@ data class QREntity(  // qr 생성
 
 
 sealed interface QRScanResultEntity
+{
+    // 💡 1. 빈 상태를 나타내는 내부 데이터 클래스 정의
+    data class Empty(
+        val scanTime: String = "",
+        val isSuccess: Boolean = false,
+        val message: String = ""
+    ) : QRScanResultEntity // 💡 QRScanResultEntity를 구현해야 합니다.
+
+    // 💡 2. 성공 상태 (예시)
+    data class Success(
+        val scanTime: String,
+        val message: String
+    ) : QRScanResultEntity
+
+    // 💡 3. 실패 상태 (예시)
+    data class Failure(
+        val errorCode: Int,
+        val errorMessage: String
+    ) : QRScanResultEntity
+
+    // 4. Companion Object에서 Dummy 객체 제공 (Empty 클래스 인스턴스)
+    companion object {
+        val EmptyState: QRScanResultEntity = Empty() // 💡 Empty 클래스의 인스턴스를 반환합니다.
+    }
+}
 //QRtype == "start"
 data class QRScanStartEntity(
     val matchId: Int,
@@ -50,12 +75,16 @@ data class QRScanEndEntity(
     val earnedVolunteerMinutes: Int
 ) : QRScanResultEntity
 
-//QR 카메라 킨 장소
+//QR 스캔 한 장소
 data class QRScandEntity( // qr 스캔 후 서버에 보냄
     val qrCode : String,
     val latitude:Double,
     val longitude: Double
-)
+){
+    companion object {
+        val Empty = QRScandEntity(qrCode = "",0.0,0.0)
+    }
+}
 
 
 
