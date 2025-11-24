@@ -48,6 +48,9 @@ fun MainRouteScreen(
     val routeReady = startLocation != null && endLocation != null
     var showPaymentDialog by remember { mutableStateOf(false) }
 
+    fun isValidLocation(loc: com.kfpd_donghaeng_fe.domain.entity.RouteLocation?): Boolean {
+        return loc != null && (loc.latitude ?: 0.0) != 0.0 && (loc.longitude ?: 0.0) != 0.0
+    }
     // 1. 화면 진입 시 초기화
     LaunchedEffect(Unit) {
         bookingViewModel.navigateToBooking()
@@ -65,7 +68,7 @@ fun MainRouteScreen(
 
     // 2. 경로 요청 및 화면 이동
     LaunchedEffect(startLocation, endLocation) {
-        if (routeReady) {
+        if (isValidLocation(startLocation) && isValidLocation(endLocation)) {
             mapViewModel.requestWalkingRoute(startLocation!!, endLocation!!)
             bookingViewModel.navigateToServiceType()
         }
@@ -166,11 +169,14 @@ fun MainRouteScreen(
                 // 지도가 시트 뒤에도 보이게 하려면 padding을 주지 않거나 bottom만 제외할 수 있습니다.
                 // 여기서는 전체 화면을 쓰도록 padding을 무시하거나 필요한 만큼만 적용합니다.
             ) {
+                val targetLocation = endLocation ?: startLocation ?: mapUiState.centerLocation
+                val targetLat = targetLocation?.latitude ?: 37.5665
+                val targetLng = targetLocation?.longitude ?: 126.9780
                 // 1. 지도 (가장 뒤)
                 KakaoMapView(
                     modifier = Modifier.fillMaxSize(),
-                    locationX = mapUiState.centerLocation?.longitude ?: 126.9780,
-                    locationY = mapUiState.centerLocation?.latitude ?: 37.5665,
+                    locationX = targetLng, // ✅ 수정된 좌표 전달
+                    locationY = targetLat, // ✅ 수정된 좌표 전달
                     route = mapUiState.route,
                     enabled = true
                 )

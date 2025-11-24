@@ -70,8 +70,9 @@ fun KakaoMapView(
     var kakaoMapState by remember { mutableStateOf<KakaoMap?>(null) }
     var currentPolyline by remember { mutableStateOf<Polyline?>(null) }
     var lastRoute by remember { mutableStateOf<WalkingRoute?>(null) }
-    var isInitialMoveDone by remember { mutableStateOf(false) }
 
+    var isInitialMoveDone by remember { mutableStateOf(false) }
+    var lastMovedLocation by remember { mutableStateOf<LatLng?>(null) }
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = {
@@ -99,10 +100,18 @@ fun KakaoMapView(
             if (enabled) {
                 kakaoMapState?.let { map ->
                     // 1. 초기 위치 이동 (경로 데이터가 없을 때만 수행)
-                    if (route == null && !isInitialMoveDone) {
-                        val target = LatLng.from(locationY, locationX)
-                        map.moveCamera(CameraUpdateFactory.newCenterPosition(target))
-                        isInitialMoveDone = true
+                    if (route == null) {
+                        val currentTarget = LatLng.from(locationY, locationX)
+
+                        // 1) 처음이거나 2) 좌표가 바뀌었을 때 이동
+                        if (!isInitialMoveDone || lastMovedLocation != currentTarget) {
+                            map.moveCamera(CameraUpdateFactory.newCenterPosition(currentTarget))
+                            // 필요하다면 줌 레벨도 조정
+                            // map.moveCamera(CameraUpdateFactory.zoomTo(15))
+
+                            isInitialMoveDone = true
+                            lastMovedLocation = currentTarget
+                        }
                     }
 
                     // 2. 경로 및 라벨 업데이트 (데이터가 변경되었을 때)

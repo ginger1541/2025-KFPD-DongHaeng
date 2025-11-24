@@ -82,7 +82,12 @@ class RequestRepositoryImpl @Inject constructor(
         val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
         val arriveTimeStr = zdt.plusMinutes(dto.estimatedMinutes.toLong())
             .format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
-
+        val routePoints = dto.route?.points
+        val lastPoint = routePoints?.lastOrNull()
+        val startLat = dto.latitude ?: 0.0
+        val startLng = dto.longitude ?: 0.0
+        val endLat = lastPoint?.lat ?: 0.0
+        val endLng = lastPoint?.lng ?: 0.0
         // 거리 포맷팅
         val distanceStr = dto.route?.totalDistanceMeters?.let { meters ->
             if (meters < 1000) "${meters}m" else String.format("%.1fkm", meters / 1000.0)
@@ -100,12 +105,10 @@ class RequestRepositoryImpl @Inject constructor(
             pricePoints = 0,
 
             // DTO에 있는 latitude, longitude를 start 좌표로 사용
-            startLatitude = dto.latitude ?: 0.0,
-            startLongitude = dto.longitude ?: 0.0,
-
-            // 도착지 좌표는 목록 API 응답에 없으므로 0.0으로 처리 (상세화면이나 지도에서 다시 로드)
-            endLatitude = 0.0,
-            endLongitude = 0.0
+            startLatitude = startLat,
+            startLongitude = startLng,
+            endLatitude = endLat,
+            endLongitude = endLng
         )
     }
 
