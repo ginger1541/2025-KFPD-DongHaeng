@@ -74,32 +74,43 @@ fun OngoingScreen(
     Box(modifier = Modifier.fillMaxSize()) {
 
         Background_Map()
-
-        // 상단 시트
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
-        ) {
-            TopSheet(uiState,uiState2)
-        }
-
-        // 동행자(user=2)일 경우 QR 코드 시트
+        // 동행자(user=2)일 경우 QR 코드 시트로 시작
         if (uiState.userType == UserType.NEEDY) {
-            // 배경 오버레이
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            )
-            // QR 코드 시트
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
             ) {
-                QRSheet(uiState3,page = 0)
+                TopSheet(uiState,uiState2)
             }
+            val page = uiState.OngoingPage
+            // 배경 오버레이
+            when(page){
+               0,2-> {Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.6f))
+                )
+                   // QR 코드 시트
+                   Box(
+                       modifier = Modifier
+                           .fillMaxSize(),
+                       contentAlignment = Alignment.Center
+                   ) {
+                       QRSheet(uiState,uiState3)
+                   }
+
+               }
+                else->BottomSheet(
+                    uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
+                    resultUiState = resultUiState,
+                    locateUiState = locateUiState,
+                    nextPage = nextPage,
+                    NavigateToReview = NavigateToReview
+                )
+
+            }
+
         }
 
         // 요청자(user=1)일 경우 하단 시트
@@ -107,18 +118,25 @@ fun OngoingScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+            ) {
+                TopSheet(uiState,uiState2)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.BottomCenter)
             ) {
 
-                // 💡 수정: BottomSheet에 ViewModel이 아닌 onNavigateToReview 함수를 전달
                 BottomSheet(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
-                    resultUiState= resultUiState,
-                    locateUiState=locateUiState,
-                    nextPage=nextPage,
+                    resultUiState = resultUiState,
+                    locateUiState = locateUiState,
+                    nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
             }
+
         }
     }
 }
@@ -133,8 +151,6 @@ fun OngoingRoute(
     viewModel2: QRViewModel = hiltViewModel(),
 ) {
 
-
-
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
     val uiState3 by viewModel2.uiState3.collectAsState()
@@ -147,7 +163,7 @@ fun OngoingRoute(
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
     LaunchedEffect(isScanned) {
-        if (isScanned) {
+        if (!isScanned) {
             // 스캔이 완료시  다음 페이지!
             viewModel.nextPage()
             // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
@@ -165,22 +181,4 @@ fun OngoingRoute(
     )
 }
 
-// =========================================================================================
-// 4. Preview (테스트용)
-// 💡 Preview 함수를 주석 해제하고, 더미 데이터로 OngoingScreen을 호출합니다.
-// =========================================================================================
 
-/*
-// ⚠️ 주의: TopSheet, QRSheet, BottomSheet, OngoingViewModel 등이 정의되지 않아 컴파일 오류가 발생할 수 있습니다.
-// 이들은 임시로 주석 처리하거나 더미 Composable로 대체해야 합니다.
-@Preview(showBackground = true)
-@Composable
-fun OngoingScreenPreview() {
-    val dummyOngoingEntity = OngoingEntity(OngoingPage = 0) // 더미 데이터 생성
-
-    OngoingScreen(
-        uiState = dummyOngoingEntity,
-        onNavigateToReview = {} // 더미 함수 전달
-    )
-}
-*/
