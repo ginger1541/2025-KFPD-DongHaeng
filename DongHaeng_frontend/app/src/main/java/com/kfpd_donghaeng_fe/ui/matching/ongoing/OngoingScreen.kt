@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -19,8 +20,12 @@ import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
+import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 
 // =========================================================================================
 // 1. Map Composable
@@ -57,9 +62,14 @@ var user: Int = 2// 테스트용 1 = 요청자 2 = 동행자
 fun OngoingScreen(
     uiState: OngoingEntity,
     uiState2: OngoingRequestEntity,
+    uiState3:QREntity,
+    resultUiState: QRScanResultEntity, // 여기에 스캔 시간
+    locateUiState : QRScandEntity, // 스캔 시작 장소
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
 ) {
+
+
     // Box 안의 컴포넌트들은 순서대로 쌓입니다 (1 -> 2 -> 3 -> 4)
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -88,7 +98,7 @@ fun OngoingScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                QRSheet(page = 0)
+                QRSheet(uiState3,page = 0)
             }
         }
 
@@ -99,9 +109,12 @@ fun OngoingScreen(
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
             ) {
+
                 // 💡 수정: BottomSheet에 ViewModel이 아닌 onNavigateToReview 함수를 전달
                 BottomSheet(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
+                    resultUiState= resultUiState,
+                    locateUiState=locateUiState,
                     nextPage=nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -117,14 +130,36 @@ fun OngoingScreen(
 @Composable
 fun OngoingRoute(
     viewModel: OngoingViewModel = hiltViewModel(),
+    viewModel2: QRViewModel = hiltViewModel(),
 ) {
+
+
 
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
+    val uiState3 by viewModel2.uiState3.collectAsState()
+    //val uiState3: QREntity = viewModel2.uiState3.collectAsState().value
+    val locateUiState by viewModel2.locateUiState.collectAsState()
+
+    val resultUiState by viewModel2.resultUiState.collectAsState()
+    // 2. 스캔 상태 플래그 추출 (QREntity에 qrScanned 필드가 있다고 가정)
+    val isScanned = uiState3.qrScanned
+
+    // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
+    LaunchedEffect(isScanned) {
+        if (isScanned) {
+            // 스캔이 완료시  다음 페이지!
+            viewModel.nextPage()
+            // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
+        }
+    }
 
     OngoingScreen(
         uiState = uiState,
         uiState2 = uiState2,
+        uiState3=uiState3,
+        resultUiState = resultUiState,
+        locateUiState=locateUiState,
         nextPage=viewModel::nextPage,
         NavigateToReview = viewModel::NavigateToReview
     )
