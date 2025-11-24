@@ -11,11 +11,17 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,10 +36,13 @@ import com.kfpd_donghaeng_fe.ui.matching.components.RequestDetailContent
 import com.kfpd_donghaeng_fe.ui.matching.components.PaymentContent
 import com.kfpd_donghaeng_fe.ui.matching.components.PathInputBox
 import com.kfpd_donghaeng_fe.ui.matching.components.RequestTimePicker
+import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import com.kfpd_donghaeng_fe.viewmodel.matching.MapViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.PlaceSearchViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.BookingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
+import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -61,6 +70,48 @@ fun MainRouteScreen(
     fun isValidLocation(loc: com.kfpd_donghaeng_fe.domain.entity.RouteLocation?): Boolean {
         return loc != null && (loc.latitude ?: 0.0) != 0.0 && (loc.longitude ?: 0.0) != 0.0
     }
+
+    val mapCenterLat = remember(selectedDetailPlace, endLocation, startLocation) {
+        selectedDetailPlace?.y?.toDoubleOrNull()
+            ?: endLocation?.latitude
+            ?: startLocation?.latitude
+            ?: 37.5665 // 서울 기본값
+    }
+
+    val mapCenterLng = remember(selectedDetailPlace, endLocation, startLocation) {
+        selectedDetailPlace?.x?.toDoubleOrNull()
+            ?: endLocation?.longitude
+            ?: startLocation?.longitude
+            ?: 126.9780 // 서울 기본값
+    }
+
+    val activeMarkers by remember(currentPhase, startLocation, endLocation, selectedDetailPlace) {
+        derivedStateOf {
+            val list = mutableListOf<RouteLocation>()
+
+            val place = selectedDetailPlace
+
+            if (currentPhase == MatchingPhase.PLACE_DETAIL && place != null) {
+                // PlaceSearchResult을 RouteLocation으로 변환
+                // 이제 'place'는 non-nullable로 스마트 캐스트되어 오류가 발생하지 않습니다.
+                list.add(place.toRouteLocation(LocationType.PLACE))
+            }
+
+            else if (currentPhase == MatchingPhase.BOOKING) {
+                startLocation?.let { list.add(it) }
+                endLocation?.let {
+                    if (isValidLocation(it)) list.add(it)
+                }
+            }
+
+            if (currentPhase >= MatchingPhase.SERVICE_TYPE && mapUiState.route != null) {
+                return@derivedStateOf emptyList<RouteLocation>()
+            }
+
+            list.toList()
+        }
+    }
+
     // 1. 화면 진입 시 초기화
     LaunchedEffect(selectedDetailPlace) {
         if (selectedDetailPlace != null) {
@@ -229,39 +280,51 @@ fun MainRouteScreen(
                 // 지도가 시트 뒤에도 보이게 하려면 padding을 주지 않거나 bottom만 제외할 수 있습니다.
                 // 여기서는 전체 화면을 쓰도록 padding을 무시하거나 필요한 만큼만 적용합니다.
             ) {
-                val targetLocation = endLocation ?: startLocation ?: mapUiState.centerLocation
-                val targetLat = targetLocation?.latitude ?: 37.5665
-                val targetLng = targetLocation?.longitude ?: 126.9780
                 // 1. 지도 (가장 뒤)
                 KakaoMapView(
                     modifier = Modifier.fillMaxSize(),
-                    locationX = targetLng, // ✅ 수정된 좌표 전달
-                    locationY = targetLat, // ✅ 수정된 좌표 전달
+                    locationX = mapCenterLng,
+                    locationY = mapCenterLat,
                     route = mapUiState.route,
-                    enabled = true
+                    enabled = true,
+                    markers = activeMarkers
                 )
 
                 // 2. 상단 입력창 (지도 위)
-                // Scaffold의 상단 패딩(paddingValues.calculateTopPadding()) 만큼 내려서 그립니다.
-                if (currentPhase != MatchingPhase.PLACE_DETAIL) {
-                    PathInputBox(
-                        startLocation = startLocation,
-                        endLocation = endLocation,
-                        isSelectingStart = isSelectingStart,
-                        onLocationClick = { isStart ->
-                            placeSearchViewModel.setSelectingTarget(isStart)
-                            showPlaceSearch = true
-                        },
-                        onClose = onClose,
-                        onSwapClick = { placeSearchViewModel.swapLocations() },
-                        onClear = {
-                            placeSearchViewModel.clearAllLocations()
-                            onClose()
-                        },
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = paddingValues.calculateTopPadding()) // 상단 시스템 바 겹침 방지
-                    )
+                when (currentPhase) {
+                    // 💡 [FIX] PLACE_DETAIL일 때 전용 상단바 표시
+                    MatchingPhase.PLACE_DETAIL -> {
+                        val place = selectedDetailPlace
+                        if (place != null) {
+                            PlaceDetailTopBar(
+                                placeName = place.placeName,
+                                onBackClick = {
+                                    placeSearchViewModel.setDetailPlace(null)
+                                },
+                                paddingTop = paddingValues.calculateTopPadding()
+                            )
+                        }
+                    }
+                    else -> {
+                        PathInputBox(
+                            startLocation = startLocation,
+                            endLocation = endLocation,
+                            isSelectingStart = isSelectingStart,
+                            onLocationClick = { isStart ->
+                                placeSearchViewModel.setSelectingTarget(isStart)
+                                showPlaceSearch = true
+                            },
+                            onClose = onClose, // 전체 플로우 종료
+                            onSwapClick = { placeSearchViewModel.swapLocations() },
+                            onClear = {
+                                placeSearchViewModel.clearAllLocations()
+                                onClose()
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = paddingValues.calculateTopPadding())
+                        )
+                    }
                 }
             }
         }
@@ -314,5 +377,46 @@ fun MainRouteScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun PlaceDetailTopBar(
+    placeName: String,
+    onBackClick: () -> Unit,
+    paddingTop: Dp
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(top = paddingTop)
+            .height(56.dp) // 표준 TopAppBar 높이
+            .padding(horizontal = 4.dp), // 아이콘 버튼을 위한 내부 패딩
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 1. 뒤로가기 버튼 (ic_chevron_left 사용)
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_left),
+                contentDescription = "뒤로가기",
+                tint = AppColors.PrimaryDarkText
+            )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        // 2. 장소 이름
+        Text(
+            text = placeName,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = AppColors.PrimaryDarkText,
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Spacer(Modifier.width(16.dp))
     }
 }

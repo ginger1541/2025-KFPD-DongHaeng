@@ -134,7 +134,7 @@ fun PlaceDetailSheetContent(
             Box(
                 modifier = Modifier.fillMaxWidth().height(200.dp).background(AppColors.MapPlaceholder, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
-            ) { Text("거리뷰 이미지 Mockup (Live Map Background)", color = AppColors.SecondaryText) }
+            ) { Text("이미지를 제공하지 않습니다", color = AppColors.SecondaryText) }
         }
     }
 }
