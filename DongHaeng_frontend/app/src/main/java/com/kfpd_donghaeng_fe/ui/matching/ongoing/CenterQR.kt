@@ -78,6 +78,8 @@ fun QRSheet(page: Int, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/*
 // Preview는 생략합니다.
 
 @Preview(showBackground = true)
@@ -86,4 +88,4 @@ fun QRSheetPreview() {
     KFPD_DongHaeng_FETheme {
         QRSheet(page = 0) // page=0 상태로 미리보기
     }
-}
+}*/

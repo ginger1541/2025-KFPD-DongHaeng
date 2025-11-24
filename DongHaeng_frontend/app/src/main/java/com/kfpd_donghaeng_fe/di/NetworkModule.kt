@@ -78,7 +78,6 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            // 💡 이전에 오류를 낸 'http' 대신 'https'를 사용해야 합니다!
             .baseUrl("http://34.64.76.147:3000")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())

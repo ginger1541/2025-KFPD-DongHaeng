@@ -32,32 +32,5 @@ interface RequestApiService {
 }
 
 
-//동행 종료 후 디테일 정보
-//EndMatchDto
-
-//시작 qr 정보
-interface StartQRApiService{
-    @GET("/api/matches/{match_id}/qr/start")
-    suspend fun getStartQR(
-        @Path("match_id") matchId: Long
-    ): BaseResponseDto<QRDto>
-}
-
-//종료 qr 정보
-interface EndQRApiService{
-    @GET("/api/matches/{match_id}/qr/end")
-    suspend fun getEndQR(
-        @Path("match_id") matchId: Long
-    ): BaseResponseDto<QRDto>
-}
-
-
-//qr 스캔 요청
-interface QRScanApiService {
-    @POST("/api/qr/scan")
-    suspend fun postQRScan(
-        @Body request: QRScanRequest //  요청 DTO를 @Body로 전달
-    ): BaseResponseDto<QRScanResponseDto> //  응답 DTO를 받음
-}
 
 

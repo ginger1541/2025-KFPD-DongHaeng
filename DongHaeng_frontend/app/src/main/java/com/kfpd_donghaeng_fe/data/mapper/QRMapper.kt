@@ -20,46 +20,49 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.*
 
 
 //qr 생성
-fun  QRDto.toDomainQR(): QREntity{
-    val qrTypeString = this.qrType
+fun  BaseResponseDto<QRDto>.toDomainQR(): QREntity{
+    val Data = data ?: throw IllegalStateException("서버 응답 데이터(data)가 null입니다.")
+    val qrTypeString = Data.qrType
     return QREntity (
-        qrCode=this.qrCode,
-        qrImageUrl= this.qrImageUrl,
+        qrCode=Data.qrCode,
+        qrImageUrl= Data.qrImageUrl,
         qrType = QRTypes.fromString(qrTypeString),//start or end
-        qrScanned =this.qrScanned, // 스캔 여부
+        qrScanned =Data.qrScanned, // 스캔 여부
     )
 
 }
 
 
 //qr 스캔 후 서버에 보내는
-fun AfterQRScanDto.toDomainQRScan(): QRScandEntity{
+fun BaseResponseDto<AfterQRScanDto>.toDomainQRScan(): QRScandEntity{
+    val Data = data ?: throw IllegalStateException("서버 응답 데이터(data)가 null입니다.")
     return QRScandEntity (
-    qrCode = this.qrCode,
-    latitude=this.latitude,
-    longitude=this.longitude
+    qrCode = Data.qrCode,
+    latitude=Data.latitude,
+    longitude=Data.longitude
     )
 }
 
 
 
-fun QRScanResponseDto.toDomainQRScanResponse():QRScanResultEntity{
-    return when (this.authType.lowercase()) {
+fun BaseResponseDto<QRScanResponseDto>.toDomainQRScanResponse():QRScanResultEntity{
+    val Data = data ?: throw IllegalStateException("서버 응답 데이터(data)가 null입니다.")
+    return when (Data.authType.lowercase()) {
         "start" -> QRScanStartEntity(
-            matchId = this.matchId,
-            scannedAt = this.scannedAt
+            matchId = Data.matchId,
+            scannedAt = Data.scannedAt
         )
         "end" -> {
             QRScanEndEntity(
-                matchId = this.matchId,
-                scannedAt = this.scannedAt,
-                actualDurationMinutes = this.actualDurationMinutes ?: 0,
-                earnedPoints = this.earnedPoints ?: 0,
-                earnedVolunteerMinutes = this.earnedVolunteerMinutes ?: 0
+                matchId = Data.matchId,
+                scannedAt =Data.scannedAt,
+                actualDurationMinutes = Data.actualDurationMinutes ?: 0,
+                earnedPoints = Data.earnedPoints ?: 0,
+                earnedVolunteerMinutes = Data.earnedVolunteerMinutes ?: 0
             )
         }
         //일단 예외 처리..(예비)
-        else -> throw IllegalArgumentException("Unknown auth type: ${this.authType}")
+        else -> throw IllegalArgumentException("Unknown auth type: ${Data.authType}")
     }
 
 }
