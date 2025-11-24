@@ -183,6 +183,8 @@ private data class BottomNavItem(
     val label: String
 )
 
+/*
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
@@ -193,4 +195,4 @@ fun MainScreenPreview() {
             mainNavController = rememberNavController()
         )
     }
-}
+}*/

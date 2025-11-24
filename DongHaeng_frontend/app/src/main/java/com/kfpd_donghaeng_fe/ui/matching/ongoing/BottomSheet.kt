@@ -21,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import androidx.compose.ui.zIndex
 import com.kfpd_donghaeng_fe.GlobalApplication
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 
@@ -182,12 +184,17 @@ fun SheetInside(scope: CoroutineScope, sheetState: SheetState, onCloseRequest: (
 // BottomSheet Scaffold (수정: 시트 초기 크기 고정)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheet(uiState: OngoingEntity,nextPage:()->Unit, NavigateToReview: () -> Unit
+fun BottomSheet(uiState: OngoingEntity,
+                resultUiState: QRScanResultEntity,
+                locateUiState:QRScandEntity,
+                nextPage:()->Unit,
+                NavigateToReview: () -> Unit
 ) {
     val page = uiState.OngoingPage
     val nextPage =nextPage
     val onEndDH = { NavigateToReview() }
     val scope = rememberCoroutineScope()
+
 
     // SheetValue.Expanded 대신 PartiallyExpanded를 사용하여 콘텐츠 길이에 맞게 초기화합니다.
     val bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.Expanded, skipHiddenState = false) // skipHiddenState를 false로 변경할 수 있습니다.
