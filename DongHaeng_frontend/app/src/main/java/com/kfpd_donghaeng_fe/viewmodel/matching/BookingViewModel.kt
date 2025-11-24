@@ -44,7 +44,9 @@ class BookingViewModel @Inject constructor(
     fun navigateToRequestDetail() { _currentPhase.value = MatchingPhase.REQUEST_DETAIL }
     fun navigateToPayment() { _currentPhase.value = MatchingPhase.PAYMENT }
     fun navigateToOverview() { _currentPhase.value = MatchingPhase.OVERVIEW }
-
+    fun navigateToPhase(phase: MatchingPhase) {
+        _currentPhase.value = phase
+    }
     // 4. 경로, 요청사항 저장
     private var _calculatedRoute: WalkingRoute? = null
     private val _requestDescription = MutableStateFlow("")

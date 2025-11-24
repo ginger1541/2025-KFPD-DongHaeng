@@ -114,7 +114,9 @@ class MatchingViewModel @Inject constructor() : ViewModel() {
         // TODO: 여기서 SK API 예상 경로/요금 계산 로직을 호출해야 함.
         _currentPhase.value = MatchingPhase.PAYMENT
     }
-
+    fun navigateToPhase(phase: MatchingPhase) {
+        _currentPhase.value = phase
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.O)

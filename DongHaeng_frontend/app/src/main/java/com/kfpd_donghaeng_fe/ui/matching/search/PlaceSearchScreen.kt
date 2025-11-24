@@ -3,6 +3,7 @@ package com.kfpd_donghaeng_fe.ui.matching.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +30,9 @@ import com.kfpd_donghaeng_fe.domain.entity.PlaceSearchResult
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import com.kfpd_donghaeng_fe.viewmodel.matching.PlaceSearchViewModel
 import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.LocationType
+import com.kfpd_donghaeng_fe.domain.entity.toRouteLocation
+
 /**
  * 재사용 가능한 장소 검색 화면
  * @param searchType "도착지" 또는 "경유지"
@@ -47,7 +51,14 @@ fun PlaceSearchScreen(
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchHistories by viewModel.searchHistories.collectAsState()
-    var selectedPlaceForDetail by remember { mutableStateOf<PlaceSearchResult?>(null) }
+
+    val itemClickAction: (PlaceSearchResult) -> Unit = { place ->
+        // 1. ViewModel에 상세 보기 요청 (MainRouteScreen의 Phase를 PLACE_DETAIL로 전환)
+        viewModel.setDetailPlace(place)
+        // 2. 검색 화면 닫기 (MainRouteScreen이 보이도록)
+        onBackPressed()
+    }
+
     // 💡 이미지와 동일하게 Full Screen Search UI 구성
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
 
@@ -171,13 +182,7 @@ fun PlaceSearchScreen(
                     )
                     LazyColumn {
                         items(searchHistories) { place ->
-                            PlaceItem(
-                                place = place,
-                                onClick = {
-                                    // 💡 [수정] 히스토리 항목 클릭 시 상세 모달을 띄웁니다.
-                                    selectedPlaceForDetail = place
-                                }
-                            )
+                            PlaceItem(place = place, onClick = { itemClickAction(place) })
                         }
                     }
                 }
@@ -191,41 +196,12 @@ fun PlaceSearchScreen(
                     // 검색 결과 리스트
                     LazyColumn {
                         items(searchResults) { place ->
-                            PlaceItem(
-                                place = place,
-                                onClick = {
-                                    selectedPlaceForDetail = place
-                                }
-                            )
+                            PlaceItem(place = place, onClick = { itemClickAction(place) })
                         }
                     }
                 }
             }
         }
-    }
-
-    // ==========================================================
-    // 💡 [추가] PlaceDetailModal 렌더링 로직
-    // ==========================================================
-    selectedPlaceForDetail?.let { place ->
-        PlaceDetailModal(
-            place = place,
-            onBack = { selectedPlaceForDetail = null }, // 모달 닫기
-            onSelectAsStart = { routeLocation ->
-                // 출발지로 선택: ViewModel에 저장 후, 검색 화면 전체 닫기
-                viewModel.addToHistory(place)
-                onPlaceSelected(routeLocation.toPlaceSearchResult()) // MainRouteScreen으로 선택된 장소 전달
-                // 💡 [핵심 수정] 상세 모달을 닫는 대신, MainRouteScreen이 다음 플로우를 진행할 수 있도록 콜백을 호출합니다.
-                // PlaceSearchScreen은 MainRouteScreen에 의해 제어되므로, onBack()을 호출하여 PlaceSearchScreen을 닫고 MainRouteScreen으로 돌아갑니다.
-                onBackPressed()
-            },
-            onSelectAsEnd = { routeLocation ->
-                // 도착지로 선택: ViewModel에 저장 후, 검색 화면 전체 닫기
-                viewModel.addToHistory(place)
-                onPlaceSelected(routeLocation.toPlaceSearchResult())
-                onBackPressed()
-            }
-        )
     }
 }
 

@@ -142,8 +142,7 @@ private fun MatchingHomeScreen(
 @Composable
 fun MatchingSearchBar(
     placeholder: String,
-    modifier: Modifier = Modifier
-        .background(Color.White),
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -152,7 +151,7 @@ fun MatchingSearchBar(
             .height(52.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = Color.White,
         shadowElevation = 2.dp
     ) {
         Row(

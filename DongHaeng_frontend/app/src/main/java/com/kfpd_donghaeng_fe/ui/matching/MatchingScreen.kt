@@ -91,13 +91,6 @@ fun MatchingScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        // NEEDY인 경우 바로 BOOKING 모드로 진입
-        if (userType == UserType.NEEDY) {
-            matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
-        }
-    }
-
     var showPermissionAlert by remember { mutableStateOf(false) }
 
     val requester = rememberLocationPermissionRequester(checker, navigator)

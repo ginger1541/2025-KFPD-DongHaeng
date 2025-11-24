@@ -48,6 +48,14 @@ class PlaceSearchViewModel @Inject constructor(
     private val _searchHistories = MutableStateFlow<List<PlaceSearchResult>>(emptyList())
     val searchHistories: StateFlow<List<PlaceSearchResult>> = _searchHistories.asStateFlow()
 
+    private val _selectedDetailPlace = MutableStateFlow<PlaceSearchResult?>(null)
+    val selectedDetailPlace: StateFlow<PlaceSearchResult?> = _selectedDetailPlace.asStateFlow()
+
+    // 💡 [복구] 상세 보기 상태 설정/해제 함수
+    fun setDetailPlace(place: PlaceSearchResult?) {
+        _selectedDetailPlace.value = place
+    }
+
     init {
         // 1. Debounce 적용: 300ms 대기 후 검색
         viewModelScope.launch {

@@ -26,10 +26,10 @@ import com.kfpd_donghaeng_fe.ui.matching.home.toRequest
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.Color
 import com.kfpd_donghaeng_fe.ui.matching.home.RequestUiModel
-
 
 @Composable
 fun RequesterHomeContent(
@@ -60,16 +60,20 @@ fun RequesterHomeContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column(
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            recentTrips.take(3).forEach { trip ->
+            items(
+                count = recentTrips.take(3).size
+            ) { index ->
+                val trip = recentTrips.take(3)[index]
                 RequestCard(
                     request = trip.toRequest(),
                     onClick = { onHistoryClick(trip.id) }
                 )
             }
-
         }
     }
 }
