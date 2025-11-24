@@ -13,11 +13,11 @@ enum class QRTypes {START, END, NONE;
 }
 
 
-data class QREntity(
-    val QRCode : String,
-    val QRImageUrl: String,
-    val QRType : QRTypes,
-    val QRScanned : Boolean,
+data class QREntity(  // qr 생성
+    val qrCode : String,
+    val qrImageUrl: String,
+    val qrType : QRTypes,
+    val qrScanned : Boolean,
 )
 
 
@@ -38,7 +38,22 @@ data class QRScanEndEntity(
 ) : QRScanResultEntity
 
 //QR 카메라 킨 장소
-data class QRScanLocationEntity(
-    val x :Double,
-    val y : Double
+data class QRScandEntity( // qr 스캔 후 서버에 보냄
+    val qrCode : String,
+    val latitude:Double,
+    val longitude: Double
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
