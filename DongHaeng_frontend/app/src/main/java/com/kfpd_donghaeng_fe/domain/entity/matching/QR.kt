@@ -16,7 +16,7 @@ enum class QRTypes {START, END, NONE;
 data class QREntity(  // qr 생성
     val qrCode : String,
     val qrImageUrl: String,
-    val qrType : QRTypes
+    val qrType : QRTypes,
     val qrScanned : Boolean,
 )
 

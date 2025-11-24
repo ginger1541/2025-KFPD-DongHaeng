@@ -4,7 +4,6 @@ package com.kfpd_donghaeng_fe.data.remote.api
 import com.google.gson.annotations.SerializedName
 import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.QRDto
-import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
 import com.kfpd_donghaeng_fe.data.remote.dto.OngoingRequestDto
 import retrofit2.http.Body
@@ -28,15 +27,13 @@ interface RequestApiService {
 }
 
 
-//동행 종료 후 디테일 정보
-//EndMatchDto
 
 //시작 qr 정보
 interface StartQRApiService{
     @GET("/api/matches/{match_id}/qr/start")
     suspend fun getStartQR(
         @Path("match_id") matchId: Long
-    ): BaseResponseDto<QRResponseDto>
+    ): BaseResponseDto< QRScanResponseDto>
 }
 
 //종료 qr 정보
@@ -44,7 +41,7 @@ interface EndQRApiService{
     @GET("/api/matches/{match_id}/qr/end")
     suspend fun getEndQR(
         @Path("match_id") matchId: Long
-    ): BaseResponseDto<QRResponseDto>
+    ): BaseResponseDto< QRScanResponseDto>
 }
 
 
@@ -52,7 +49,7 @@ interface EndQRApiService{
 interface QRScanApiService {
     @POST("/api/qr/scan")
     suspend fun postQRScan(
-        @Body request: QRScanRequest //  요청 DTO를 @Body로 전달
+        @Body request: QRDto //  요청 DTO를 @Body로 전달
     ): BaseResponseDto<QRScanResponseDto> //  응답 DTO를 받음
 }
 

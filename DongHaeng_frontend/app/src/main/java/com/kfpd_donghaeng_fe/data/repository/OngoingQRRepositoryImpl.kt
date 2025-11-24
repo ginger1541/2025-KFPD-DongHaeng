@@ -1,12 +1,6 @@
 package com.kfpd_donghaeng_fe.data.repository
 
-import com.kfpd_donghaeng_fe.data.local.OngoingQRDataSource
-import com.kfpd_donghaeng_fe.data.remote.dto.BaseResponseDto
-import com.kfpd_donghaeng_fe.data.remote.dto.CreatedQRDto
-import com.kfpd_donghaeng_fe.data.remote.dto.ScanedEndQRResponseDto
-import com.kfpd_donghaeng_fe.data.remote.dto.ScanedStartQRResponseDto
 
-import com.kfpd_donghaeng_fe.data.remote.dto.ScanedQRDto
 import com.kfpd_donghaeng_fe.data.remote.mapper.* // 작성했던 Mapper 함수들을 import
 import com.kfpd_donghaeng_fe.domain.entity.matching.*
 import com.kfpd_donghaeng_fe.domain.repository.OngoingQRRepository
@@ -17,9 +11,10 @@ import javax.inject.Inject
 
 
 class OngoingQRRepositoryImpl @Inject constructor(
-    private val dataSource: OngoingQRDataSource
-) : OngoingQRRepository {
 
+   // private val dataSource: OngoingQRDataSource
+) : OngoingQRRepository {
+/*
     override suspend fun getOngoingQRInfo(matchId: Int): Result<QRResponseEntity> {
         return try {
             val response = dataSource.fetchCreatedQRInfo(matchId)
@@ -70,5 +65,5 @@ class OngoingQRRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
+    }*/
 }

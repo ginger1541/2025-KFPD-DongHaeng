@@ -6,6 +6,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.*
  * 진행 중인 매칭의 QR 코드 관련 데이터를 처리하는 Repository 인터페이스입니다.
  */
 interface OngoingQRRepository {
+    /*
 
     /**
      * 현재 매칭에 해당하는 QR 코드 정보를 가져옵니다. (QR 설정 및 표시용)
@@ -23,5 +24,5 @@ interface OngoingQRRepository {
     suspend fun sendQRScanResult(
         requestEntity: QRSRequestEntity,
         qrType: QRTypes
-    ): Result<QRScanResultEntity>
+    ): Result<QRScanResultEntity>*/
 }
