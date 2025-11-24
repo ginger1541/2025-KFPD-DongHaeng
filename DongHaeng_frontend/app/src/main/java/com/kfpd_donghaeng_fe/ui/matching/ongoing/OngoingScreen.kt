@@ -23,6 +23,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
@@ -65,6 +66,7 @@ fun OngoingScreen(
     uiState3:QREntity,
     resultUiState: QRScanResultEntity, // 여기에 스캔 시간
     locateUiState : QRScandEntity, // 스캔 시작 장소
+    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
 ) {
@@ -97,7 +99,7 @@ fun OngoingScreen(
                            .fillMaxSize(),
                        contentAlignment = Alignment.Center
                    ) {
-                       QRSheet(uiState,uiState3)
+                       QRSheet(uiState,uiState3,onScanRequest)
                    }
 
                }
@@ -105,6 +107,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
+                    onScanRequest = onScanRequest,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -132,6 +135,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
+                    onScanRequest = onScanRequest,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -163,7 +167,7 @@ fun OngoingRoute(
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
     LaunchedEffect(isScanned) {
-        if (!isScanned) {
+        if (isScanned) {
             // 스캔이 완료시  다음 페이지!
             viewModel.nextPage()
             // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
@@ -176,6 +180,7 @@ fun OngoingRoute(
         uiState3=uiState3,
         resultUiState = resultUiState,
         locateUiState=locateUiState,
+        onScanRequest= viewModel2::scanQR,
         nextPage=viewModel::nextPage,
         NavigateToReview = viewModel::NavigateToReview
     )

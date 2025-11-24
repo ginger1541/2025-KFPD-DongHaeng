@@ -24,6 +24,8 @@ import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 // 필요한 import: androidx.compose.ui.draw.shadow, androidx.compose.ui.draw.clip
@@ -35,12 +37,14 @@ import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 fun QRSheet(
     pageuiState: OngoingEntity,
     uiState: QREntity,
+    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
     modifier: Modifier = Modifier) {
 
     val cornerShape = RoundedCornerShape(20.dp)
     val page = pageuiState.OngoingPage
 
     val imgurl: String = when (page) {
+
         0, 2 -> uiState.qrImageUrl
         else -> ""
     }
@@ -97,13 +101,3 @@ fun QRSheet(
 
 
 
-/*
-// Preview는 생략합니다.
-
-@Preview(showBackground = true)
-@Composable
-fun QRSheetPreview() {
-    KFPD_DongHaeng_FETheme {
-        QRSheet(page = 0) // page=0 상태로 미리보기
-    }
-}*/
