@@ -150,16 +150,14 @@ class MatchingHomeViewModel @Inject constructor(
                 RequestUiModel(
                     id = dto.requestId,
                     dateLabel = dateLabelStr,
-                    from = dto.startAddress,
-                    to = dto.destinationAddress,
+                    from = dto.startAddress ?: "출발지 미정", // null이면 기본값 사용
+                    to = dto.destinationAddress ?: "목적지 미정", // null이면 기본값 사용
                     departTime = timeStr,
                     arriveTime = arriveTimeStr,
                     distanceLabel = distanceLabelStr,
-
-                    // ✅ [추가된 부분] 좌표 정보 매핑
                     startLat = targetLat,
                     startLng = targetLng,
-                    endLat = 0.0, // 주변 요청 목록에는 도착지 좌표가 없으므로 0.0 처리 (상세화면에서 다시 로드됨)
+                    endLat = 0.0,
                     endLng = 0.0
                 )
             }

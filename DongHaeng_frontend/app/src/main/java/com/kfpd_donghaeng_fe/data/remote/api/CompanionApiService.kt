@@ -16,7 +16,7 @@ interface CompanionApiService {
     suspend fun getNearbyRequests(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
-        @Query("radiusKm") radiusKm: Int = 5,
+        @Query("radiusKm") radiusKm: Int = 50,
         @Query("limit") limit: Int = 20
     ): Response<BaseResponseDto<NearbyResponseData>>
 
