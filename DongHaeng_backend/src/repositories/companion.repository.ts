@@ -104,19 +104,22 @@ export const findNearbyRequests = async (
 ) => {
   // Haversine formula를 사용한 거리 계산
   // 정확한 SPATIAL 쿼리는 Raw SQL 사용
+  // acos() 범위 오류 방지를 위해 LEAST/GREATEST 사용
   const requests = await prisma.$queryRaw<any[]>`
-    SELECT 
+    SELECT
       cr.*,
       (6371 * acos(
-        cos(radians(${latitude})) * 
-        cos(radians(cr.latitude)) * 
-        cos(radians(cr.longitude) - radians(${longitude})) + 
-        sin(radians(${latitude})) * 
-        sin(radians(cr.latitude))
+        LEAST(1, GREATEST(-1,
+          cos(radians(CAST(${latitude} AS DOUBLE))) *
+          cos(radians(CAST(cr.latitude AS DOUBLE))) *
+          cos(radians(CAST(cr.longitude AS DOUBLE)) - radians(CAST(${longitude} AS DOUBLE))) +
+          sin(radians(CAST(${latitude} AS DOUBLE))) *
+          sin(radians(CAST(cr.latitude AS DOUBLE)))
+        ))
       )) AS distance
     FROM companion_requests cr
     WHERE cr.status = 'pending'
-      AND cr.expires_at > NOW()
+      AND (cr.expires_at IS NULL OR cr.expires_at > NOW())
     HAVING distance <= ${radiusKm}
     ORDER BY distance ASC
     LIMIT ${limit}
