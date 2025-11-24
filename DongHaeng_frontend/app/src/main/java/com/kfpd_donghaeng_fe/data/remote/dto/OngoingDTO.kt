@@ -21,7 +21,8 @@ import kotlin.Int
 //요청자, 요청 정보 조회
 //GET /api/companion-requests/{request_id}
 data class RequestDto(
-    @SerializedName("request_id") val requestId: Long,
+//    @SerializedName("request_id") val requestId: Long,
+    @SerializedName("id") val requestId: Long,
     @SerializedName("requester") val request: RequesterDto, //요청자 정보
     @SerializedName ("status") val status : String,//진행정보
     @SerializedName("start_address") val startAddress: String, // 시작 주소 명칭

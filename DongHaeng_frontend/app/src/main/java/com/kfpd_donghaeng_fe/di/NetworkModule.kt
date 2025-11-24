@@ -8,6 +8,8 @@ import com.kfpd_donghaeng_fe.data.repository.PlaceRepositoryImpl
 import com.kfpd_donghaeng_fe.domain.repository.PlaceRepository
 import com.kfpd_donghaeng_fe.data.remote.api.MatchApiService
 import com.kfpd_donghaeng_fe.data.remote.api.ChatApiService
+import com.kfpd_donghaeng_fe.data.remote.api.CompanionApiService
+import com.kfpd_donghaeng_fe.data.remote.api.RequestApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,6 +54,12 @@ object NetworkModule {
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRequestApiService(@Named("my_server") retrofit: Retrofit): RequestApiService {
+        return retrofit.create(RequestApiService::class.java)
     }
 
     private const val KAKAO_BASE_URL = "https://dapi.kakao.com/"
@@ -124,9 +132,12 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("my_server")
-    fun provideMyServerRetrofit(): Retrofit {
+    fun provideMyServerRetrofit(
+        okHttpClient: OkHttpClient // 👈 주입 받기!
+    ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://34.64.76.147:3000/") // API 가이드 주소로 변경
+            .baseUrl("http://34.64.76.147:3000/")
+            .client(okHttpClient) // 👈 ⭐️⭐️⭐️ 핵심! 이걸 빼먹어서 그동안 안 된 겁니다.
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -176,5 +187,11 @@ object NetworkModule {
     @Singleton
     fun provideKakaoAuthInterceptor(): KakaoAuthInterceptor {
         return KakaoAuthInterceptor()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCompanionApiService(@Named("my_server") retrofit: Retrofit): CompanionApiService {
+        return retrofit.create(CompanionApiService::class.java)
     }
 }

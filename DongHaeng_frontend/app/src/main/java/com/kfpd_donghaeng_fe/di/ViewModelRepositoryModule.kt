@@ -23,5 +23,4 @@ abstract class ViewModelRepositoryModule {
         routeRepositoryImpl: RouteRepositoryImpl
     ): RouteRepository
 
-
 }

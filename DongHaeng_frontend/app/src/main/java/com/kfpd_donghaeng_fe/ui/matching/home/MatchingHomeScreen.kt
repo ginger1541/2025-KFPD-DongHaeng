@@ -1,5 +1,7 @@
 package com.kfpd_donghaeng_fe.ui.matching.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,14 +41,17 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.common.CommonDialog
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import androidx.compose.runtime.getValue
+import com.kfpd_donghaeng_fe.data.Request
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MatchingHomeRoute(
     userType: UserType,
     viewModel: MatchingHomeViewModel = hiltViewModel(),
     onNavigateToSearch: (UserType) -> Unit,
     onNavigateToChangeLocation: () -> Unit,
-    onNavigateToRequestDetail: (Long) -> Unit
+    onNavigateToMyRequestDetail: (Request) -> Unit,
+    onNavigateToRequestDetail: (Long) -> Unit,
 ) {
     LaunchedEffect(userType) {
         viewModel.setUserType(userType)
@@ -81,17 +86,28 @@ fun MatchingHomeRoute(
             RequesterHomeContent(
                 recentTrips = needyState.recentTrips,
                 onSearchClick = { onNavigateToSearch(userType) },
-                onHistoryClick = { /* TODO: 해당 도착지/목적지 바꾸기 */}
+                onHistoryClick = { requestId ->
+                    // ID로 리스트에서 객체 찾아서 전달
+                    val request = needyState.recentTrips.find { it.id == requestId }?.toRequest()
+                    if (request != null) {
+                        onNavigateToMyRequestDetail(request)
+                    }
+                }
             )
         }
 
         is MatchingHomeUiState.HelperState -> {
-            val helperState = uiState as MatchingHomeUiState.HelperState // as 캐스팅 추가
+            val helperState = uiState as MatchingHomeUiState.HelperState
             CompanionHomeContent(
                 nearbyRequests = helperState.nearbyRequests,
                 onSearchClick = { onNavigateToSearch(userType) },
                 onChangeLocationClick = onNavigateToChangeLocation,
-                onRequestClick = onNavigateToRequestDetail
+                onRequestClick = { requestId ->
+                    // 👇 여기를 수정해서 상세 화면으로 이동시킵니다.
+                    // 기존: onNavigateToRequestDetail(requestId) (이 함수가 mainNavController를 호출해야 함)
+                    // MainScreen.kt에서 navigate 로직을 확인하세요.
+                    onNavigateToRequestDetail(requestId)
+                }
             )
         }
     }

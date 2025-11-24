@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.Request
-import com.kfpd_donghaeng_fe.data.DummyRequests // Dummy Data Import
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import com.kfpd_donghaeng_fe.util.navigateToRequestDetail
 

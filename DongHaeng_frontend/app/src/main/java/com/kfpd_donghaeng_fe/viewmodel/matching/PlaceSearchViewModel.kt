@@ -117,6 +117,13 @@ class PlaceSearchViewModel @Inject constructor(
         _searchResults.value = emptyList()
     }
 
+    fun clearAllLocations() {
+        _startLocation.value = null
+        _endLocation.value = null
+        _searchQuery.value = ""
+        _searchResults.value = emptyList()
+    }
+
     fun selectPlace(place: PlaceSearchResult) {
         addToHistory(place) // 히스토리에 추가
 
@@ -141,4 +148,44 @@ class PlaceSearchViewModel @Inject constructor(
     // 출발지와 도착지가 모두 선택되었는지 확인하는 Computed Property (옵션)
     val isReadyForRoute: Boolean
         get() = _startLocation.value != null && _endLocation.value != null
+
+    fun swapLocations() {
+        val currentStart = _startLocation.value
+        val currentEnd = _endLocation.value
+
+        // type을 변경해서 저장해야 함 (start -> end, end -> start)
+        val newStart = currentEnd?.copy(type = LocationType.START)
+        val newEnd = currentStart?.copy(type = LocationType.END)
+
+        _startLocation.value = newStart
+        _endLocation.value = newEnd
+    }
+
+    fun setRoute(
+        startName: String, startLat: Double, startLng: Double,
+        endName: String, endLat: Double, endLng: Double
+    ) {
+        // 출발지 설정
+        _startLocation.value = RouteLocation(
+            id = "start_$startName",
+            type = LocationType.START,
+            placeName = startName,
+            address = startName,
+            latitude = startLat,
+            longitude = startLng
+        )
+
+        // 도착지 설정
+        _endLocation.value = RouteLocation(
+            id = "end_$endName",
+            type = LocationType.END,
+            placeName = endName,
+            address = endName,
+            latitude = endLat,
+            longitude = endLng
+        )
+
+        // 시작 선택 상태 해제
+        // _isSelectingStart.value = false
+    }
 }
