@@ -326,7 +326,6 @@ class MainActivity : ComponentActivity() {
                                     OngoingRoute(
                                         matchId = matchId,
                                         navController = navController,
-                                        // 👇 [추가] Activity가 가지고 있는 권한 도구들을 넘겨줍니다.
                                         permissionChecker = permissionChecker,
                                         appSettingsNavigator = appSettingsNavigator
                                     )
@@ -337,16 +336,26 @@ class MainActivity : ComponentActivity() {
                                 route = AppScreens.REVIEW_ROUTE,
                                 arguments = listOf(
                                     navArgument("matchId") { type = NavType.LongType },
-                                    navArgument("partnerId") { type = NavType.LongType }
+                                    navArgument("partnerId") { type = NavType.LongType },
+                                    // 선택적 인자들 (기본값 설정)
+                                    navArgument("time") { type = NavType.StringType; defaultValue = "0분" },
+                                    navArgument("dist") { type = NavType.StringType; defaultValue = "0m" },
                                 )
                             ) { backStackEntry ->
                                 val matchId = backStackEntry.arguments?.getLong("matchId") ?: -1L
                                 val partnerId = backStackEntry.arguments?.getLong("partnerId") ?: -1L
 
+                                // 데이터 꺼내기
+                                val time = backStackEntry.arguments?.getString("time") ?: "0분"
+                                val dist = backStackEntry.arguments?.getString("dist") ?: "0m"
+
                                 ReviewRoute(
                                     matchId = matchId,
                                     partnerId = partnerId,
-                                    navController = navController
+                                    navController = navController,
+                                    // 👇 ReviewRoute에 전달 (ReviewRoute 함수도 수정 필요)
+                                    displayTime = time,
+                                    displayDist = dist,
                                 )
                             }
                         }

@@ -47,84 +47,74 @@ import com.kfpd_donghaeng_fe.ui.theme.MainOrange
 fun LoginPage(
     uiState: LoginAccountUiState,
     onNextClick: () -> Unit,
-    MovetoMain:()->Unit,
+    MovetoMain: () -> Unit,
 ) {
-    // 💡 로그인 입력 상태 관리 (이전에 안내해 드린 코드 기반)
+    // 로그인 입력 상태 관리
     var idText by remember { mutableStateOf("") }
     var pwText by remember { mutableStateOf("") }
 
-    // 전체 레이아웃을 Box로 감싸서, 상단 내용과 하단 버튼 영역을 분리 배치합니다.
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White) // 배경색은 흰색으로 가정
-            .padding(horizontal = 25.dp) // 좌우 전체 패딩
+            .background(Color.White)
+            .padding(horizontal = 25.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        // 1️⃣ [상단 & 중앙 영역]: 제목, 회원가입 링크, 입력 필드
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 200.dp), // 상단 여백
-            horizontalAlignment = Alignment.Start, // 좌측 정렬
-            verticalArrangement = Arrangement.Top
+        Spacer(modifier = Modifier.height(200.dp))
+
+        // 1. 제목: "로그인"
+        Text(
+            text = "로그인",
+            color = Color.Black,
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.ExtraBold
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 2. 아이디 입력 필드
+        LoginTextField(
+            value = idText,
+            onValueChange = { idText = it },
+            label = "아이디(이메일)"
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 3. 비밀번호 입력 필드
+        LoginTextField(
+            value = pwText,
+            onValueChange = { pwText = it },
+            label = "비밀번호",
+            isPassword = true
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 4. 로그인 버튼
+        LoginPageButton("로그인", MovetoMain)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 5. 회원가입 링크
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
-            // 1. 제목: "로그인"
             Text(
-                text = "로그인",
-                color = Color.Black,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.ExtraBold
+                text = "아직 계정이 없으신가요?  ",
+                color = Color.Gray,
+                style = MaterialTheme.typography.titleSmall,
             )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // 2. 입력 박스 (ID, PW)
-            LoginTextField(
-                value = idText,
-                onValueChange = { idText = it },
-                label = "아이디(이메일)"
+            Text(
+                modifier = Modifier.clickable {
+                    onNextClick()
+                },
+                text = "회원가입하기",
+                color = MainOrange,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            LoginTextField(
-                value = pwText,
-                onValueChange = { pwText = it },
-                label = "비밀번호",
-                isPassword = true
-            )
-
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter) // Box의 하단 중앙에 배치
-                .padding(bottom = 280.dp), // 하단 여백 조절
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Column(
-                modifier = Modifier
-                    .offset(y = -100.dp)
-                    .padding(horizontal = 20.dp),
-            ){LoginPageButton("로그인", MovetoMain)}
-            Row(
-                modifier = Modifier
-                    .offset(y = -80.dp),
-            ) {
-                Text(
-                    text = "아직 계정이 없으신가요?  ",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.titleSmall,
-                )
-                Text(
-                    modifier = Modifier.clickable {
-                        // TODO: click 시 페이지 넘어가기
-                        onNextClick()
-                    },
-                    text = "회원가입하기",
-                    color = MainOrange,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
         }
     }
 }

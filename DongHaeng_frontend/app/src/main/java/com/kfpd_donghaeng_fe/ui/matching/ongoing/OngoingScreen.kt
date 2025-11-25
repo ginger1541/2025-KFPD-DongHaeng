@@ -30,6 +30,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanEndEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
@@ -200,11 +201,29 @@ fun OngoingRoute(
     val isScanned = uiState3.qrScanned
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
-    LaunchedEffect(isScanned) {
-        if (isScanned) {
-            // 스캔이 완료시  다음 페이지!
+//    LaunchedEffect(isScanned) {
+//        if (isScanned) {
+//            // 스캔이 완료시  다음 페이지!
+//            viewModel.nextPage()
+//            // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
+//        }
+//    }
+
+    LaunchedEffect(uiState3.qrScanned) {
+        if (uiState3.qrScanned) {
+            // 1. 페이지 넘기기 (기존 로직)
             viewModel.nextPage()
-            // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
+
+            // 2. 만약 '종료 QR(END)'을 찍은 것이라면 리뷰 화면으로 이동 준비!
+            if (uiState3.qrType == QRTypes.END && resultUiState is QRScanEndEntity) {
+                val result = resultUiState as QRScanEndEntity
+
+                // 🚀 ViewModel의 함수 호출 (거리 정보는 VM이 내부적으로 가지고 있음)
+                viewModel.NavigateToReview(
+                    timeMin = result.actualDurationMinutes,
+                    earnedPoints = result.earnedPoints
+                )
+            }
         }
     }
 
@@ -236,12 +255,16 @@ fun OngoingRoute(
     }
 
     // 리뷰
-
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is OngoingUiEvent.NavigateToReview -> {
-                    navController.navigate("${AppScreens.REVIEW_BASE}/${event.matchId}/${event.partnerId}") {
+                    // URL에 데이터 붙여서 이동
+                    // 예: review_route/123/456?time=18분&dist=1.2km&points=200
+                    val route = "${AppScreens.REVIEW_BASE}/${event.matchId}/${event.partnerId}" +
+                            "?time=${event.totalTime}&dist=${event.distance}"
+
+                    navController.navigate(route) {
                         popUpTo(AppScreens.HOME_BASE) { inclusive = false }
                     }
                 }
@@ -261,7 +284,11 @@ fun OngoingRoute(
             routePath = routePath,
             onScanRequest = viewModel2::scanQR,
             nextPage = viewModel::nextPage,
-            NavigateToReview = viewModel::NavigateToReview
+
+            // 람다식({ })으로 변경하여 인자(0, 0) 전달
+            NavigateToReview = {
+                viewModel.NavigateToReview(0, 0)
+            }
         )
     } else {
         // 🚫 권한이 없으면 안내 문구 표시 (간단하게 처리)

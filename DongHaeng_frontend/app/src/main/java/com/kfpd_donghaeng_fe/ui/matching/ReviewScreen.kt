@@ -28,7 +28,6 @@ import com.kfpd_donghaeng_fe.viewmodel.matching.ReviewViewModel
 fun ReviewScreen(
     totalTime: String = "18분",
     distance: String = "2.1km",
-    earnedPoints: Int = 250,
     onSubmitReview: (rating: Int, selectedTags: List<PraiseTag>, message: String) -> Unit = { _, _, _ -> },
     modifier: Modifier = Modifier
 ) {
@@ -163,9 +162,13 @@ fun ReviewRoute(
     matchId: Long,
     partnerId: Long,
     navController: NavHostController,
+    displayTime: String,
+    displayDist: String,
     viewModel: ReviewViewModel = hiltViewModel()
 ) {
     ReviewScreen(
+        totalTime = displayTime,
+        distance = displayDist,
         onSubmitReview = { rating, selectedTags, message ->
             // 1. 태그 객체를 문자열 리스트로 변환 (서버가 String 리스트를 원함)
             val badgeStrings = selectedTags.map { it.text }
@@ -188,17 +191,17 @@ fun ReviewRoute(
     )
 }
 
-@Preview(showBackground = true, heightDp = 1000) // 높이를 넉넉하게 설정
-@Composable
-fun PreviewReviewScreen() {
-    // 테마 적용 (선택 사항, 폰트나 색상을 정확히 보려면 권장)
-    com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme {
-        ReviewScreen(
-            totalTime = "18분",
-            distance = "2.1km",
-            earnedPoints = 250,
-            // 클릭 이벤트는 비워둡니다.
-            onSubmitReview = { _, _, _ -> }
-        )
-    }
-}
+//@Preview(showBackground = true, heightDp = 1000) // 높이를 넉넉하게 설정
+//@Composable
+//fun PreviewReviewScreen() {
+//    // 테마 적용 (선택 사항, 폰트나 색상을 정확히 보려면 권장)
+//    com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme {
+//        ReviewScreen(
+//            totalTime = "18분",
+//            distance = "2.1km",
+//            earnedPoints = 250,
+//            // 클릭 이벤트는 비워둡니다.
+//            onSubmitReview = { _, _, _ -> }
+//        )
+//    }
+//}
