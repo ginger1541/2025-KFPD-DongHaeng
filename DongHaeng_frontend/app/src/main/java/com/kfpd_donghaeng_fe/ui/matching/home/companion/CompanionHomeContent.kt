@@ -41,7 +41,9 @@ fun CompanionHomeContent(
 
         MatchingSearchBar(
             placeholder = "근처 동행 요청 찾기",
-            onClick = onSearchClick
+            onClick = {
+            //TODO: 검색
+            },
         )
 
         Spacer(modifier = Modifier.height(24.dp))

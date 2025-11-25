@@ -14,18 +14,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.PraiseTag
 import com.kfpd_donghaeng_fe.data.PredefinedPraiseTags
 import com.kfpd_donghaeng_fe.ui.matching.components.CompletionHeader
 import com.kfpd_donghaeng_fe.ui.matching.components.PraiseTagSection
 import com.kfpd_donghaeng_fe.ui.matching.components.RewardBox
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
+import com.kfpd_donghaeng_fe.viewmodel.matching.ReviewViewModel
 
 @Composable
 fun ReviewScreen(
     totalTime: String = "18분",
     distance: String = "2.1km",
-    earnedPoints: Int = 250,
     onSubmitReview: (rating: Int, selectedTags: List<PraiseTag>, message: String) -> Unit = { _, _, _ -> },
     modifier: Modifier = Modifier
 ) {
@@ -77,14 +79,6 @@ fun ReviewScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 획득 보상 박스
-        RewardBox(
-            points = earnedPoints,
-            volunteerTime = "0h 9m"
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // 평가 완료하기 버튼
         Button(
             onClick = {
@@ -98,7 +92,7 @@ fun ReviewScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.AccentOrange
             ),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(10.dp)
         ) {
             Text(
                 text = "평가 완료하기",
@@ -140,7 +134,7 @@ private fun ThankYouMessageSection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
+        TextField(
             value = message,
             onValueChange = { if (it.length <= 50) onMessageChange(it) },
             modifier = Modifier
@@ -152,25 +146,62 @@ private fun ThankYouMessageSection(
                     color = Color(0xFFCCCCCC)
                 )
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Color(0xFFE0E0E0),
-                focusedBorderColor = AppColors.AccentOrange
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF5F5F5),  // 포커스 시 배경
+                unfocusedContainerColor = Color(0xFFF5F5F5),  // 기본 배경
+                disabledContainerColor = Color(0xFFF5F5F5),
+                focusedIndicatorColor = Color.Transparent,  // 밑줄 제거
+                unfocusedIndicatorColor = Color.Transparent,  // 밑줄 제거
+                disabledIndicatorColor = Color.Transparent
             ),
-            shape = RoundedCornerShape(12.dp)
         )
     }
 }
-
-
-
-/*
-
-@Preview(showBackground = true, heightDp = 1400)
 @Composable
-fun PreviewReviewScreen() {
+fun ReviewRoute(
+    matchId: Long,
+    partnerId: Long,
+    navController: NavHostController,
+    displayTime: String,
+    displayDist: String,
+    viewModel: ReviewViewModel = hiltViewModel()
+) {
     ReviewScreen(
-        totalTime = "18분",
-        distance = "2.1km",
-        earnedPoints = 250
+        totalTime = displayTime,
+        distance = displayDist,
+        onSubmitReview = { rating, selectedTags, message ->
+            // 1. 태그 객체를 문자열 리스트로 변환 (서버가 String 리스트를 원함)
+            val badgeStrings = selectedTags.map { it.text }
+
+            // 2. API 호출
+            viewModel.submitReview(
+                matchId = matchId,
+                revieweeId = partnerId,
+                rating = rating,
+                comment = message,
+                badges = badgeStrings,
+                onSuccess = {
+                    // 3. 성공 시 홈으로 이동 (모든 매칭 관련 스택 제거)
+                    navController.navigate("home/NEEDY") { // 또는 HELPER
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
     )
-}*/
+}
+
+//@Preview(showBackground = true, heightDp = 1000) // 높이를 넉넉하게 설정
+//@Composable
+//fun PreviewReviewScreen() {
+//    // 테마 적용 (선택 사항, 폰트나 색상을 정확히 보려면 권장)
+//    com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme {
+//        ReviewScreen(
+//            totalTime = "18분",
+//            distance = "2.1km",
+//            earnedPoints = 250,
+//            // 클릭 이벤트는 비워둡니다.
+//            onSubmitReview = { _, _, _ -> }
+//        )
+//    }
+//}

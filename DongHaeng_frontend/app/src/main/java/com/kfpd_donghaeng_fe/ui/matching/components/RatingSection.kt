@@ -15,13 +15,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 
 // ReviewScreen.kt
-
+import com.kfpd_donghaeng_fe.R
 @Composable
 fun RatingSection(
     rating: Int,
@@ -52,15 +53,23 @@ fun RatingSection(
 
         // 별점
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             repeat(5) { index ->
+                val displayRating = maxOf(1, rating)
+
                 Icon(
-                    imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.Star,
+                    painter = painterResource(
+                        id = if (index < displayRating) {
+                            R.drawable.ic_star_filled  // 채워진 별
+                        } else {
+                            R.drawable.ic_star_outline  // 외곽선만 있는 별
+                        }
+                    ),
                     contentDescription = null,
-                    tint = if (index < rating) AppColors.AccentColor else Color(0xFFCCCCCC),
+                    tint = Color.Unspecified,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(24.dp)
                         .clickable { onRatingChange(index + 1) }
                 )
             }

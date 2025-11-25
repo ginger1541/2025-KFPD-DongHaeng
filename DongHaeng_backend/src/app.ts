@@ -3,6 +3,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 import { logger } from './config/logger';
 import routes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
@@ -23,6 +24,11 @@ app.use(cors({
 // ============================================
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ============================================
+// Static 파일 서빙 (QR 이미지)
+// ============================================
+app.use('/qr', express.static(path.join(__dirname, '../public/qr')));
 
 // ============================================
 // 로깅 미들웨어

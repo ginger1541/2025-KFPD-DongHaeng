@@ -15,19 +15,6 @@ export const createMatch = async (data: {
     },
     include: {
       request: {
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          latitude: true,
-          longitude: true,
-          startAddress: true,
-          destinationAddress: true,
-          estimatedMinutes: true,
-          scheduledAt: true,
-          route: true,
-          status: true,
-        },
         include: {
           requester: {
             select: {

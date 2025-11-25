@@ -10,38 +10,67 @@ import org.w3c.dom.Text
 //POST /api/reviews
 //1. 후기 작성 요청
 
+// 1. 후기 작성 요청
 data class ReviewRequestDto(
-    @SerializedName("match_id") val matchId : Long,
-    @SerializedName("reviewee_id") val revieweeId : Long,
-    @SerializedName ("rating") val rating : Int, //1~5 조건 있음
-    @SerializedName("comment") val comment : Text,
-    @SerializedName("selected_badges") val selectedBadges : List<BadgeType>,
-    //----------- 응답에만 있는 것 -----------
-    //@SerializedName("created_at") val createdAt: String?=null
+    @SerializedName(value = "matchId", alternate = ["match_id", "MatchId", "MATCH_ID"])
+    val matchId: Long,
 
+    @SerializedName(value = "revieweeId", alternate = ["reviewee_id", "RevieweeId", "REVIEWEE_ID"])
+    val revieweeId: Long,
+
+    @SerializedName("rating")
+    val rating: Int, // 1~5
+
+    @SerializedName("comment")
+    val comment: String,
+
+    @SerializedName(value = "selectedBadges", alternate = ["selected_badges", "SelectedBadges", "SELECTED_BADGES"])
+    val selectedBadges: List<String>
 )
 
-//2. 후기 작성 응답(완료)
+// 2. 후기 작성 응답 (최상위)
 data class ReviewResponseDto(
-    @SerializedName("match_id") val matchId : Long,
-    @SerializedName("reviewee_id") val revieweeId : Long,
-    @SerializedName ("rating") val rating : Int, //1~5 조건 있음
-    @SerializedName("comment") val comment : Text,
-    @SerializedName("selected_badges") val selectedBadges : List<BadgeType>,
-    //----------- 응답에만 있는 것 -----------
-    @SerializedName("created_at") val createdAt: String
-
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String?,
+    @SerializedName("data") val data: ReviewDataDto?
 )
 
-fun ReviewResponseDto.toDomain() = ReviewResponseEntity(
+// 3. 응답 데이터 (data 필드 내부)
+data class ReviewDataDto(
+    @SerializedName(value = "reviewId", alternate = ["review_id", "ReviewId", "REVIEW_ID"])
+    val reviewId: Long,
+
+    @SerializedName(value = "matchId", alternate = ["match_id", "MatchId", "MATCH_ID"])
+    val matchId: Long,
+
+    @SerializedName(value = "reviewerId", alternate = ["reviewer_id", "ReviewerId", "REVIEWER_ID"])
+    val reviewerId: Long,
+
+    @SerializedName(value = "revieweeId", alternate = ["reviewee_id", "RevieweeId", "REVIEWEE_ID"])
+    val revieweeId: Long,
+
+    @SerializedName("rating")
+    val rating: Int,
+
+    @SerializedName("comment")
+    val comment: String,
+
+    @SerializedName(value = "selectedBadges", alternate = ["selected_badges", "SelectedBadges", "SELECTED_BADGES"])
+    val selectedBadges: List<String>,
+
+    @SerializedName(value = "createdAt", alternate = ["created_at", "CreatedAt", "CREATED_AT"])
+    val createdAt: String
+)
+
+fun ReviewDataDto.toDomain() = ReviewResponseEntity(
+    reviewId = reviewId,  // 추가됨
     matchId = matchId,
+    reviewerId = reviewerId,  // 추가됨
     revieweeId = revieweeId,
-    rating = rating, //1~5 조건 있음!
+    rating = rating,
     comment = comment,
     selectedBadges = selectedBadges,
-    //----------- 응답에만 있는 것 -----------
     createdAt = createdAt
-
 )
 
 

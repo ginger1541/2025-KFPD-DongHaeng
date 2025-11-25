@@ -28,7 +28,6 @@ fun CompletionHeader(
             .fillMaxWidth()
             .background(
                 AppColors.ReviewBackground,
-                shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
             )
             .padding(vertical = 40.dp),
         contentAlignment = Alignment.Center

@@ -38,6 +38,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanEndEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
@@ -46,6 +47,7 @@ import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
+import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingUiEvent
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
@@ -204,6 +206,8 @@ fun OngoingRoute(
     // 💡 수정: Non-null QRScreenUiState 구독
     val qrScreenUiState by viewModel2.uiState.collectAsState()
 
+    val qrEntity = qrScreenUiState.qrEntity
+
     val locateUiState by viewModel2.locateUiState.collectAsState()
     val resultUiState by viewModel2.resultUiState.collectAsState()
 
@@ -214,27 +218,36 @@ fun OngoingRoute(
     var currentMatchId by remember { mutableStateOf(0L) }
     val context = LocalContext.current
 
-    // 💡 1. QRViewModel의 이벤트 구독 LaunchedEffect 추가
+    // 1. QRViewModel 이벤트 구독
     LaunchedEffect(key1 = Unit) {
         viewModel2.eventFlow.collect { event ->
             when (event) {
                 // QRViewModel에서 발행한 페이지 이동 요청 이벤트 처리
                 is OngoingUiEvent.NavigateAfterQrScan -> {
-                    Log.d("QR_NAV", "NavigateAfterQrScan 이벤트 수신!")
+                    // 🎯 [핵심] nextPage() 실행
                     viewModel.nextPage()
                     Log.d("QR_NAV", "QR Scan 성공 이벤트 수신 -> OngoingViewModel.nextPage() 실행")
                 }
-                else -> { /* 다른 이벤트 처리 (예: 스낵바) */ }
-            }}}
+                else -> { }
+            }
+        }
+    }
 
-
-
-    // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
-    LaunchedEffect(isScanned) {
-        if (isScanned) {
-            // 스캔이 완료시  다음 페이지!
+    // ✅ [수정] uiState3.qrScanned -> qrEntity.qrScanned 로 변경
+    LaunchedEffect(qrEntity.qrScanned) {
+        if (qrEntity.qrScanned) {
+            // 1. 페이지 넘기기
             viewModel.nextPage()
-            // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
+
+            // ✅ [수정] uiState3.qrType -> qrEntity.qrType 로 변경
+            if (qrEntity.qrType == QRTypes.END && resultUiState is QRScanEndEntity) {
+                val result = resultUiState as QRScanEndEntity
+
+                viewModel.NavigateToReview(
+                    timeMin = result.actualDurationMinutes,
+                    earnedPoints = result.earnedPoints
+                )
+            }
         }
     }
     LaunchedEffect(matchId, ongoingPage) {
@@ -277,6 +290,22 @@ fun OngoingRoute(
         viewModel.loadMatchData(matchId)
     }
 
+    // 리뷰
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is OngoingUiEvent.NavigateToReview -> {
+                    val route = "${AppScreens.REVIEW_BASE}/${event.matchId}/${event.partnerId}" +
+                            "?time=${event.totalTime}&dist=${event.distance}"
+                    navController.navigate(route) {
+                        popUpTo(AppScreens.HOME_BASE) { inclusive = false }
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
+
     if (permissionState.isGranted) {
         // ✅ 권한이 있으면 정상 화면 표시
         if (scannerState.isScannerActive) {
@@ -308,7 +337,11 @@ fun OngoingRoute(
             onScanRequest = viewModel2::scanQR,
             requestScan = viewModel2::requestQrScan,
             nextPage = viewModel::nextPage,
-            NavigateToReview = viewModel::NavigateToReview
+
+            // 람다식({ })으로 변경하여 인자(0, 0) 전달
+            NavigateToReview = {
+                viewModel.NavigateToReview(0, 0)
+            }
         )
     } else {
         // 🚫 권한이 없으면 안내 문구 표시 (간단하게 처리)
