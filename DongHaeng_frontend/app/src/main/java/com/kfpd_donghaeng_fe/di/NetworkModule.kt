@@ -1,5 +1,8 @@
 package com.kfpd_donghaeng_fe.di
 
+import android.content.Context
+import coil.ImageLoader
+import coil.util.DebugLogger
 import com.kfpd_donghaeng_fe.data.remote.api.AuthInterceptor
 import com.kfpd_donghaeng_fe.data.remote.api.KakaoPlaceApiService
 import com.kfpd_donghaeng_fe.data.remote.api.LoginApiService
@@ -13,6 +16,7 @@ import com.kfpd_donghaeng_fe.data.remote.api.RequestApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -83,6 +87,7 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
 
     @Provides
     @Singleton

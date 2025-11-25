@@ -1,9 +1,11 @@
 package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,69 +36,59 @@ import com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme
 
 
 // 0 또는 3 일때 !
+import androidx.compose.material3.CircularProgressIndicator
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
+
+// ... (기타 필요한 import) ...
+
+// 💡 ViewModel 대신 이미 변환된 Non-null 상태를 인자로 받습니다.
 @Composable
 fun QRSheet(
+    uiState: QRScreenUiState, // 👈 QREntity? 대신 Non-null 상태 클래스 사용
     pageuiState: OngoingEntity,
-    uiState: QREntity,
     onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
-    modifier: Modifier = Modifier) {
-
+    modifier: Modifier = Modifier
+) {
     val cornerShape = RoundedCornerShape(20.dp)
     val page = pageuiState.OngoingPage
 
-    val imgurl: String = when (page) {
+    // Non-null Entity에서 URL을 바로 추출합니다.
 
-        0, 2 -> uiState.qrImageUrl
-        else -> ""
-    }
+    if (page == 0 || page == 2) {
 
-    when (page) {
-        0 ,2->
-            // Box를 사용하여 배경과 그림자, 둥근 모서리를 처리합니다.
-            Box(
-                modifier = modifier
-                    .padding(horizontal = 40.dp)
-                    .shadow(
-                        elevation = 8.dp,
-                        shape = cornerShape
-                    )
-
-                    .clip(cornerShape)
-                    // 💡 수정된 부분: 흰색에 알파 값(0.9f)을 적용하여 반투명하게 만듭니다.
-                    .background(Color.White)
-                    .wrapContentSize(),
-                contentAlignment = Alignment.Center
+        Box(
+            modifier = modifier
+                .padding(horizontal = 40.dp)
+                .shadow(elevation = 8.dp, shape = cornerShape)
+                .clip(cornerShape)
+                .background(Color.White)
+                .wrapContentSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // 상단 안내 멘트
-                    Text(
-                        text = "QR 인증으로 안전한 동행이 보장됩니다.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                // ... (Text 요소들 생략) ...
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    // 메인 안내 멘트
-                    Text(
-                        text = "동행 전 후 QR 인증을 진행해주세요.",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    // QR 코드 이미지 (크게)
-                    AsyncImage(
-                        model = imgurl, // 💡 imgurl (URL)을 model 파라미터로 전달
-                        contentDescription = "QR Code Image", // 접근성 설명을 추가
-                        modifier = modifier.size(200.dp), // 원하는 크기로 설정
-                        // (선택 사항) 로드 실패 시 표시할 이미지
-                    )
+                Box(modifier = Modifier.size(200.dp), contentAlignment = Alignment.Center) {
+
+                    if (uiState.isLoading) { // 💡 Non-null isLoading 플래그 사용
+                        // 💡 로딩 중일 때 스피너 표시
+                        CircularProgressIndicator(modifier = Modifier.size(50.dp))
+                    } else {
+                        // 💡 데이터가 로드 완료되었을 때 Non-null URL 사용
+                        AsyncImage(
+                            model = uiState.qrEntity.qrImageUrl,
+                            contentDescription = "QR Code Image",
+                            modifier = Modifier.size(200.dp), // 크기 명확히 지정
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
+        }
     }
 }
 

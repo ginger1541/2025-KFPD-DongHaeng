@@ -1,6 +1,7 @@
 package com.kfpd_donghaeng_fe.viewmodel.matching
 
 import android.location.Location
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
@@ -24,6 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.kfpd_donghaeng_fe.domain.entity.LocationType
 import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
+import kotlinx.coroutines.flow.StateFlow
 
 // -----------------------------------------------------------
 // 1. 일회성 내비게이션 이벤트를 위한 Sealed Class 정의
@@ -123,12 +125,19 @@ class OngoingViewModel @Inject constructor(
     private var destLat: Double = 0.0
     private var destLng: Double = 0.0
 
+
+
     init {
         viewModelScope.launch {
             val typeString = tokenDataSource.getUserType()
-            myUserType = if (typeString == "HELPER") UserType.HELPER else UserType.NEEDY
+            myUserType = if (typeString == "helper") UserType.HELPER else UserType.NEEDY
+            _uiState.update { currentState ->
+                currentState.copy(userType = myUserType)
+            }
         }
     }
+
+
 
     private fun connectSocket() {
         viewModelScope.launch {
