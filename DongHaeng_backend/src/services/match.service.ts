@@ -1,7 +1,7 @@
 // src/services/match.service.ts
 import prisma from '../config/database';
 import * as matchRepo from '../repositories/match.repository';
-import { generateQRData, generateQRCode, verifyQRData, parseQRData } from '../utils/qr.util';
+import { generateQRData, generateQRCodeFile, verifyQRData, parseQRData } from '../utils/qr.util';
 import { AppError } from '../middlewares/error.middleware';
 import { emitToMatch } from '../config/socket';
 
@@ -51,13 +51,15 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
 
   // QR 데이터 생성
   const qrData = generateQRData(matchId, userId, 'start');
-  const qrCodeImage = await generateQRCode(qrData);
 
   // QR 데이터에서 nonce 추출
   const parsed = parseQRData(qrData);
   if (!parsed) {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
+
+  // QR 이미지 파일 생성 및 URL 받기
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'start', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({
@@ -69,12 +71,11 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
   });
 
   return {
-    matchId: match.matchId,
-    qrCode: qrCodeImage,
-    qrData,
-    authType: 'start',
-    expiresIn: 300, // 5분
-    scanned: false, // QR 생성 시점에는 아직 스캔 안 됨
+    qr_code: qrCode,
+    qr_image_url: qrImageUrl,
+    auth_type: 'start',
+    created_at: new Date().toISOString(),
+    scanned: false,
   };
 };
 
@@ -196,13 +197,15 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
 
   // QR 데이터 생성
   const qrData = generateQRData(matchId, userId, 'end');
-  const qrCodeImage = await generateQRCode(qrData);
 
   // QR 데이터에서 nonce 추출
   const parsed = parseQRData(qrData);
   if (!parsed) {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
+
+  // QR 이미지 파일 생성 및 URL 받기
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'end', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({
@@ -214,12 +217,11 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
   });
 
   return {
-    matchId: match.matchId,
-    qrCode: qrCodeImage,
-    qrData,
-    authType: 'end',
-    expiresIn: 300, // 5분
-    scanned: false, // QR 생성 시점에는 아직 스캔 안 됨
+    qr_code: qrCode,
+    qr_image_url: qrImageUrl,
+    auth_type: 'end',
+    created_at: new Date().toISOString(),
+    scanned: false,
   };
 };
 
