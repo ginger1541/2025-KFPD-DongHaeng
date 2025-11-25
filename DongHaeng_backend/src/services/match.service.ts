@@ -72,7 +72,9 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
     matchId: match.matchId,
     qrCode: qrCodeImage,
     qrData,
+    authType: 'start',
     expiresIn: 300, // 5분
+    scanned: false, // QR 생성 시점에는 아직 스캔 안 됨
   };
 };
 
@@ -215,7 +217,9 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
     matchId: match.matchId,
     qrCode: qrCodeImage,
     qrData,
+    authType: 'end',
     expiresIn: 300, // 5분
+    scanned: false, // QR 생성 시점에는 아직 스캔 안 됨
   };
 };
 
