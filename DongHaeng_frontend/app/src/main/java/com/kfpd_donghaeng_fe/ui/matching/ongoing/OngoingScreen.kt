@@ -203,53 +203,37 @@ fun OngoingRoute(
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
 
-    // 💡 수정: Non-null QRScreenUiState 구독
     val qrScreenUiState by viewModel2.uiState.collectAsState()
+
+    val qrEntity = qrScreenUiState.qrEntity
 
     val locateUiState by viewModel2.locateUiState.collectAsState()
     val resultUiState by viewModel2.resultUiState.collectAsState()
 
-    // 💡 Non-null 상태에서 qrScanned 플래그 추출
-    val isScanned = qrScreenUiState.qrEntity.qrScanned
     val ongoingPage = uiState.OngoingPage
-    var currentQrType by remember { mutableStateOf(QRTypes.NONE) }
-    var currentMatchId by remember { mutableStateOf(0L) }
-    val context = LocalContext.current
 
-    // 💡 1. QRViewModel의 이벤트 구독 LaunchedEffect 추가
+    // 1. QRViewModel 이벤트 구독
     LaunchedEffect(key1 = Unit) {
         viewModel2.eventFlow.collect { event ->
             when (event) {
-                // QRViewModel에서 발행한 페이지 이동 요청 이벤트 처리
                 is OngoingUiEvent.NavigateAfterQrScan -> {
-                    // 🎯 [핵심] nextPage() 실행
                     viewModel.nextPage()
-                    Log.d("QR_NAV", "QR Scan 성공 이벤트 수신 -> OngoingViewModel.nextPage() 실행")
                 }
-                else -> { /* 다른 이벤트 처리 (예: 스낵바) */ }
-            }}}
+                else -> { }
+            }
+        }
+    }
 
-
-
-    // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
-//    LaunchedEffect(isScanned) {
-//        if (isScanned) {
-//            // 스캔이 완료시  다음 페이지!
-//            viewModel.nextPage()
-//            // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
-//        }
-//    }
-
-    LaunchedEffect(uiState3.qrScanned) {
-        if (uiState3.qrScanned) {
-            // 1. 페이지 넘기기 (기존 로직)
+    // ✅ [수정] uiState3.qrScanned -> qrEntity.qrScanned 로 변경
+    LaunchedEffect(qrEntity.qrScanned) {
+        if (qrEntity.qrScanned) {
+            // 1. 페이지 넘기기
             viewModel.nextPage()
 
-            // 2. 만약 '종료 QR(END)'을 찍은 것이라면 리뷰 화면으로 이동 준비!
-            if (uiState3.qrType == QRTypes.END && resultUiState is QRScanEndEntity) {
+            // ✅ [수정] uiState3.qrType -> qrEntity.qrType 로 변경
+            if (qrEntity.qrType == QRTypes.END && resultUiState is QRScanEndEntity) {
                 val result = resultUiState as QRScanEndEntity
 
-                // 🚀 ViewModel의 함수 호출 (거리 정보는 VM이 내부적으로 가지고 있음)
                 viewModel.NavigateToReview(
                     timeMin = result.actualDurationMinutes,
                     earnedPoints = result.earnedPoints
@@ -257,18 +241,14 @@ fun OngoingRoute(
             }
         }
     }
+
     LaunchedEffect(matchId, ongoingPage) {
-        if (ongoingPage == 0) { // Start QR 페이지
+        if (ongoingPage == 0) {
             viewModel2.loadStartQRInfo(matchId, QRTypes.START)
-        } else if (ongoingPage == 2) { // End QR 페이지
+        } else if (ongoingPage == 2) {
             viewModel2.loadEndQRInfo(matchId, QRTypes.END)
         }
     }
-
-
-
-
-
 
     /*
     지도
@@ -302,15 +282,13 @@ fun OngoingRoute(
         viewModel.eventFlow.collect { event ->
             when (event) {
                 is OngoingUiEvent.NavigateToReview -> {
-                    // URL에 데이터 붙여서 이동
-                    // 예: review_route/123/456?time=18분&dist=1.2km&points=200
                     val route = "${AppScreens.REVIEW_BASE}/${event.matchId}/${event.partnerId}" +
                             "?time=${event.totalTime}&dist=${event.distance}"
-
                     navController.navigate(route) {
                         popUpTo(AppScreens.HOME_BASE) { inclusive = false }
                     }
                 }
+                else -> {}
             }
         }
     }
