@@ -96,7 +96,7 @@ export const endCompanion = asyncHandler(async (req: Request, res: Response) => 
 
   res.status(200).json({
     success: true,
-    message: '동행이 완료되었습니다',
+    message: `동행이 완료되었습니다. 포인트 ${result.earned_points}점과 봉사시간 ${result.earned_volunteer_minutes}분이 지급되었습니다.`,
     data: result,
   });
 });

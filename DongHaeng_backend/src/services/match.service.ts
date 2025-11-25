@@ -270,7 +270,7 @@ export const endCompanion = async (
   // 트랜잭션: 동행 종료 및 보상 지급
   const result = await prisma.$transaction(async (tx) => {
     // QR 인증 레코드 업데이트 (스캔 정보 기록)
-    await tx.qrAuthentication.updateMany({
+    const qrAuth = await tx.qrAuthentication.updateMany({
       where: {
         matchId,
         authType: 'end',
@@ -319,21 +319,25 @@ export const endCompanion = async (
       },
     });
 
+    // API 가이드라인에 맞는 응답 형식 반환
     return {
-      match: updatedMatch,
-      reward: {
-        points,
-        volunteerMinutes: durationMinutes,
-      },
+      match_id: Number(matchId),
+      auth_type: 'end',
+      scanned_at: new Date().toISOString(),
+      status: 'completed',
+      actual_duration_minutes: durationMinutes,
+      earned_points: points,
+      earned_volunteer_minutes: durationMinutes,
     };
   });
 
   // 실시간 알림: 동행 완료 알림
   emitToMatch(matchId.toString(), 'companion:completed', {
-    matchId: matchId.toString(),
-    completedAt: result.match.completedAt,
-    duration: durationMinutes,
-    reward: result.reward,
+    match_id: result.match_id,
+    completed_at: result.scanned_at,
+    duration: result.actual_duration_minutes,
+    earned_points: result.earned_points,
+    earned_volunteer_minutes: result.earned_volunteer_minutes,
     message: '동행이 완료되었습니다',
   });
 
