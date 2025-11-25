@@ -60,9 +60,8 @@ fun getApiKey(propertyKey: String): String {
 }
 dependencies {
 
-    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(libs.androidx.datastore.core)
-    val cameraVersion = "1.3.0" // 최신 안정 버전 확인 필요
+    val cameraVersion = "1.3.3" // 최신 안정 버전 확인 필요
 
     implementation("androidx.camera:camera-core:$cameraVersion")
     implementation("androidx.camera:camera-camera2:$cameraVersion")
@@ -130,7 +129,9 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
-
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-base:2.6.0")
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
 
 }

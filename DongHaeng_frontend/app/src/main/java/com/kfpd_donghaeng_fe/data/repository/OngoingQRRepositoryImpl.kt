@@ -1,14 +1,21 @@
 package com.kfpd_donghaeng_fe.data.repository
 
 
+import android.util.Log
 import com.kfpd_donghaeng_fe.data.remote.api.EndQRApiService
 import com.kfpd_donghaeng_fe.data.remote.api.EndQRScanApiService
 import com.kfpd_donghaeng_fe.data.remote.api.StartQRApiService
 import com.kfpd_donghaeng_fe.data.remote.api.StartQRScanApiService
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanRequest
 import com.kfpd_donghaeng_fe.data.remote.dto.QRScanResponseDto
-import com.kfpd_donghaeng_fe.data.remote.mapper.* // 작성했던 Mapper 함수들을 import
-import com.kfpd_donghaeng_fe.domain.entity.matching.*
+import com.kfpd_donghaeng_fe.data.remote.mapper.toDomainQR
+
+import com.kfpd_donghaeng_fe.data.remote.mapper.toDomainQRScanResponse
+import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
+
 import com.kfpd_donghaeng_fe.domain.repository.OngoingQRRepository
 
 import javax.inject.Inject
@@ -24,18 +31,26 @@ class OngoingQRRepositoryImpl @Inject constructor(
 
     ) : OngoingQRRepository {
     override suspend fun getOngoingQRStartInfo(matchId: Long): Result<QREntity> {
+        Log.d("QR_DEBUG", "Repository: getStartInfo 진입!")
         return try {
             // 이 dataSource를 통해 API를 호출합니다.
+            Log.d("QR_DEBUG", "Retrofit 호출 직전") // 💡 1차 로그
             val response = qrStart.getStartQR(matchId)
-            val entity = response.toDomainQR() // BaseResponse 처리 및 매핑
+            Log.d("QR_DEBUG", "Retrofit 응답 수신 완료") // 💡 2차 로그
+
+            val entity = response.toDomainQR() // 💡 매핑 시작
+            Log.d("QR_DEBUG", "매핑 완료") // 💡 3차 로그// BaseResponse 처리 및 매핑
 
             if (entity != null) {
+                Log.e("QR_BASE64", "Entity URL start: ${entity.qrImageUrl.take(50)}")
                 Result.success(entity)
             } else {
+                Log.e("null","null 존재함")
                 // success: false 이거나 data: null 인 경우
                 Result.failure(Exception("QR 정보 로드에 실패했습니다. (Success: ${response.success})"))
             }
         } catch (e: Exception) {
+            Log.e("QR_FATAL", "API 호출 후 알 수 없는 예외 발생: ${e.message}", e)
             Result.failure(e)
         }
     }

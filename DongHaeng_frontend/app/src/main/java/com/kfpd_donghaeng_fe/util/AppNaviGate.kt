@@ -24,9 +24,9 @@ object AppScreens {
     const val REVIEW_SCREEN = "review_route"
 
     // Matching Ongoing Flow
-    const val ONGOING_SCREEN = "ongoing_route"
+    //const val ONGOING_SCREEN = "ongoing_route"
     const val ONGOING_BASE = "ongoing_route"
-    const val ONGOING_ROUTE = "$ONGOING_BASE/{matchId}"
+    const val ONGOING_SCREEN = "$ONGOING_BASE/{matchId}"
 
     // Review
     const val REVIEW_BASE = "review_route"
@@ -121,13 +121,17 @@ fun NavController.navigateToReviewScreen() {
 //}
 
 fun NavController.navigateToOngoingScreen(matchId: Long) {
-    this.navigateTo(
-        // ✅ 변경된 부분: matchId를 경로 뒤에 붙여줍니다.
-        route = "${AppScreens.ONGOING_BASE}/$matchId",
+    // 1. 인자를 포함하여 경로를 생성합니다. (예: ongoing_route/456)
+    val routeWithArg = AppScreens.ONGOING_SCREEN.replace(
+        "{matchId}",
+        matchId.toString()
+    )
 
-        // ✅ 기존 설정 유지:
-        popUpToRoute = AppScreens.HOME_BASE,
-        inclusive = true, // ⚠️ 주의: true면 홈 화면까지 사라져서 뒤로가기 하면 앱이 꺼집니다. 홈을 남기려면 false가 좋습니다.
+    // 2. 동행 중 화면으로 이동하며, HOME_BASE 스택을 모두 제거합니다.
+    this.navigateTo(
+        route = routeWithArg,
+        popUpToRoute = AppScreens.HOME_BASE, // 홈 스택 전체 제거 (필요에 따라 MATCHING_BASE로 변경 가능)
+        inclusive = true,
         singleTop = true
     )
 }

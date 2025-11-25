@@ -102,12 +102,24 @@ export const findNearbyRequests = async (
   radiusKm: number,
   limit: number
 ) => {
-  // Haversine formula를 사용한 거리 계산
-  // 정확한 SPATIAL 쿼리는 Raw SQL 사용
-  // acos() 범위 오류 방지를 위해 LEAST/GREATEST 사용
-  const requests = await prisma.$queryRaw<any[]>`
+  // 디버깅: 전체 pending 요청 수 확인
+  const totalPending = await prisma.$queryRaw<any[]>`
+    SELECT COUNT(*) as count
+    FROM companion_requests cr
+    WHERE cr.status = 'pending'
+      AND (cr.expires_at IS NULL OR cr.expires_at > NOW())
+  `;
+  console.log('[DEBUG] Total pending requests:', totalPending);
+
+  // 디버깅: 거리 계산 결과 확인 (HAVING 조건 없이)
+  const allRequestsWithDistance = await prisma.$queryRaw<any[]>`
     SELECT
-      cr.*,
+      cr.request_id,
+      cr.title,
+      cr.latitude,
+      cr.longitude,
+      cr.status,
+      cr.expires_at,
       (6371 * acos(
         LEAST(1, GREATEST(-1,
           cos(radians(CAST(${latitude} AS DOUBLE))) *
@@ -120,16 +132,70 @@ export const findNearbyRequests = async (
     FROM companion_requests cr
     WHERE cr.status = 'pending'
       AND (cr.expires_at IS NULL OR cr.expires_at > NOW())
-    HAVING distance <= ${radiusKm}
     ORDER BY distance ASC
-    LIMIT ${limit}
+    LIMIT 10
   `;
+  console.log('[DEBUG] All requests with distance (top 10):', JSON.stringify(allRequestsWithDistance, null, 2));
+  console.log('[DEBUG] Search params:', { latitude, longitude, radiusKm, limit });
+
+  // Haversine formula를 사용한 거리 계산
+  // HAVING/ORDER BY 절 문제로 인해 모든 pending 요청을 가져온 후 JavaScript에서 처리
+  // POINT 타입 컬럼 제외하고 명시적으로 선택
+  const allRequests = await prisma.$queryRaw<any[]>`
+    SELECT
+      cr.request_id,
+      cr.requester_id,
+      cr.title,
+      cr.description,
+      cr.latitude,
+      cr.longitude,
+      cr.start_address,
+      cr.destination_address,
+      cr.estimated_minutes,
+      cr.scheduled_at,
+      cr.route,
+      cr.status,
+      cr.view_count,
+      cr.requested_at,
+      cr.expires_at,
+      cr.created_at,
+      cr.updated_at,
+      (6371 * acos(
+        LEAST(1, GREATEST(-1,
+          cos(radians(CAST(${latitude} AS DOUBLE))) *
+          cos(radians(CAST(cr.latitude AS DOUBLE))) *
+          cos(radians(CAST(cr.longitude AS DOUBLE)) - radians(CAST(${longitude} AS DOUBLE))) +
+          sin(radians(CAST(${latitude} AS DOUBLE))) *
+          sin(radians(CAST(cr.latitude AS DOUBLE)))
+        ))
+      )) AS distance
+    FROM companion_requests cr
+    WHERE cr.status = 'pending'
+      AND (cr.expires_at IS NULL OR cr.expires_at > NOW())
+  `;
+
+  console.log('[DEBUG] All requests fetched:', allRequests.length);
+
+  // JavaScript에서 거리 필터링, 정렬 및 제한
+  const requests = allRequests
+    .filter(req => parseFloat(req.distance) <= radiusKm)
+    .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+    .slice(0, limit);
+
+  console.log('[DEBUG] Filtered requests count:', requests.length);
 
   // 각 요청의 requester 정보 가져오기
   const requestsWithRequester = await Promise.all(
     requests.map(async (req) => {
+      // BigInt 변환 (MySQL에서 BIGINT가 number로 반환될 수 있음)
+      const requesterId = typeof req.requester_id === 'bigint'
+        ? req.requester_id
+        : BigInt(req.requester_id);
+
+      console.log('[DEBUG] Looking up requester:', requesterId, 'type:', typeof requesterId);
+
       const requester = await prisma.user.findUnique({
-        where: { id: req.requester_id },
+        where: { id: requesterId },
         select: {
           id: true,
           name: true,
@@ -138,6 +204,8 @@ export const findNearbyRequests = async (
         },
       });
 
+      console.log('[DEBUG] Requester found:', !!requester);
+
       return {
         ...req,
         requester,
@@ -145,6 +213,8 @@ export const findNearbyRequests = async (
       };
     })
   );
+
+  console.log('[DEBUG] Final requests with requester:', requestsWithRequester.length);
 
   return requestsWithRequester;
 };

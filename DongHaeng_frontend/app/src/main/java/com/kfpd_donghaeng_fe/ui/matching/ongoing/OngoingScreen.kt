@@ -1,5 +1,10 @@
 package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
+import android.app.Activity
+import android.content.Intent
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +19,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +41,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanEndEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
@@ -87,10 +96,11 @@ var user: Int = 2// 테스트용 1 = 요청자 2 = 동행자
 fun OngoingScreen(
     uiState: OngoingEntity,
     uiState2: OngoingRequestEntity,
-    uiState3:QREntity,
+    uiStateqr: QRScreenUiState,
+    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
     resultUiState: QRScanResultEntity, // 여기에 스캔 시간
     locateUiState : QRScandEntity, // 스캔 시작 장소
-    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
+    requestScan: (matchId: Long, qrType: QRTypes) -> Unit,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
     ,
@@ -129,7 +139,7 @@ fun OngoingScreen(
                            .fillMaxSize(),
                        contentAlignment = Alignment.Center
                    ) {
-                       QRSheet(uiState,uiState3,onScanRequest)
+                       QRSheet(uiStateqr,uiState,onScanRequest)
                    }
 
                }
@@ -138,7 +148,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
-                    onScanRequest = onScanRequest,
+                    requestScan=requestScan,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -166,7 +176,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
-                    onScanRequest = onScanRequest,
+                    requestScan = requestScan,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -189,16 +199,37 @@ fun OngoingRoute(
     permissionChecker: PermissionChecker,
     navController: NavHostController,
 ) {
-
+    val scannerState by viewModel2.scannerState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
-    val uiState3 by viewModel2.uiState3.collectAsState()
-    //val uiState3: QREntity = viewModel2.uiState3.collectAsState().value
-    val locateUiState by viewModel2.locateUiState.collectAsState()
 
+    // 💡 수정: Non-null QRScreenUiState 구독
+    val qrScreenUiState by viewModel2.uiState.collectAsState()
+
+    val locateUiState by viewModel2.locateUiState.collectAsState()
     val resultUiState by viewModel2.resultUiState.collectAsState()
-    // 2. 스캔 상태 플래그 추출 (QREntity에 qrScanned 필드가 있다고 가정)
-    val isScanned = uiState3.qrScanned
+
+    // 💡 Non-null 상태에서 qrScanned 플래그 추출
+    val isScanned = qrScreenUiState.qrEntity.qrScanned
+    val ongoingPage = uiState.OngoingPage
+    var currentQrType by remember { mutableStateOf(QRTypes.NONE) }
+    var currentMatchId by remember { mutableStateOf(0L) }
+    val context = LocalContext.current
+
+    // 💡 1. QRViewModel의 이벤트 구독 LaunchedEffect 추가
+    LaunchedEffect(key1 = Unit) {
+        viewModel2.eventFlow.collect { event ->
+            when (event) {
+                // QRViewModel에서 발행한 페이지 이동 요청 이벤트 처리
+                is OngoingUiEvent.NavigateAfterQrScan -> {
+                    // 🎯 [핵심] nextPage() 실행
+                    viewModel.nextPage()
+                    Log.d("QR_NAV", "QR Scan 성공 이벤트 수신 -> OngoingViewModel.nextPage() 실행")
+                }
+                else -> { /* 다른 이벤트 처리 (예: 스낵바) */ }
+            }}}
+
+
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
 //    LaunchedEffect(isScanned) {
@@ -226,6 +257,18 @@ fun OngoingRoute(
             }
         }
     }
+    LaunchedEffect(matchId, ongoingPage) {
+        if (ongoingPage == 0) { // Start QR 페이지
+            viewModel2.loadStartQRInfo(matchId, QRTypes.START)
+        } else if (ongoingPage == 2) { // End QR 페이지
+            viewModel2.loadEndQRInfo(matchId, QRTypes.END)
+        }
+    }
+
+
+
+
+
 
     /*
     지도
@@ -274,15 +317,34 @@ fun OngoingRoute(
 
     if (permissionState.isGranted) {
         // ✅ 권한이 있으면 정상 화면 표시
+        if (scannerState.isScannerActive) {
+
+            // 🚨 실제 QrScannerScreen을 여기에 호출합니다.
+            // QrScannerScreen은 카메라 미리보기를 띄우고 QR 문자열을 인식한 후 콜백을 호출해야 합니다.
+            QrScannerScreen(
+                // ⚠️ 실제 위치 정보는 여기서 GPS/Location Manager를 통해 가져와야 합니다.
+                onQrCodeScanned = { scannedCode ->
+                    // 임시 위치 정보 (실제 구현 시 수정 필요)
+                    val currentLatitude = 37.5665
+                    val currentLongitude = 126.9780
+
+                    viewModel2.handleScannedCode(scannedCode, currentLatitude, currentLongitude)
+                },
+                onStopScanning = viewModel2::closeScanner
+            )
+            // 스캐너 화면이 켜지면 더 이상 아래의 OngoingScreen을 렌더링하지 않습니다.
+            return
+        }
         OngoingScreen(
             uiState = uiState,
             uiState2 = uiState2,
-            uiState3 = uiState3,
+            uiStateqr = qrScreenUiState,
             resultUiState = resultUiState,
             locateUiState = locateUiState,
             mapMarkers = mapMarkers,
             routePath = routePath,
             onScanRequest = viewModel2::scanQR,
+            requestScan = viewModel2::requestQrScan,
             nextPage = viewModel::nextPage,
 
             // 람다식({ })으로 변경하여 인자(0, 0) 전달

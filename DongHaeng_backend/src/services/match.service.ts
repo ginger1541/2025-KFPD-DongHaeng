@@ -1,7 +1,7 @@
 // src/services/match.service.ts
 import prisma from '../config/database';
 import * as matchRepo from '../repositories/match.repository';
-import { generateQRData, generateQRCode, verifyQRData, parseQRData } from '../utils/qr.util';
+import { generateQRData, generateQRCodeFile, verifyQRData, parseQRData } from '../utils/qr.util';
 import { AppError } from '../middlewares/error.middleware';
 import { emitToMatch } from '../config/socket';
 
@@ -51,13 +51,15 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
 
   // QR 데이터 생성
   const qrData = generateQRData(matchId, userId, 'start');
-  const qrCodeImage = await generateQRCode(qrData);
 
   // QR 데이터에서 nonce 추출
   const parsed = parseQRData(qrData);
   if (!parsed) {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
+
+  // QR 이미지 파일 생성 및 URL 받기
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'start', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({
@@ -69,10 +71,11 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
   });
 
   return {
-    matchId: match.matchId,
-    qrCode: qrCodeImage,
-    qrData,
-    expiresIn: 300, // 5분
+    qr_code: qrCode,
+    qr_image_url: qrImageUrl,
+    auth_type: 'start',
+    created_at: new Date().toISOString(),
+    scanned: false,
   };
 };
 
@@ -194,13 +197,15 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
 
   // QR 데이터 생성
   const qrData = generateQRData(matchId, userId, 'end');
-  const qrCodeImage = await generateQRCode(qrData);
 
   // QR 데이터에서 nonce 추출
   const parsed = parseQRData(qrData);
   if (!parsed) {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
+
+  // QR 이미지 파일 생성 및 URL 받기
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'end', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({
@@ -212,10 +217,11 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
   });
 
   return {
-    matchId: match.matchId,
-    qrCode: qrCodeImage,
-    qrData,
-    expiresIn: 300, // 5분
+    qr_code: qrCode,
+    qr_image_url: qrImageUrl,
+    auth_type: 'end',
+    created_at: new Date().toISOString(),
+    scanned: false,
   };
 };
 
@@ -280,7 +286,7 @@ export const endCompanion = async (
     });
 
     // 매칭 상태 변경
-    const updatedMatch = await tx.match.update({
+    await tx.match.update({
       where: { matchId },
       data: {
         status: 'completed',
@@ -315,21 +321,25 @@ export const endCompanion = async (
       },
     });
 
+    // API 가이드라인에 맞는 응답 형식 반환
     return {
-      match: updatedMatch,
-      reward: {
-        points,
-        volunteerMinutes: durationMinutes,
-      },
+      match_id: Number(matchId),
+      auth_type: 'end',
+      scanned_at: new Date().toISOString(),
+      status: 'completed',
+      actual_duration_minutes: durationMinutes,
+      earned_points: points,
+      earned_volunteer_minutes: durationMinutes,
     };
   });
 
   // 실시간 알림: 동행 완료 알림
   emitToMatch(matchId.toString(), 'companion:completed', {
-    matchId: matchId.toString(),
-    completedAt: result.match.completedAt,
-    duration: durationMinutes,
-    reward: result.reward,
+    match_id: result.match_id,
+    completed_at: result.scanned_at,
+    duration: result.actual_duration_minutes,
+    earned_points: result.earned_points,
+    earned_volunteer_minutes: result.earned_volunteer_minutes,
     message: '동행이 완료되었습니다',
   });
 

@@ -1,6 +1,8 @@
 // src/utils/qr.util.ts
 import QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs/promises';
+import path from 'path';
 
 // QR 코드 데이터 생성
 export const generateQRData = (matchId: bigint, userId: bigint, type: 'start' | 'end'): string => {
@@ -15,7 +17,7 @@ export const generateQRData = (matchId: bigint, userId: bigint, type: 'start' | 
   return JSON.stringify(data);
 };
 
-// QR 코드 이미지 생성 (Base64)
+// QR 코드 이미지 생성 (Base64) - 레거시
 export const generateQRCode = async (data: string): Promise<string> => {
   try {
     const qrCodeDataURL = await QRCode.toDataURL(data, {
@@ -24,10 +26,55 @@ export const generateQRCode = async (data: string): Promise<string> => {
       margin: 1,
       width: 300,
     });
-    
+
     return qrCodeDataURL; // data:image/png;base64,iVBORw0KG...
   } catch (error) {
     throw new Error('Failed to generate QR code');
+  }
+};
+
+// QR 코드 이미지 파일 생성 및 URL 반환
+export const generateQRCodeFile = async (
+  matchId: bigint,
+  type: 'start' | 'end',
+  nonce: string
+): Promise<{ qrImageUrl: string; qrCode: string }> => {
+  try {
+    // 고유한 QR 코드 ID 생성
+    const qrCode = `qr-${type}-${nonce.substring(0, 8)}`;
+    const filename = `${qrCode}.png`;
+
+    // 파일 저장 경로 (public/qr/images)
+    const publicDir = path.join(process.cwd(), 'public', 'qr', 'images');
+    const filepath = path.join(publicDir, filename);
+
+    // 디렉토리 확인 및 생성
+    await fs.mkdir(publicDir, { recursive: true });
+
+    // QR 데이터 생성
+    const qrData = JSON.stringify({
+      matchId: matchId.toString(),
+      type,
+      timestamp: Date.now(),
+      nonce,
+    });
+
+    // QR 이미지 파일로 저장
+    await QRCode.toFile(filepath, qrData, {
+      errorCorrectionLevel: 'H',
+      type: 'png',
+      margin: 1,
+      width: 300,
+    });
+
+    // URL 생성
+    const baseUrl = process.env.BASE_URL || 'http://34.64.76.147:3000';
+    const qrImageUrl = `${baseUrl}/qr/images/${filename}`;
+
+    return { qrImageUrl, qrCode };
+  } catch (error) {
+    console.error('Failed to generate QR code file:', error);
+    throw new Error('Failed to generate QR code file');
   }
 };
 
