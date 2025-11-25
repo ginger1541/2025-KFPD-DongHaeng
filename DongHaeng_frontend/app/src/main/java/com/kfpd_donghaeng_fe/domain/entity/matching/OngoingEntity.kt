@@ -4,8 +4,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 
 data class OngoingEntity(
     val OngoingPage : Int =0,
-    val userType: UserType? = UserType.NEEDY
-
+    val userType: UserType? = null,
 )
 
 data class OngoingRequestEntity(
