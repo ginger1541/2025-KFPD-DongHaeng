@@ -220,7 +220,7 @@ fun OngoingRoute(
             when (event) {
                 // QRViewModel에서 발행한 페이지 이동 요청 이벤트 처리
                 is OngoingUiEvent.NavigateAfterQrScan -> {
-                    // 🎯 [핵심] nextPage() 실행
+                    Log.d("QR_NAV", "NavigateAfterQrScan 이벤트 수신!")
                     viewModel.nextPage()
                     Log.d("QR_NAV", "QR Scan 성공 이벤트 수신 -> OngoingViewModel.nextPage() 실행")
                 }
