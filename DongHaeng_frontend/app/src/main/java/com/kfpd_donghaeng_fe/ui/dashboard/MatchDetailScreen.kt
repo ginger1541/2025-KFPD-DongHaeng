@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import com.kfpd_donghaeng_fe.R
 import com.kfpd_donghaeng_fe.data.remote.dto.MatchRequestDetails
 import com.kfpd_donghaeng_fe.ui.theme.*
+import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.viewmodel.dashboard.MatchDetailViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -212,7 +213,7 @@ fun MatchDetailScreen(
                         }
 
                         Button(
-                            onClick = { TODO(/* 동행 시작 페이지 이동 로직 */) },
+                            onClick = { navController.navigateToOngoingScreen(matchId) },
                             colors = ButtonDefaults.buttonColors(containerColor = BrandOrange),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f).height(56.dp)

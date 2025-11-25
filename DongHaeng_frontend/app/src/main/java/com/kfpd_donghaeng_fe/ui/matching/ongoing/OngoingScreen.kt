@@ -1,5 +1,9 @@
 package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +39,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
@@ -84,10 +92,11 @@ var user: Int = 2// 테스트용 1 = 요청자 2 = 동행자
 fun OngoingScreen(
     uiState: OngoingEntity,
     uiState2: OngoingRequestEntity,
-    uiState3:QREntity,
+    uiStateqr: QRScreenUiState,
+    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
     resultUiState: QRScanResultEntity, // 여기에 스캔 시간
     locateUiState : QRScandEntity, // 스캔 시작 장소
-    onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
+    requestScan: (matchId: Long, qrType: QRTypes) -> Unit,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
     ,
@@ -126,7 +135,7 @@ fun OngoingScreen(
                            .fillMaxSize(),
                        contentAlignment = Alignment.Center
                    ) {
-                       QRSheet(uiState,uiState3,onScanRequest)
+                       QRSheet(uiStateqr,uiState,onScanRequest)
                    }
 
                }
@@ -135,7 +144,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
-                    onScanRequest = onScanRequest,
+                    requestScan=requestScan,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -163,7 +172,7 @@ fun OngoingScreen(
                     uiState = uiState, // BottomSheet이 필요한 경우 상태 전달
                     resultUiState = resultUiState,
                     locateUiState = locateUiState,
-                    onScanRequest = onScanRequest,
+                    requestScan = requestScan,
                     nextPage = nextPage,
                     NavigateToReview = NavigateToReview
                 )
@@ -189,13 +198,49 @@ fun OngoingRoute(
 
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
-    val uiState3 by viewModel2.uiState3.collectAsState()
-    //val uiState3: QREntity = viewModel2.uiState3.collectAsState().value
-    val locateUiState by viewModel2.locateUiState.collectAsState()
 
+    // 💡 수정: Non-null QRScreenUiState 구독
+    val qrScreenUiState by viewModel2.uiState.collectAsState()
+
+    val locateUiState by viewModel2.locateUiState.collectAsState()
     val resultUiState by viewModel2.resultUiState.collectAsState()
-    // 2. 스캔 상태 플래그 추출 (QREntity에 qrScanned 필드가 있다고 가정)
-    val isScanned = uiState3.qrScanned
+
+    // 💡 Non-null 상태에서 qrScanned 플래그 추출
+    val isScanned = qrScreenUiState.qrEntity.qrScanned
+    val ongoingPage = uiState.OngoingPage
+
+    var currentQrType by remember { mutableStateOf(QRTypes.NONE) }
+    var currentMatchId by remember { mutableStateOf(0L) }
+    //val context = LocalContext.current
+
+
+    // 🚨 2. Activity Result Launcher 정의 (카메라 실행 및 결과 처리)
+    val qrScanLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // 4. 스캔 결과를 받는 콜백 (QR 스캔 성공 시)
+        if (result.resultCode == Activity.RESULT_OK) {
+            // ZXing Scanner Intent를 사용했다고 가정하고 결과 키를 사용
+            val scannedCode = result.data?.getStringExtra("SCAN_RESULT")
+
+            // 🚨 실제 위치 정보를 가져와야 함 (여기서는 Mock)
+            // 실제 구현에서는 LocationManager나 FusedLocationProviderClient를 통해 가져와야 합니다.
+            val currentLatitude = 37.5665
+            val currentLongitude = 126.9780
+
+            if (!scannedCode.isNullOrBlank() && currentQrType != QRTypes.NONE) {
+                val scanRequest = QRScandEntity(
+                    qrCode = scannedCode,
+                    latitude = currentLatitude,
+                    longitude = currentLongitude
+                )
+                // 5. 스캔 결과를 ViewModel로 전송하여 서버 API 호출
+                viewModel2.scanQR(scanRequest, currentQrType, currentMatchId)
+            }
+        }
+        // 스캔 실패나 취소 시에는 별도 처리 필요 없음 (페이지 전환은 ViewModel의 Success에 의해 제어됨)
+    }
+
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
     LaunchedEffect(isScanned) {
@@ -205,6 +250,34 @@ fun OngoingRoute(
             // EndCompanionSheet(resultUiState) <- 데이터 넘기기용
         }
     }
+    LaunchedEffect(matchId, ongoingPage) {
+        if (ongoingPage == 0) { // Start QR 페이지
+            viewModel2.loadStartQRInfo(matchId, QRTypes.START)
+        } else if (ongoingPage == 2) { // End QR 페이지
+            viewModel2.loadEndQRInfo(matchId, QRTypes.END)
+        }
+    }
+
+
+    // ---- 🚨 5. QR 스캔 요청 이벤트 처리 (ViewModel 이벤트 수집) ---
+    LaunchedEffect(key1 = Unit) {
+        // ViewModel에서 발행하는 QR 스캔 요청 이벤트를 수집
+        viewModel2.qrScanRequestEvent.collect { (requestedMatchId, qrType) ->
+
+            // 1. 콜백에서 사용할 상태 업데이트
+            currentMatchId = requestedMatchId
+            currentQrType = qrType
+
+            // 2. 카메라 실행 Intent 정의 (ZXing Intent를 사용한다고 가정)
+            val scanIntent = Intent("com.google.zxing.client.android.SCAN")
+            scanIntent.putExtra("SCAN_MODE", "QR_CODE_MODE")
+
+            // 3. 런처 실행 (카메라 켜기)
+            qrScanLauncher.launch(scanIntent)
+        }
+    }
+
+
 
     /*
     지도
@@ -238,12 +311,13 @@ fun OngoingRoute(
         OngoingScreen(
             uiState = uiState,
             uiState2 = uiState2,
-            uiState3 = uiState3,
+            uiStateqr = qrScreenUiState,
             resultUiState = resultUiState,
             locateUiState = locateUiState,
             mapMarkers = mapMarkers,
             routePath = routePath,
             onScanRequest = viewModel2::scanQR,
+            requestScan = viewModel2::requestQrScan,
             nextPage = viewModel::nextPage,
             NavigateToReview = viewModel::NavigateToReview
         )

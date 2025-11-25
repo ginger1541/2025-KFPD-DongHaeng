@@ -316,7 +316,7 @@ class MainActivity : ComponentActivity() {
 
                             // 온고잉
                             composable(
-                                route = AppScreens.ONGOING_ROUTE, // "ongoing_route/{matchId}"
+                                route = AppScreens.ONGOING_SCREEN, // "ongoing_route/{matchId}"
                                 arguments = listOf(navArgument("matchId") { type = NavType.LongType })
                             ) { backStackEntry ->
                                 val matchId = backStackEntry.arguments?.getLong("matchId") ?: -1L

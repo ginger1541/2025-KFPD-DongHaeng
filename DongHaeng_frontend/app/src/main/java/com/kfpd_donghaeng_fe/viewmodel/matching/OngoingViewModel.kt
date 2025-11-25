@@ -130,6 +130,8 @@ class OngoingViewModel @Inject constructor(
         }
     }
 
+
+
     private fun connectSocket() {
         viewModelScope.launch {
             val token = tokenDataSource.getToken()
