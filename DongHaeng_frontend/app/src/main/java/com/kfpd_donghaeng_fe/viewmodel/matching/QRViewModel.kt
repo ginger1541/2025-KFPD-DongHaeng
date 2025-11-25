@@ -8,6 +8,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
+import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQREndInfoUseCase
 import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQRStartInfoUseCase
 //import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQREndInfoUseCase // 💡 End Info UseCase가 있다고 가정하고 추가
 import com.kfpd_donghaeng_fe.domain.usecase.SendQRScanResultUseCase
@@ -25,7 +26,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class QRViewModel @Inject constructor(
     private val getOngoingQRStartInfoUseCase: GetOngoingQRStartInfoUseCase,
-    //private val getOngoingQREndInfoUseCase: GetOngoingQREndInfoUseCase, // 💡 End UseCase 인젝션 추가
+    private val getOngoingQREndInfoUseCase: GetOngoingQREndInfoUseCase, // 💡 End UseCase 인젝션 추가
     private val sendQRScanResultUseCase: SendQRScanResultUseCase
 ) : ViewModel() {
 
@@ -72,8 +73,7 @@ class QRViewModel @Inject constructor(
     fun loadEndQRInfo(matchId: Long, _qrType: QRTypes) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, isError = false) }
-
-            getOngoingQRStartInfoUseCase(matchId) // 💡 End UseCase 사용
+            getOngoingQREndInfoUseCase(matchId) // 💡 End UseCase 사용
                 .onSuccess { qrEntity ->
                     _uiState.update { it.copy(qrEntity = qrEntity, isLoading = false) }
                 }
