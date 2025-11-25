@@ -109,7 +109,7 @@ private fun setupCamera(
                 )
             }
 
-        // 전면 카메라 선택
+        // 후면 카메라 선택
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
         try {

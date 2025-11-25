@@ -5,6 +5,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 data class OngoingEntity(
     val OngoingPage : Int =0,
     val userType: UserType? = null,
+    val qrState: QREntity = QREntity.Empty
 )
 
 data class OngoingRequestEntity(
