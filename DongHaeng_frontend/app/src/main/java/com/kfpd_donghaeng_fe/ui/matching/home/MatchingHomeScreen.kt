@@ -52,12 +52,37 @@ fun MatchingHomeRoute(
     onNavigateToChangeLocation: () -> Unit,
     onNavigateToMyRequestDetail: (Request) -> Unit,
     onNavigateToRequestDetail: (Long) -> Unit,
+    changedLocationName: String? = null,
+    changedLocationLat: Double? = null,
+    changedLocationLng: Double? = null,
+    onLocationReset: () -> Unit = {} // 처리가 끝나면 데이터를 초기화하는 콜백
 ) {
     LaunchedEffect(userType) {
         viewModel.setUserType(userType)
     }
     val userType by viewModel.userType.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(changedLocationName, changedLocationLat, changedLocationLng) {
+        if (changedLocationName != null && changedLocationLat != null && changedLocationLng != null) {
+
+            // 1. RouteLocation 객체 생성
+            val newLocation = com.kfpd_donghaeng_fe.domain.entity.RouteLocation(
+                id = "selected_target",
+                type = com.kfpd_donghaeng_fe.domain.entity.LocationType.PLACE,
+                placeName = changedLocationName,
+                address = "", // 주소는 필요하면 전달받아서 넣기
+                latitude = changedLocationLat,
+                longitude = changedLocationLng
+            )
+
+            // 2. 뷰모델에 업데이트 요청 (DataStore 저장 -> Flow 감지 -> API 재호출)
+            viewModel.updateTargetLocation(newLocation)
+
+            // 3. 재실행 방지를 위해 데이터 초기화 (MainActivity의 SavedStateHandle 비우기)
+            onLocationReset()
+        }
+    }
 
     when (uiState) {
 

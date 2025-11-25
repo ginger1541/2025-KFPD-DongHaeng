@@ -88,7 +88,7 @@ class OngoingViewModel @Inject constructor(
 
     fun NavigateToReview(timeMin: Int, earnedPoints: Int) {
         viewModelScope.launch {
-            // 누적된 거리를 km 또는 m 문자열로 변환
+            // 거리 변환 (기존 유지)
             val distanceStr = if (_totalDistanceMeters < 1000) {
                 "${_totalDistanceMeters.toInt()}m"
             } else {
@@ -101,8 +101,8 @@ class OngoingViewModel @Inject constructor(
                 OngoingUiEvent.NavigateToReview(
                     matchId = currentMatchId,
                     partnerId = partnerId,
-                    totalTime = timeStr,      // 👈 추가됨
-                    distance = distanceStr,   // 👈 추가됨
+                    totalTime = timeStr,
+                    distance = distanceStr,
                 )
             )
         }

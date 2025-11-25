@@ -53,10 +53,8 @@ fun PlaceSearchScreen(
     val searchHistories by viewModel.searchHistories.collectAsState()
 
     val itemClickAction: (PlaceSearchResult) -> Unit = { place ->
-        // 1. ViewModel에 상세 보기 요청 (MainRouteScreen의 Phase를 PLACE_DETAIL로 전환)
-        viewModel.setDetailPlace(place)
-        // 2. 검색 화면 닫기 (MainRouteScreen이 보이도록)
-        onBackPressed()
+        viewModel.setDetailPlace(place) // 1. 상세 정보(State) 업데이트 (지도 마커 표시용)
+        onPlaceSelected(place)          // 2. 부모에게 "클릭됨" 알림 (핵심!)
     }
 
     // 💡 이미지와 동일하게 Full Screen Search UI 구성

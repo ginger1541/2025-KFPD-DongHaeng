@@ -31,7 +31,7 @@ import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.ui.chat.ChatListScreen
 import com.kfpd_donghaeng_fe.ui.theme.*
 import com.kfpd_donghaeng_fe.util.AppScreens
-
+import com.kfpd_donghaeng_fe.util.navigateToLocationChange
 
 /**
  * 하단바와 그에 연결된 화면들을 포함하는 메인 '틀'
@@ -39,7 +39,14 @@ import com.kfpd_donghaeng_fe.util.AppScreens
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen(userType: UserType, mainNavController: NavHostController) {
+fun MainScreen(
+    userType: UserType,
+    mainNavController: NavHostController,
+    changedLocationName: String? = null,
+    changedLocationLat: Double? = null,
+    changedLocationLng: Double? = null,
+    onLocationReset: () -> Unit = {}
+) {
     // 1. 하단바 전용 내부 네비게이션 컨트롤러
     val bottomNavController = rememberNavController()
 
@@ -72,6 +79,11 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                 MatchingHomeRoute(
                     userType = userType, // 상위 MainScreen의 userType 인자 사용
 
+                    changedLocationName = changedLocationName,
+                    changedLocationLat = changedLocationLat,
+                    changedLocationLng = changedLocationLng,
+                    onLocationReset = onLocationReset,
+
                     // 1. 검색 바 클릭 시
                     onNavigateToSearch = { userTypeForSearch ->
                         mainNavController.navigateToNewSearchFlow(userTypeForSearch)
@@ -79,7 +91,7 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
 
                     // 2. 위치 변경 (TODO)
                     onNavigateToChangeLocation = {
-                        // mainNavController.navigateToChangeLocation()
+                        mainNavController.navigateToLocationChange()
                     },
 
                     // 3. [동행자용] 주변 요청 클릭 시 -> "수락 상세 화면" 이동

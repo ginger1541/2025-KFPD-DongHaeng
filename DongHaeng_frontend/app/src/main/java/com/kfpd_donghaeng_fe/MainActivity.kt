@@ -48,12 +48,17 @@ import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.ui.matching.PreFilledRouteData
 import com.kfpd_donghaeng_fe.ui.matching.ReviewRoute
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingRoute
+import com.kfpd_donghaeng_fe.ui.matching.search.LocationSelectionScreen
+import com.kfpd_donghaeng_fe.ui.matching.search.PlaceSearchScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.RequesterDetailViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -356,6 +361,67 @@ class MainActivity : ComponentActivity() {
                                     // 👇 ReviewRoute에 전달 (ReviewRoute 함수도 수정 필요)
                                     displayTime = time,
                                     displayDist = dist,
+                                )
+                            }
+
+                            // 동행자 위치 변경 화면
+                            composable(AppScreens.LOCATION_CHANGE_SCREEN) {
+                                PlaceSearchScreen(
+                                    searchType = "위치 설정",
+                                    onPlaceSelected = { place ->
+                                        // 1. 한글/특수문자 깨짐 방지를 위해 인코딩
+                                        val name = URLEncoder.encode(place.placeName, StandardCharsets.UTF_8.toString())
+                                        val address = URLEncoder.encode(
+                                            place.roadAddressName.ifEmpty { place.addressName },
+                                            StandardCharsets.UTF_8.toString()
+                                        )
+                                        // 2. 좌표 가져오기
+                                        val lat = place.y
+                                        val lng = place.x
+
+                                        // 3. 지도 확인 화면으로 이동! (popBackStack 아님)
+                                        navController.navigate(
+                                            "${AppScreens.LOCATION_SELECTION_BASE}/$name/$address/$lat/$lng"
+                                        )
+                                    },
+                                    onBackPressed = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable(
+                                route = AppScreens.LOCATION_SELECTION_ROUTE,
+                                arguments = listOf(
+                                    navArgument("name") { type = NavType.StringType },
+                                    navArgument("address") { type = NavType.StringType },
+                                    navArgument("lat") { type = NavType.StringType }, // 좌표는 String으로 받아서 변환
+                                    navArgument("lng") { type = NavType.StringType }
+                                )
+                            ) { backStackEntry ->
+                                val name = URLDecoder.decode(backStackEntry.arguments?.getString("name") ?: "", StandardCharsets.UTF_8.toString())
+                                val address = URLDecoder.decode(backStackEntry.arguments?.getString("address") ?: "", StandardCharsets.UTF_8.toString())
+                                val latStr = backStackEntry.arguments?.getString("lat") ?: "0.0"
+                                val lngStr = backStackEntry.arguments?.getString("lng") ?: "0.0"
+
+                                LocationSelectionScreen(
+                                    placeName = name,
+                                    address = address,
+                                    lat = latStr.toDoubleOrNull() ?: 0.0,
+                                    lng = lngStr.toDoubleOrNull() ?: 0.0,
+                                    onConfirm = {
+                                        // ✅ [핵심] 설정하기 클릭 시 -> 홈 화면으로 데이터 전달 및 이동
+
+                                        // 1. 홈 화면의 BackStackEntry를 찾음
+                                        val homeEntry = navController.getBackStackEntry(AppScreens.HOME_ROUTE)
+
+                                        // 2. 데이터 심기 (SavedStateHandle)
+                                        homeEntry.savedStateHandle.set("selected_location_name", name)
+                                        homeEntry.savedStateHandle.set("selected_location_lat", latStr.toDoubleOrNull() ?: 0.0)
+                                        homeEntry.savedStateHandle.set("selected_location_lng", lngStr.toDoubleOrNull() ?: 0.0)
+
+                                        // 3. 홈 화면까지 한 번에 pop!
+                                        navController.popBackStack(AppScreens.HOME_ROUTE, false)
+                                    },
+                                    onBackClick = { navController.popBackStack() }
                                 )
                             }
                         }

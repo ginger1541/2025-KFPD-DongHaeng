@@ -30,7 +30,12 @@ object AppScreens {
 
     // Review
     const val REVIEW_BASE = "review_route"
-    const val REVIEW_ROUTE = "$REVIEW_BASE/{matchId}/{partnerId}"
+    const val REVIEW_ROUTE = "$REVIEW_BASE/{matchId}/{partnerId}?time={time}&dist={dist}"
+
+    // HELPER
+    const val LOCATION_CHANGE_SCREEN = "location_change_screen" // 검색 화면
+    const val LOCATION_SELECTION_BASE = "location_selection"
+    const val LOCATION_SELECTION_ROUTE = "$LOCATION_SELECTION_BASE/{name}/{address}/{lat}/{lng}"
 }
 
 /**
@@ -125,4 +130,8 @@ fun NavController.navigateToOngoingScreen(matchId: Long) {
         inclusive = true, // ⚠️ 주의: true면 홈 화면까지 사라져서 뒤로가기 하면 앱이 꺼집니다. 홈을 남기려면 false가 좋습니다.
         singleTop = true
     )
+}
+
+fun NavController.navigateToLocationChange() {
+    this.navigate(AppScreens.LOCATION_CHANGE_SCREEN)
 }

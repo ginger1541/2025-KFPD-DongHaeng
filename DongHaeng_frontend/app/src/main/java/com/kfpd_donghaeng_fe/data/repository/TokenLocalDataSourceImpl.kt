@@ -2,10 +2,14 @@ package com.kfpd_donghaeng_fe.data.datasource
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
+import com.kfpd_donghaeng_fe.domain.entity.LocationType
+import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
@@ -20,6 +24,11 @@ class TokenLocalDataSourceImpl @Inject constructor(
         private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
         private val USER_TYPE_KEY = stringPreferencesKey("user_type")
         private val USER_ID_KEY = longPreferencesKey("user_id")
+
+        private val TARGET_LAT = doublePreferencesKey("target_lat")
+        private val TARGET_LNG = doublePreferencesKey("target_lng")
+        private val TARGET_NAME = stringPreferencesKey("target_name")
+        private val TARGET_ADDRESS = stringPreferencesKey("target_address")
     }
 
     override suspend fun saveToken(token: String) {
@@ -82,5 +91,36 @@ class TokenLocalDataSourceImpl @Inject constructor(
         return dataStore.data
             .map { preferences -> preferences[USER_TYPE_KEY] }
             .firstOrNull()
+    }
+
+    override suspend fun saveTargetLocation(location: RouteLocation) {
+        dataStore.edit { prefs ->
+            prefs[TARGET_LAT] = location.latitude ?: 0.0
+            prefs[TARGET_LNG] = location.longitude ?: 0.0
+            prefs[TARGET_NAME] = location.placeName
+            prefs[TARGET_ADDRESS] = location.address
+        }
+    }
+
+    override fun getTargetLocationFlow(): Flow<RouteLocation?> {
+        return dataStore.data.map { prefs ->
+            val lat = prefs[TARGET_LAT]
+            val lng = prefs[TARGET_LNG]
+            val name = prefs[TARGET_NAME]
+            val address = prefs[TARGET_ADDRESS]
+
+            if (lat != null && lng != null && name != null) {
+                RouteLocation(
+                    id = "saved_target",
+                    type = LocationType.PLACE,
+                    placeName = name,
+                    address = address ?: "",
+                    latitude = lat,
+                    longitude = lng
+                )
+            } else {
+                null // 저장된 위치가 없으면 null 반환
+            }
+        }
     }
 }
