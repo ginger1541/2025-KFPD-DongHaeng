@@ -31,14 +31,6 @@ data class QRScannerState(
 
 
 
-// QRViewModel.kt 내부 (파일 하단 또는 별도 파일에)
-sealed class OngoingUiEvent {
-    // 💡 QR 스캔 성공 후 페이지 이동을 요청하는 이벤트
-    object NavigateAfterQrScan : OngoingUiEvent()
-
-    // 이외 필요한 이벤트들을 여기에 추가
-    data class ShowSnackbar(val message: String) : OngoingUiEvent()
-}
 @HiltViewModel
 class QRViewModel @Inject constructor(
     private val getOngoingQRStartInfoUseCase: GetOngoingQRStartInfoUseCase,
