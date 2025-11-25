@@ -121,7 +121,6 @@ class MatchingHomeViewModel @Inject constructor(
         val target = _targetLocation.value
 
         // 1. 타겟 위치가 있으면 사용, 없으면 광주 기본값 사용
-        // (나중에 GPS를 쓴다면 target == null일 때 getCurrentLocation() 호출)
         val searchLat = target?.latitude ?: 35.1595
         val searchLng = target?.longitude ?: 126.8526
 
