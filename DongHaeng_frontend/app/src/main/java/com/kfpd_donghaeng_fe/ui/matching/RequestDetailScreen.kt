@@ -305,7 +305,7 @@ private fun TripInfoSection(
                 // 동행 시간
                 InfoRow(
                     label = "동행 시간",
-                    value = request.travelTime.replace("약", "").replace("소요", "").trim()
+                    value = request.duration // ✅ travelTime -> duration 변경 (이미 "18분" 포맷임)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

@@ -6,11 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.kfpd_donghaeng_fe.domain.entity.auth.LoginAccountUiState
 import com.kfpd_donghaeng_fe.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 @HiltViewModel
@@ -22,6 +25,10 @@ class LoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LoginAccountUiState(currentPage = 0))
     // 외부용 (읽기 전용)
     val uiState = _uiState.asStateFlow()
+
+    private val _loginEvent = MutableSharedFlow<String>()
+    val loginEvent: SharedFlow<String> = _loginEvent.asSharedFlow()
+
     fun login() {
         viewModelScope.launch {
             val current = _uiState.value.currentPage
@@ -33,21 +40,23 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun MovetoMain(){
+    fun MovetoMain() {
         viewModelScope.launch {
-            try { // 👈 여기에 try 블록을 시작하고
-                val canLogin = checkCanLoginUseCase("requester@test.com", "test1234")
+            try {
+                val loginResult = checkCanLoginUseCase("requester@test.com", "test1234")
 
-                if (canLogin.success) {
-                    // 성공 로직
-                    Log.e("Login", "로그인 성공!")
+                if (loginResult.success) {
+                    // 2️⃣ 성공 시 UserType 추출 (null이면 기본값 "NEEDY")
+                    // API 응답의 userType이 "HELPER"인지 "helper"인지 확인 필요 (대소문자 주의)
+                    val userType = loginResult.userData.userType ?: "NEEDY"
+
+                    Log.e("Login", "로그인 성공! 타입: $userType")
+                    _loginEvent.emit(userType) // 유저 타입 방출
                 } else {
-                    // 실패 로직
                     Log.e("Login", "로그인 실패!")
                 }
-            } catch (e: Exception) { // 👈 여기에 catch 블록을 추가해야 합니다.
-                // 앱이 꺼지지 않고 여기서 멈춥니다.
-                Log.e("LOGIN_ERROR", "로그인 과정 중 예외 발생: ${e.message}", e) // 👈 여기서 실제 오류를 확인
+            } catch (e: Exception) {
+                Log.e("LOGIN_ERROR", "로그인 과정 중 예외 발생: ${e.message}", e)
             }
         }
     }

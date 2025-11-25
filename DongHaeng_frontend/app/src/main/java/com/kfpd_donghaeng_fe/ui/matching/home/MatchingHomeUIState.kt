@@ -25,16 +25,26 @@ data class RequestUiModel(
     val departTime: String,
     val arriveTime: String,
     val distanceLabel: String,
+    val startLat: Double,
+    val startLng: Double,
+    val endLat: Double,
+    val endLng: Double
 )
 
 fun RequestUiModel.toRequest(): Request {
     return Request(
-        id = this.id.toInt(),
+        id = this.id,
+        date = this.dateLabel,
         departure = this.from,
         arrival = this.to,
         departureTime = this.departTime,
-        travelTime = this.arriveTime,
+        arrivalTime = this.arriveTime,
         distance = this.distanceLabel,
-        pricePoints = 0
+        duration = "0분", // (상세화면용)
+        pricePoints = 0,
+        startLatitude = this.startLat,
+        startLongitude = this.startLng,
+        endLatitude = this.endLat,
+        endLongitude = this.endLng
     )
 }

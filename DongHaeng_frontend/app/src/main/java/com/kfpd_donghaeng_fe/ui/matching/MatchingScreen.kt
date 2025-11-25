@@ -53,6 +53,7 @@ import com.kfpd_donghaeng_fe.util.navigateToOngoingScreen
 import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
 import com.kfpd_donghaeng_fe.ui.matching.search.MainRouteScreen
 import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.viewmodel.matching.PlaceSearchViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -62,8 +63,10 @@ fun MatchingScreen(
     navController: NavHostController,
     checker: PermissionChecker,
     navigator: AppSettingsNavigator,
+    placeSearchViewModel: PlaceSearchViewModel = hiltViewModel(),
     matchingViewModel: MatchingViewModel = hiltViewModel(),
-    startSearch: Boolean = false
+    startSearch: Boolean = false,
+    preFilledData: PreFilledRouteData? = null
 ) {
     val bottomSheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
@@ -71,9 +74,19 @@ fun MatchingScreen(
         )
     )
 
-    LaunchedEffect(Unit) {
-        // NEEDY인 경우 바로 BOOKING 모드로 진입
-        if (userType == UserType.NEEDY) {
+    LaunchedEffect(preFilledData) {
+        if (preFilledData != null) {
+            placeSearchViewModel.setRoute(
+                startName = preFilledData.startName,
+                startLat = preFilledData.startLat,
+                startLng = preFilledData.startLng,
+                endName = preFilledData.endName,
+                endLat = preFilledData.endLat,
+                endLng = preFilledData.endLng
+            )
+            // 바로 예약 모드로 진입
+            matchingViewModel.navigateToBooking(isDirectSearch = false)
+        } else if (userType == UserType.NEEDY) {
             matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
         }
     }
@@ -129,10 +142,6 @@ fun MatchingScreen(
                         modifier = Modifier.fillMaxWidth(),
                         role = userType,
                         navController = navController,
-                        onNavigateToOngoing = {
-                            // TODO: 온고잉이 아닐걸~
-                            navController.navigateToOngoingScreen()
-                        }
                     )
                 }
             },
@@ -217,7 +226,6 @@ fun BottomMatchingSheetContent(
     modifier: Modifier,
     role: UserType,
     navController: NavHostController,
-    onNavigateToOngoing: () -> Unit
 ) {
     TODO("Not yet implemented")
 }
@@ -321,3 +329,8 @@ fun MapContent(
         }
     }
 }
+
+data class PreFilledRouteData(
+    val startName: String, val startLat: Double, val startLng: Double,
+    val endName: String, val endLat: Double, val endLng: Double
+)

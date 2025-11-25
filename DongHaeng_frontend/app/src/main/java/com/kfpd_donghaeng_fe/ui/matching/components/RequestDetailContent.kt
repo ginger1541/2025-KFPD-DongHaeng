@@ -13,9 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
 
-// RequestDetailContent - Mockup image_b2695f.jpg의 하단 시트
 @Composable
 fun RequestDetailContent(
+    initialDescription: String, // 👈 추가
+    onDescriptionChange: (String) -> Unit, // 👈 추가
     onNext: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -39,9 +40,9 @@ fun RequestDetailContent(
 
         // 요청 사항 입력 필드
         OutlinedTextField(
-            value = requestMessage,
+            value = initialDescription,
             onValueChange = {
-                if (it.length <= maxChar) requestMessage = it
+                if (it.length <= maxChar) onDescriptionChange(it)
             },
             modifier = Modifier
                 .fillMaxWidth()

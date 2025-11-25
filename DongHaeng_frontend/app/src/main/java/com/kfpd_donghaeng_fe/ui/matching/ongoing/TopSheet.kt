@@ -2,7 +2,6 @@ package com.kfpd_donghaeng_fe.ui.matching.ongoing
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface // Material3 사용 시
 import com.kfpd_donghaeng_fe.ui.theme.MainOrange
@@ -15,6 +14,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image // 1. Image 컴포저블 자체를 사용하기 위해 필요
+import androidx.compose.foundation.clickable
 import com.kfpd_donghaeng_fe.R // 3. 프로젝트의 리소스(R) 클래스 사용을 위해 필요-
 // --- 기존 import 및 함수 (UserProfile, Contact, RequestPlace)는 동일하다고 가정 ---
 
@@ -22,11 +22,11 @@ import com.kfpd_donghaeng_fe.R // 3. 프로젝트의 리소스(R) 클래스 사�
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
+import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
 
 
 
-// 메인 색상 정의 (Preview를 위해 임의로 지정)
-val MainOrange = Color(0xFFEA7A34)
 
 @Composable
 fun MsgImg_Onclick(){
@@ -36,18 +36,22 @@ fun MsgImg_Onclick(){
 
 @Composable // 메세지이미지 클릭을 위한 함수
 fun MessageIconButton(
-    MessageImg: Painter, // 외부에서 Painter를 받습니다.
-    onClick: () -> Unit, // 클릭 콜백
-    modifier: Modifier = Modifier // 외부에서 Modifier를 받을 수 있도록 추가
+    MessageImg: Painter,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    IconButton(
-        onClick = onClick, // ✅ IconButton의 onClick 사용
-        modifier = modifier.size(30.dp) // 💡 IconButton 자체의 크기
+    // 💡 IconButton 대신 Box와 clickable Modifier를 사용하여 원형 배경/효과를 제거합니다.
+    Box(
+        modifier = modifier
+            .size(45.dp) // 💡 Contact 함수에서 사용되는 PhoneImg와 크기를 통일 (45dp)
+            .clickable(onClick = onClick) // ✅ 클릭 가능하도록 만듭니다.
+            .padding(8.dp) // 💡 클릭 영역 확보를 위해 내부 패딩을 줍니다. (선택 사항)
     ) {
         Image(
             painter = MessageImg,
-            contentDescription = "MessageImg", // 접근성 설명을 추가하는 것이 좋습니다.
-            modifier = Modifier.fillMaxSize() // IconButton의 크기에 맞춰 Image를 채웁니다.
+            contentDescription = "MessageImg",
+            // 💡 Box의 크기(45dp) 내에서 이미지를 중앙에 배치합니다.
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -95,7 +99,7 @@ fun Contact() {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         // 💡 간격 확대: 아이콘 간 간격 증가
-        horizontalArrangement = Arrangement.spacedBy(40.dp)
+        horizontalArrangement = Arrangement.spacedBy(30.dp)
     ) {
         // 아이콘 크기 통일 및 확대
         MessageIconButton(
@@ -119,13 +123,15 @@ fun RequestPlace(department: String, arrival: String) { //요청 출발 장소 -
     // 💡 이미지 리소스는 프로젝트에 맞게 확인이 필요합니다.
     val rectImg = painterResource(id = R.drawable.rect_icon)
     Row(
+        modifier = Modifier.offset(x = (-12).dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Image(painter = rectImg, contentDescription = "rectImg")
         Text(
             text = "$department  >  $arrival", // 💡 텍스트를 하나로 합쳐 간결하게 표시
-            color = Color.White
+            color = Color.White,
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -148,7 +154,7 @@ fun ProgressStepBar(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp)),
-            color = Color.White, // 💡 진행된 색상 (이미지에서는 Thumb 위치로만 표현)
+            color = Color.White, // 진행된 색상 (이미지에서는 Thumb 위치로만 표현)
             trackColor = Color.White.copy(alpha = 0.4f)
         )
 
@@ -159,11 +165,12 @@ fun ProgressStepBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             stepLabels.forEachIndexed { index, label ->
-                val isHighlighted = index == currentStep // 💡 현재 스텝만 강조하도록 변경
+                val isHighlighted = index == currentStep //  현재 스텝만 강조하도록 변경
                 Text(
                     text = label,
                     color = if (isHighlighted) Color.White else Color.White.copy(alpha = 0.6f),
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -220,15 +227,15 @@ fun Batch(
                     Divider(
                         color = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier
-                            .height(48.dp)
-                            .width(1.dp)
+                            .height(58.dp)
+                            .width(2.dp)
                     )
 
                     // 3. 오른쪽 영역 (연락처 아이콘)
                     Box(
                         modifier = Modifier
                             .weight(1f) // 50% 공간 차지
-                            .padding(start = 50.dp), // 구분선 다음부터의 여백
+                            .padding(start = 30.dp), // 구분선 다음부터의 여백
                         contentAlignment = Alignment.CenterStart // 💡 내용을 왼쪽 끝(구분선 방향)으로 정렬
                     ) {
                         contactContent()
@@ -258,68 +265,34 @@ fun Batch(
 
 
 
+// 1. 엔티티를 인자로 받도록 TopSheet 함수를 수정합니다.
 @Composable
-fun TopSheet(page:Int) { //쓰레기값 넣어져 있는 PREVEIW
+fun TopSheet(ongoingEntity: OngoingEntity, ongoingRequestEntity: OngoingRequestEntity) {
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MainOrange //배경색
+        color = MainOrange // 배경색
     ) {
         Batch(
             requestPlaceContent = {
-                RequestPlace(department = "신림 현대아파트", arrival = "장군봉 근린공원")
+                RequestPlace(
+                    department = ongoingRequestEntity.startAddress,
+                    arrival = ongoingRequestEntity.destinationAddress
+                )
             },
             userProfileContent = {
-                UserProfile(name = "춤추는 무지", DH_score = 87)
+                UserProfile(
+                    name = ongoingRequestEntity.Name,
+                    DH_score = ongoingRequestEntity.DHScore
+                )
             },
             contactContent = {
                 Contact()
             },
-            distanceText = "약속 장소까지 0.8km",
-            progressStep = page // "요청 접수" 단계
+            distanceText = "", // (엔티티에 필드가 없다면 임시로 유지)
+            progressStep = ongoingEntity.OngoingPage
         )
     }
 }
 
 
-
-/* <- 로딩 바 (보류)
-@Preview(showBackground = true)
-@Composable
-fun LinearDeterminateIndicator() {
-    var currentProgress by remember { mutableFloatStateOf(0f) }
-    var loading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope() // Create a coroutine scope
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Button(onClick = {
-            loading = true
-            scope.launch {
-                loadProgress { progress ->
-                    currentProgress = progress
-                }
-                loading = false // Reset loading when the coroutine finishes
-            }
-        }, enabled = !loading) {
-            Text("Start loading")
-        }
-
-        if (loading) {
-            LinearProgressIndicator(
-                progress = { currentProgress },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-}
-
-/** Iterate the progress value */
-suspend fun loadProgress(updateProgress: (Float) -> Unit) {
-    for (i in 1..100) {
-        updateProgress(i.toFloat() / 100)
-        delay(100)
-    }
-}*/

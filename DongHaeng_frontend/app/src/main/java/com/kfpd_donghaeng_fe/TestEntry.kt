@@ -55,12 +55,22 @@ fun AppNavigation_TestLogin() {
                 page = 0 // 주황색 배경, 흰색 로고 (스플래시 디자인)
             )
         }
-        composable("login"){
-            LoginRoute(onNavigateToMakeAccount = {
-                navController.navigate("signup") {
-                    popUpTo("login") { inclusive = true }
+        composable("login") {
+            LoginRoute(
+                // 회원가입 화면으로 이동
+                onNavigateToMakeAccount = {
+                    navController.navigate("signup") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                // ✅ [추가] 로그인 성공 시 홈 화면으로 이동!
+                onLoginSuccess = {
+                    // 로그인 스택을 지우고 홈으로 이동 (뒤로가기 방지)
+                    navController.navigate("home/NEEDY") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
-            },)
+            )
         }
 
         composable("signup") {

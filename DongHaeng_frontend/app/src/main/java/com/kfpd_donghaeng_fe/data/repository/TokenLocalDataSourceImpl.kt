@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import com.kfpd_donghaeng_fe.data.local.TokenLocalDataSource
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.firstOrNull
@@ -16,8 +17,9 @@ class TokenLocalDataSourceImpl @Inject constructor(
 ) : TokenLocalDataSource {
 
     companion object {
-        // stringPreferencesKey 임포트 필요
         private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
+        private val USER_TYPE_KEY = stringPreferencesKey("user_type")
+        private val USER_ID_KEY = longPreferencesKey("user_id")
     }
 
     override suspend fun saveToken(token: String) {
@@ -40,6 +42,45 @@ class TokenLocalDataSourceImpl @Inject constructor(
     override suspend fun deleteToken() {
         dataStore.edit { preferences ->
             preferences.remove(AUTH_TOKEN_KEY)
+            preferences.remove(USER_ID_KEY)
+            preferences.remove(USER_TYPE_KEY)
         }
+    }
+
+    override suspend fun deleteUserId() {
+        dataStore.edit { preferences ->
+            preferences.remove(USER_ID_KEY)
+        }
+    }
+
+    override suspend fun deleteUserType() {
+        dataStore.edit { preferences ->
+            preferences.remove(USER_TYPE_KEY)
+        }
+    }
+
+    override suspend fun saveUserType(type: String) {
+        dataStore.edit { preferences ->
+            preferences[USER_TYPE_KEY] = type
+        }
+    }
+
+    override suspend fun saveUserId(id: Long) {
+        dataStore.edit { preferences ->
+            preferences[USER_ID_KEY] = id
+        }
+    }
+
+    override suspend fun getUserId(): Long? {
+        return dataStore.data
+            .map { preferences -> preferences[USER_ID_KEY] }
+            .firstOrNull()
+    }
+
+    // ✅ [추가] 유저 타입 조회 구현
+    override suspend fun getUserType(): String? {
+        return dataStore.data
+            .map { preferences -> preferences[USER_TYPE_KEY] }
+            .firstOrNull()
     }
 }

@@ -25,6 +25,8 @@ object AppScreens {
 
     // Matching Ongoing Flow
     const val ONGOING_SCREEN = "ongoing_route"
+    const val ONGOING_BASE = "ongoing_route"
+    const val ONGOING_ROUTE = "$ONGOING_BASE/{matchId}"
 }
 
 /**
@@ -98,13 +100,25 @@ fun NavController.navigateToReviewScreen() {
 /**
  * 동행 중 화면 (OngoingScreen)으로 이동합니다.
  */
-fun NavController.navigateToOngoingScreen() {
-    // 다른 화면 스택을 정리해야 하는지 여부에 따라 popUpTo 설정을 추가할 수 있습니다.
-    // 예: 매칭 플로우를 모두 제거하고 이동하는 경우
+//fun NavController.navigateToOngoingScreen() {
+//    // 다른 화면 스택을 정리해야 하는지 여부에 따라 popUpTo 설정을 추가할 수 있습니다.
+//    // 예: 매칭 플로우를 모두 제거하고 이동하는 경우
+//    this.navigateTo(
+//        route = AppScreens.ONGOING_SCREEN,
+//        popUpToRoute = AppScreens.HOME_BASE,
+//        inclusive = true,
+//        singleTop = true
+//    )
+//}
+
+fun NavController.navigateToOngoingScreen(matchId: Long) {
     this.navigateTo(
-        route = AppScreens.ONGOING_SCREEN,
+        // ✅ 변경된 부분: matchId를 경로 뒤에 붙여줍니다.
+        route = "${AppScreens.ONGOING_BASE}/$matchId",
+
+        // ✅ 기존 설정 유지:
         popUpToRoute = AppScreens.HOME_BASE,
-        inclusive = true,
+        inclusive = true, // ⚠️ 주의: true면 홈 화면까지 사라져서 뒤로가기 하면 앱이 꺼집니다. 홈을 남기려면 false가 좋습니다.
         singleTop = true
     )
 }
