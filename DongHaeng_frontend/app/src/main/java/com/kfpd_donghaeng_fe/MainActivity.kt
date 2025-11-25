@@ -46,6 +46,7 @@ import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImp
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.ui.matching.PreFilledRouteData
+import com.kfpd_donghaeng_fe.ui.matching.ReviewRoute
 import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingRoute
 import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
@@ -330,6 +331,23 @@ class MainActivity : ComponentActivity() {
                                         appSettingsNavigator = appSettingsNavigator
                                     )
                                 }
+                            }
+
+                            composable(
+                                route = AppScreens.REVIEW_ROUTE,
+                                arguments = listOf(
+                                    navArgument("matchId") { type = NavType.LongType },
+                                    navArgument("partnerId") { type = NavType.LongType }
+                                )
+                            ) { backStackEntry ->
+                                val matchId = backStackEntry.arguments?.getLong("matchId") ?: -1L
+                                val partnerId = backStackEntry.arguments?.getLong("partnerId") ?: -1L
+
+                                ReviewRoute(
+                                    matchId = matchId,
+                                    partnerId = partnerId,
+                                    navController = navController
+                                )
                             }
                         }
                     }

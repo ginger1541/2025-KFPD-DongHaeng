@@ -27,6 +27,10 @@ object AppScreens {
     const val ONGOING_SCREEN = "ongoing_route"
     const val ONGOING_BASE = "ongoing_route"
     const val ONGOING_ROUTE = "$ONGOING_BASE/{matchId}"
+
+    // Review
+    const val REVIEW_BASE = "review_route"
+    const val REVIEW_ROUTE = "$REVIEW_BASE/{matchId}/{partnerId}"
 }
 
 /**

@@ -37,6 +37,8 @@ import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
+import com.kfpd_donghaeng_fe.util.AppScreens
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingUiEvent
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 
@@ -231,6 +233,20 @@ fun OngoingRoute(
     // 데이터 로드는 권한과 상관없이 진행
     LaunchedEffect(matchId) {
         viewModel.loadMatchData(matchId)
+    }
+
+    // 리뷰
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collect { event ->
+            when (event) {
+                is OngoingUiEvent.NavigateToReview -> {
+                    navController.navigate("${AppScreens.REVIEW_BASE}/${event.matchId}/${event.partnerId}") {
+                        popUpTo(AppScreens.HOME_BASE) { inclusive = false }
+                    }
+                }
+            }
+        }
     }
 
     if (permissionState.isGranted) {

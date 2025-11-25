@@ -20,11 +20,12 @@ enum class BadgeType(val description: String) {
 
 //createdat == notnull
 data class ReviewResponseEntity(
-    val matchId :Long,
-    val revieweeId :Long,
-    val rating:Int, //1~5 조건 있음
-    val comment : Text,
-    val selectedBadges : List<BadgeType>, // 복수선택 가능 리스트
-    //----------- 응답에만 있는 것 -----------
-    val createdAt :String
+    val reviewId: Long,  // ✅ 추가
+    val matchId: Long,
+    val reviewerId: Long,  // ✅ 추가
+    val revieweeId: Long,
+    val rating: Int,
+    val comment: String,
+    val selectedBadges: List<String>,
+    val createdAt: String
 )

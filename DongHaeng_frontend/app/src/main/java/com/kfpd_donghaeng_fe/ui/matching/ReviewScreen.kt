@@ -14,12 +14,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.data.PraiseTag
 import com.kfpd_donghaeng_fe.data.PredefinedPraiseTags
 import com.kfpd_donghaeng_fe.ui.matching.components.CompletionHeader
 import com.kfpd_donghaeng_fe.ui.matching.components.PraiseTagSection
 import com.kfpd_donghaeng_fe.ui.matching.components.RewardBox
 import com.kfpd_donghaeng_fe.ui.theme.AppColors
+import com.kfpd_donghaeng_fe.viewmodel.matching.ReviewViewModel
 
 @Composable
 fun ReviewScreen(
@@ -161,7 +164,35 @@ private fun ThankYouMessageSection(
     }
 }
 
+@Composable
+fun ReviewRoute(
+    matchId: Long,
+    partnerId: Long,
+    navController: NavHostController,
+    viewModel: ReviewViewModel = hiltViewModel()
+) {
+    ReviewScreen(
+        onSubmitReview = { rating, selectedTags, message ->
+            // 1. 태그 객체를 문자열 리스트로 변환 (서버가 String 리스트를 원함)
+            val badgeStrings = selectedTags.map { it.text }
 
+            // 2. API 호출
+            viewModel.submitReview(
+                matchId = matchId,
+                revieweeId = partnerId,
+                rating = rating,
+                comment = message,
+                badges = badgeStrings,
+                onSuccess = {
+                    // 3. 성공 시 홈으로 이동 (모든 매칭 관련 스택 제거)
+                    navController.navigate("home/NEEDY") { // 또는 HELPER
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
+    )
+}
 
 /*
 
