@@ -38,6 +38,11 @@ import kotlinx.coroutines.flow.StateFlow
 // -----------------------------------------------------------
 // 2. OngoingViewModel 클래스를 단일 정의
 // -----------------------------------------------------------
+sealed class OngoingUiEvent {
+    object NavigateAfterQrScan: OngoingUiEvent()
+    data class ShowSnackbar(val message: String) : OngoingUiEvent()
+    data class NavigateToReview(val matchId: Long, val partnerId: Long) : OngoingUiEvent()
+}
 
 @HiltViewModel
 class OngoingViewModel @Inject constructor(
@@ -265,7 +270,3 @@ class OngoingViewModel @Inject constructor(
     }
 }
 
-sealed class OngoingUiEvent {
-    object NavigateAfterQrScan : OngoingUiEvent()
-    data class NavigateToReview(val matchId: Long, val partnerId: Long) : OngoingUiEvent()
-}
