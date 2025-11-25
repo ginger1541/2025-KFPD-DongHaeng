@@ -80,14 +80,6 @@ fun ReviewScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 획득 보상 박스
-        RewardBox(
-            points = earnedPoints,
-            volunteerTime = "0h 9m"
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // 평가 완료하기 버튼
         Button(
             onClick = {
@@ -101,7 +93,7 @@ fun ReviewScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.AccentOrange
             ),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(10.dp)
         ) {
             Text(
                 text = "평가 완료하기",
@@ -143,7 +135,7 @@ private fun ThankYouMessageSection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
+        TextField(
             value = message,
             onValueChange = { if (it.length <= 50) onMessageChange(it) },
             modifier = Modifier
@@ -155,15 +147,17 @@ private fun ThankYouMessageSection(
                     color = Color(0xFFCCCCCC)
                 )
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Color(0xFFE0E0E0),
-                focusedBorderColor = AppColors.AccentOrange
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color(0xFFF5F5F5),  // 포커스 시 배경
+                unfocusedContainerColor = Color(0xFFF5F5F5),  // 기본 배경
+                disabledContainerColor = Color(0xFFF5F5F5),
+                focusedIndicatorColor = Color.Transparent,  // 밑줄 제거
+                unfocusedIndicatorColor = Color.Transparent,  // 밑줄 제거
+                disabledIndicatorColor = Color.Transparent
             ),
-            shape = RoundedCornerShape(12.dp)
         )
     }
 }
-
 @Composable
 fun ReviewRoute(
     matchId: Long,
@@ -194,14 +188,17 @@ fun ReviewRoute(
     )
 }
 
-/*
-
-@Preview(showBackground = true, heightDp = 1400)
+@Preview(showBackground = true, heightDp = 1000) // 높이를 넉넉하게 설정
 @Composable
 fun PreviewReviewScreen() {
-    ReviewScreen(
-        totalTime = "18분",
-        distance = "2.1km",
-        earnedPoints = 250
-    )
-}*/
+    // 테마 적용 (선택 사항, 폰트나 색상을 정확히 보려면 권장)
+    com.kfpd_donghaeng_fe.ui.theme.KFPD_DongHaeng_FETheme {
+        ReviewScreen(
+            totalTime = "18분",
+            distance = "2.1km",
+            earnedPoints = 250,
+            // 클릭 이벤트는 비워둡니다.
+            onSubmitReview = { _, _, _ -> }
+        )
+    }
+}
