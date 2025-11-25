@@ -2,6 +2,7 @@ package com.kfpd_donghaeng_fe.ui.matching.ongoing
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -195,7 +196,7 @@ fun OngoingRoute(
     permissionChecker: PermissionChecker,
     navController: NavHostController,
 ) {
-
+    val scannerState by viewModel2.scannerState.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     val uiState2 by viewModel.uiState2.collectAsState()
 
@@ -211,8 +212,8 @@ fun OngoingRoute(
 
     var currentQrType by remember { mutableStateOf(QRTypes.NONE) }
     var currentMatchId by remember { mutableStateOf(0L) }
-    //val context = LocalContext.current
-
+    val context = LocalContext.current
+/*
 
     // 🚨 2. Activity Result Launcher 정의 (카메라 실행 및 결과 처리)
     val qrScanLauncher = rememberLauncherForActivityResult(
@@ -240,7 +241,7 @@ fun OngoingRoute(
         }
         // 스캔 실패나 취소 시에는 별도 처리 필요 없음 (페이지 전환은 ViewModel의 Success에 의해 제어됨)
     }
-
+*/
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
     LaunchedEffect(isScanned) {
@@ -258,7 +259,7 @@ fun OngoingRoute(
         }
     }
 
-
+/*
     // ---- 🚨 5. QR 스캔 요청 이벤트 처리 (ViewModel 이벤트 수집) ---
     LaunchedEffect(key1 = Unit) {
         // ViewModel에서 발행하는 QR 스캔 요청 이벤트를 수집
@@ -267,15 +268,31 @@ fun OngoingRoute(
             // 1. 콜백에서 사용할 상태 업데이트
             currentMatchId = requestedMatchId
             currentQrType = qrType
+            // 2. QR 스캔 인텐트 실행
+            // ⚠️ 이 Intent는 'com.google.zxing.client.android.SCAN' 액션을 사용하는
+            //    외부 QR 스캐너 앱(예: ZXing Barcode Scanner)이 설치되어 있어야 작동합니다.
+            val scanIntent = Intent("com.google.zxing.client.android.SCAN").apply {
+                // 스캔할 항목을 QR_CODE로 제한합니다.
+                putExtra("SCAN_MODE", "QR_CODE_MODE")
+                // 해당 인텐트를 처리할 수 있는 앱이 있는지 확인합니다.
+                if (resolveActivity(context.packageManager) != null) {
+                    qrScanLauncher.launch(this)
+                } else {
+                    // 스캐너 앱이 설치되어 있지 않은 경우 사용자에게 알리거나,
+                    // CameraX 기반의 자체 스캐너 화면으로 대체해야 합니다.
+                    // 임시 로그:
+                    Log.e("QR_SCAN", "QR 스캐너 앱을 찾을 수 없습니다. (ZXing Intent 기반)")
+                    // 여기서는 QR 코드 인식 실패로 처리할 수 있습니다.
+                }
+            }
 
-            // 2. 카메라 실행 Intent 정의 (ZXing Intent를 사용한다고 가정)
-            val scanIntent = Intent("com.google.zxing.client.android.SCAN")
-            scanIntent.putExtra("SCAN_MODE", "QR_CODE_MODE")
 
-            // 3. 런처 실행 (카메라 켜기)
-            qrScanLauncher.launch(scanIntent)
         }
     }
+
+
+*/
+
 
 
 
@@ -308,6 +325,24 @@ fun OngoingRoute(
 
     if (permissionState.isGranted) {
         // ✅ 권한이 있으면 정상 화면 표시
+        if (scannerState.isScannerActive) {
+
+            // 🚨 실제 QrScannerScreen을 여기에 호출합니다.
+            // QrScannerScreen은 카메라 미리보기를 띄우고 QR 문자열을 인식한 후 콜백을 호출해야 합니다.
+            QrScannerScreen(
+                // ⚠️ 실제 위치 정보는 여기서 GPS/Location Manager를 통해 가져와야 합니다.
+                onQrCodeScanned = { scannedCode ->
+                    // 임시 위치 정보 (실제 구현 시 수정 필요)
+                    val currentLatitude = 37.5665
+                    val currentLongitude = 126.9780
+
+                    viewModel2.handleScannedCode(scannedCode, currentLatitude, currentLongitude)
+                },
+                onStopScanning = viewModel2::closeScanner
+            )
+            // 스캐너 화면이 켜지면 더 이상 아래의 OngoingScreen을 렌더링하지 않습니다.
+            return
+        }
         OngoingScreen(
             uiState = uiState,
             uiState2 = uiState2,

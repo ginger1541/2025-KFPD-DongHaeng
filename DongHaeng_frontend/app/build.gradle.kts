@@ -131,6 +131,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("io.coil-kt:coil-base:2.6.0")
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
 
 }

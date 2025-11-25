@@ -8,6 +8,7 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScreenUiState
+import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQREndInfoUseCase
 import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQRStartInfoUseCase
 //import com.kfpd_donghaeng_fe.domain.usecase.GetOngoingQREndInfoUseCase // 💡 End Info UseCase가 있다고 가정하고 추가
 import com.kfpd_donghaeng_fe.domain.usecase.SendQRScanResultUseCase
@@ -22,15 +23,25 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+data class QRScannerState(
+    val isScannerActive: Boolean = false,
+    val matchId: Long = 0L,
+    val qrType: QRTypes = QRTypes.NONE
+)
+
 @HiltViewModel
 class QRViewModel @Inject constructor(
     private val getOngoingQRStartInfoUseCase: GetOngoingQRStartInfoUseCase,
-    //private val getOngoingQREndInfoUseCase: GetOngoingQREndInfoUseCase, // 💡 End UseCase 인젝션 추가
+    private val getOngoingQREndInfoUseCase: GetOngoingQREndInfoUseCase, // 💡 End UseCase 인젝션 추가
     private val sendQRScanResultUseCase: SendQRScanResultUseCase
 ) : ViewModel() {
 
-    private val _qrScanRequestEvent = MutableSharedFlow<Pair<Long, QRTypes>>()
-    val qrScanRequestEvent: SharedFlow<Pair<Long, QRTypes>> = _qrScanRequestEvent.asSharedFlow()
+    // 💡 2. 자체 스캐너 상태를 위한 StateFlow 추가
+    private val _scannerState = MutableStateFlow(QRScannerState())
+    val scannerState: StateFlow<QRScannerState> = _scannerState.asStateFlow()
+
+   // private val _qrScanRequestEvent = MutableSharedFlow<Pair<Long, QRTypes>>()
+    //val qrScanRequestEvent: SharedFlow<Pair<Long, QRTypes>> = _qrScanRequestEvent.asSharedFlow()
 
     private val _uiState = MutableStateFlow(QRScreenUiState(isLoading = true))
     val uiState: StateFlow<QRScreenUiState> = _uiState.asStateFlow()
@@ -41,9 +52,48 @@ class QRViewModel @Inject constructor(
     val resultUiState: StateFlow<QRScanResultEntity> = _resultUiState.asStateFlow()
 
     fun requestQrScan(matchId: Long, qrType: QRTypes) {
-        viewModelScope.launch {
-            _qrScanRequestEvent.emit(Pair(matchId, qrType))
+        // 기존: _qrScanRequestEvent.emit(Pair(matchId, qrType))
+        // 변경: scannerState 업데이트
+        _scannerState.update {
+            it.copy(
+                isScannerActive = true,
+                matchId = matchId,
+                qrType = qrType
+            )
         }
+        Log.d("QR_DEBUG", "자체 스캐너 요청: matchId=$matchId, qrType=$qrType")
+    }
+    /**
+     * 💡 자체 스캐너 화면을 닫는 함수
+     */
+    fun closeScanner() {
+        _scannerState.update {
+            it.copy(isScannerActive = false, matchId = 0L, qrType = QRTypes.NONE)
+        }
+        Log.d("QR_DEBUG", "스캐너 화면 닫기 요청")
+    }
+    /**
+     * 💡 새로운 스캔 결과 처리 함수: 스캐너 화면에서 인식된 코드와 위치 정보를 받아 처리합니다.
+     */
+    fun handleScannedCode(scannedCode: String, latitude: Double, longitude: Double) {
+        val state = _scannerState.value // 현재 스캔 요청 정보를 가져옴
+
+        // 스캐너가 활성화 상태이고 유효한 QR 타입일 때만 처리
+        if (state.isScannerActive && state.qrType != QRTypes.NONE) {
+
+            val scanRequest = QRScandEntity(
+                qrCode = scannedCode,
+                latitude = latitude,
+                longitude = longitude
+            )
+
+            // 기존 서버 전송 로직 호출
+            scanQR(scanRequest, state.qrType, state.matchId)
+        }
+
+        // 스캔 처리 후 카메라 화면 닫기 요청
+        closeScanner()
+        Log.d("QR_DEBUG", "스캔 결과 수신 및 서버 전송 요청. 코드: $scannedCode")
     }
 
     // ----------------------------------------------------
@@ -72,8 +122,7 @@ class QRViewModel @Inject constructor(
     fun loadEndQRInfo(matchId: Long, _qrType: QRTypes) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, isError = false) }
-
-            getOngoingQRStartInfoUseCase(matchId) // 💡 End UseCase 사용
+            getOngoingQREndInfoUseCase(matchId) // 💡 End UseCase 사용
                 .onSuccess { qrEntity ->
                     _uiState.update { it.copy(qrEntity = qrEntity, isLoading = false) }
                 }
@@ -103,5 +152,8 @@ class QRViewModel @Inject constructor(
                 _uiState.update { it.copy(isError = true) }
             }
         }
+
     }
+
+
 }
