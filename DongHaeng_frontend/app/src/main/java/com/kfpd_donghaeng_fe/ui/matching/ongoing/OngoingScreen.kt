@@ -46,6 +46,7 @@ import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
 import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
+import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingUiEvent
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 
@@ -209,39 +210,24 @@ fun OngoingRoute(
     // 💡 Non-null 상태에서 qrScanned 플래그 추출
     val isScanned = qrScreenUiState.qrEntity.qrScanned
     val ongoingPage = uiState.OngoingPage
-
     var currentQrType by remember { mutableStateOf(QRTypes.NONE) }
     var currentMatchId by remember { mutableStateOf(0L) }
     val context = LocalContext.current
-/*
 
-    // 🚨 2. Activity Result Launcher 정의 (카메라 실행 및 결과 처리)
-    val qrScanLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        // 4. 스캔 결과를 받는 콜백 (QR 스캔 성공 시)
-        if (result.resultCode == Activity.RESULT_OK) {
-            // ZXing Scanner Intent를 사용했다고 가정하고 결과 키를 사용
-            val scannedCode = result.data?.getStringExtra("SCAN_RESULT")
+    // 💡 1. QRViewModel의 이벤트 구독 LaunchedEffect 추가
+    LaunchedEffect(key1 = Unit) {
+        viewModel2.eventFlow.collect { event ->
+            when (event) {
+                // QRViewModel에서 발행한 페이지 이동 요청 이벤트 처리
+                is OngoingUiEvent.NavigateAfterQrScan -> {
+                    // 🎯 [핵심] nextPage() 실행
+                    viewModel.nextPage()
+                    Log.d("QR_NAV", "QR Scan 성공 이벤트 수신 -> OngoingViewModel.nextPage() 실행")
+                }
+                else -> { /* 다른 이벤트 처리 (예: 스낵바) */ }
+            }}}
 
-            // 🚨 실제 위치 정보를 가져와야 함 (여기서는 Mock)
-            // 실제 구현에서는 LocationManager나 FusedLocationProviderClient를 통해 가져와야 합니다.
-            val currentLatitude = 37.5665
-            val currentLongitude = 126.9780
 
-            if (!scannedCode.isNullOrBlank() && currentQrType != QRTypes.NONE) {
-                val scanRequest = QRScandEntity(
-                    qrCode = scannedCode,
-                    latitude = currentLatitude,
-                    longitude = currentLongitude
-                )
-                // 5. 스캔 결과를 ViewModel로 전송하여 서버 API 호출
-                viewModel2.scanQR(scanRequest, currentQrType, currentMatchId)
-            }
-        }
-        // 스캔 실패나 취소 시에는 별도 처리 필요 없음 (페이지 전환은 ViewModel의 Success에 의해 제어됨)
-    }
-*/
 
     // 💡 3. LaunchedEffect를 사용하여 스캔 상태를 관찰하고 페이지 전환을 수행
     LaunchedEffect(isScanned) {
@@ -259,39 +245,7 @@ fun OngoingRoute(
         }
     }
 
-/*
-    // ---- 🚨 5. QR 스캔 요청 이벤트 처리 (ViewModel 이벤트 수집) ---
-    LaunchedEffect(key1 = Unit) {
-        // ViewModel에서 발행하는 QR 스캔 요청 이벤트를 수집
-        viewModel2.qrScanRequestEvent.collect { (requestedMatchId, qrType) ->
 
-            // 1. 콜백에서 사용할 상태 업데이트
-            currentMatchId = requestedMatchId
-            currentQrType = qrType
-            // 2. QR 스캔 인텐트 실행
-            // ⚠️ 이 Intent는 'com.google.zxing.client.android.SCAN' 액션을 사용하는
-            //    외부 QR 스캐너 앱(예: ZXing Barcode Scanner)이 설치되어 있어야 작동합니다.
-            val scanIntent = Intent("com.google.zxing.client.android.SCAN").apply {
-                // 스캔할 항목을 QR_CODE로 제한합니다.
-                putExtra("SCAN_MODE", "QR_CODE_MODE")
-                // 해당 인텐트를 처리할 수 있는 앱이 있는지 확인합니다.
-                if (resolveActivity(context.packageManager) != null) {
-                    qrScanLauncher.launch(this)
-                } else {
-                    // 스캐너 앱이 설치되어 있지 않은 경우 사용자에게 알리거나,
-                    // CameraX 기반의 자체 스캐너 화면으로 대체해야 합니다.
-                    // 임시 로그:
-                    Log.e("QR_SCAN", "QR 스캐너 앱을 찾을 수 없습니다. (ZXing Intent 기반)")
-                    // 여기서는 QR 코드 인식 실패로 처리할 수 있습니다.
-                }
-            }
-
-
-        }
-    }
-
-
-*/
 
 
 

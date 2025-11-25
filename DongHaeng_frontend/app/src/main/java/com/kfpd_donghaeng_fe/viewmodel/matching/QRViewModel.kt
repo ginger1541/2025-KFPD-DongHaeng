@@ -29,12 +29,17 @@ data class QRScannerState(
     val qrType: QRTypes = QRTypes.NONE
 )
 
+
+
 @HiltViewModel
 class QRViewModel @Inject constructor(
     private val getOngoingQRStartInfoUseCase: GetOngoingQRStartInfoUseCase,
     private val getOngoingQREndInfoUseCase: GetOngoingQREndInfoUseCase, // 💡 End UseCase 인젝션 추가
     private val sendQRScanResultUseCase: SendQRScanResultUseCase
 ) : ViewModel() {
+
+    private val _eventFlow = MutableSharedFlow<OngoingUiEvent>()
+    val eventFlow: SharedFlow<OngoingUiEvent> = _eventFlow.asSharedFlow()
 
     // 💡 2. 자체 스캐너 상태를 위한 StateFlow 추가
     private val _scannerState = MutableStateFlow(QRScannerState())
@@ -89,11 +94,13 @@ class QRViewModel @Inject constructor(
 
             // 기존 서버 전송 로직 호출
             scanQR(scanRequest, state.qrType, state.matchId)
+            // qr 스캔 완료! ( 다음 페이지 넘기기 )
         }
 
         // 스캔 처리 후 카메라 화면 닫기 요청
         closeScanner()
         Log.d("QR_DEBUG", "스캔 결과 수신 및 서버 전송 요청. 코드: $scannedCode")
+
     }
 
     // ----------------------------------------------------
@@ -147,7 +154,9 @@ class QRViewModel @Inject constructor(
 
                 _uiState.update { current ->
                     current.copy(qrEntity = current.qrEntity.copy(qrScanned = true))
+
                 }
+                _eventFlow.emit(OngoingUiEvent.NavigateAfterQrScan)
             }.onFailure { e ->
                 _uiState.update { it.copy(isError = true) }
             }

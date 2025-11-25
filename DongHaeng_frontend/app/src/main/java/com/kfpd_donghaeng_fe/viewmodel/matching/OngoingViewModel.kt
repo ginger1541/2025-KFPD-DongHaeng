@@ -60,6 +60,7 @@ class OngoingViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
 
+
     // --- UI State 변경 함수 ---
 
     fun nextPage() {
@@ -265,5 +266,6 @@ class OngoingViewModel @Inject constructor(
 }
 
 sealed class OngoingUiEvent {
+    object NavigateAfterQrScan : OngoingUiEvent()
     data class NavigateToReview(val matchId: Long, val partnerId: Long) : OngoingUiEvent()
 }
