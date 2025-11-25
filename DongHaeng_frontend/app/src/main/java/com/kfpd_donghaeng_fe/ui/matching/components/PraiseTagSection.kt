@@ -33,19 +33,11 @@ fun PraiseTagSection(
             color = AppColors.PrimaryDarkText
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "상대방에게 배지가 전달됩니다.",
-            fontSize = 13.sp,
-            color = AppColors.SecondaryText
-        )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // 태그들을 FlowRow처럼 배치
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             // 첫 번째 줄
             Row(
@@ -108,7 +100,7 @@ fun PraiseTagChip(
     Surface(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(12.dp),
         color = if (isSelected) AppColors.AccentOrange else AppColors.ReviewBackground
     ) {
         Text(
@@ -116,7 +108,7 @@ fun PraiseTagChip(
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             color = if (isSelected) Color.White else AppColors.PrimaryDarkText,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
         )
     }
 }

@@ -89,9 +89,25 @@ class OngoingViewModel @Inject constructor(
 //        }
 //    }
 
-    fun NavigateToReview() {
+    fun NavigateToReview(timeMin: Int, earnedPoints: Int) {
         viewModelScope.launch {
-            _eventFlow.emit(OngoingUiEvent.NavigateToReview(currentMatchId, partnerId))
+            // 거리 변환 (기존 유지)
+            val distanceStr = if (_totalDistanceMeters < 1000) {
+                "${_totalDistanceMeters.toInt()}m"
+            } else {
+                String.format("%.1fkm", _totalDistanceMeters / 1000)
+            }
+
+            val timeStr = "${timeMin}분"
+
+            _eventFlow.emit(
+                OngoingUiEvent.NavigateToReview(
+                    matchId = currentMatchId,
+                    partnerId = partnerId,
+                    totalTime = timeStr,
+                    distance = distanceStr,
+                )
+            )
         }
     }
 
@@ -104,6 +120,13 @@ class OngoingViewModel @Inject constructor(
 
 
     // 📍 지도 데이터
+
+    // 누적 이동 거리 (미터 단위)
+    private var _totalDistanceMeters = 0.0
+
+    // 이전 위치 저장용
+    private var lastLocation: Location? = null
+
     private val _mapMarkers = MutableStateFlow<List<RouteLocation>>(emptyList())
     val mapMarkers = _mapMarkers.asStateFlow()
 
@@ -231,16 +254,25 @@ class OngoingViewModel @Inject constructor(
 
     // 2. 내 위치 업데이트 (GPS)
     fun updateMyLocation(lat: Double, lng: Double) {
-        // 내 마커 업데이트 (지도 표시)
+        // 1. 거리 누적 계산
+        val currentLocation = Location("dummy").apply {
+            latitude = lat
+            longitude = lng
+        }
+
+        if (lastLocation != null) {
+            // 이전 위치가 있으면 거리 계산해서 더하기
+            _totalDistanceMeters += lastLocation!!.distanceTo(currentLocation)
+        }
+        lastLocation = currentLocation // 현재 위치를 '이전 위치'로 저장
+
+        // 2. 내 마커 업데이트 & 도착 판별 (기존 로직)
         val myMarkerType = if (myUserType == UserType.NEEDY) LocationType.REQUESTER else LocationType.COMPANION
         updateMarker(myMarkerType, lat, lng)
 
-        // 서버로 전송 (MatchId가 있을 때만)
         if (currentMatchId != -1L) {
             socketManager.sendLocation(currentMatchId, lat, lng)
         }
-
-        // 도착 판별
         checkArrival(lat, lng)
     }
 
@@ -267,5 +299,10 @@ class OngoingViewModel @Inject constructor(
 
 sealed class OngoingUiEvent {
     object NavigateAfterQrScan : OngoingUiEvent()
-    data class NavigateToReview(val matchId: Long, val partnerId: Long) : OngoingUiEvent()
+    data class NavigateToReview(
+        val matchId: Long,
+        val partnerId: Long,
+        val totalTime: String,
+        val distance: String,
+    ) : OngoingUiEvent()
 }

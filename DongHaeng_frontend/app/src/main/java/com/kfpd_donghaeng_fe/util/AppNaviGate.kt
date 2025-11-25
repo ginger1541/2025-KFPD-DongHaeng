@@ -27,6 +27,15 @@ object AppScreens {
     //const val ONGOING_SCREEN = "ongoing_route"
     const val ONGOING_BASE = "ongoing_route"
     const val ONGOING_SCREEN = "$ONGOING_BASE/{matchId}"
+
+    // Review
+    const val REVIEW_BASE = "review_route"
+    const val REVIEW_ROUTE = "$REVIEW_BASE/{matchId}/{partnerId}?time={time}&dist={dist}"
+
+    // HELPER
+    const val LOCATION_CHANGE_SCREEN = "location_change_screen" // 검색 화면
+    const val LOCATION_SELECTION_BASE = "location_selection"
+    const val LOCATION_SELECTION_ROUTE = "$LOCATION_SELECTION_BASE/{name}/{address}/{lat}/{lng}"
 }
 
 /**
@@ -125,4 +134,8 @@ fun NavController.navigateToOngoingScreen(matchId: Long) {
         inclusive = true,
         singleTop = true
     )
+}
+
+fun NavController.navigateToLocationChange() {
+    this.navigate(AppScreens.LOCATION_CHANGE_SCREEN)
 }

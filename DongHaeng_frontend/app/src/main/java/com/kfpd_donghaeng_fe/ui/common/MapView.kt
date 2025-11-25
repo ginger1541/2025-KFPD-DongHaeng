@@ -106,7 +106,8 @@ fun KakaoMapView(
             LocationType.END to context.vectorToBitmap(R.drawable.ic_end_dot, 80, 80),
             LocationType.REQUESTER to context.vectorToBitmap(R.drawable.ic_requester_pin, 100, 120),
             LocationType.COMPANION to context.vectorToBitmap(R.drawable.ic_companion_pin, 100, 120),
-            LocationType.PLACE to context.vectorToBitmap(R.drawable.ic_pin_orange, 70, 85)  // ✅ PLACE 추가
+            LocationType.PLACE to context.vectorToBitmap(R.drawable.ic_pin_orange, 70, 85),
+            LocationType.TARGET to context.vectorToBitmap(R.drawable.ic_target_location,)
         )
     }
 

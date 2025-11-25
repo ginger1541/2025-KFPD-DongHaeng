@@ -349,7 +349,6 @@ fun MainRouteScreen(
         PlaceSearchScreen(
             searchType = if (isSelectingStart) "출발지" else "도착지",
             onPlaceSelected = { place ->
-                placeSearchViewModel.selectPlace(place)
                 showPlaceSearch = false
                 isInitialSearch = false
             },
