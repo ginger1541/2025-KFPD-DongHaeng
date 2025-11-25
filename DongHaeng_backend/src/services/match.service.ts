@@ -270,7 +270,7 @@ export const endCompanion = async (
   // 트랜잭션: 동행 종료 및 보상 지급
   const result = await prisma.$transaction(async (tx) => {
     // QR 인증 레코드 업데이트 (스캔 정보 기록)
-    const qrAuth = await tx.qrAuthentication.updateMany({
+    await tx.qrAuthentication.updateMany({
       where: {
         matchId,
         authType: 'end',
@@ -284,7 +284,7 @@ export const endCompanion = async (
     });
 
     // 매칭 상태 변경
-    const updatedMatch = await tx.match.update({
+    await tx.match.update({
       where: { matchId },
       data: {
         status: 'completed',
