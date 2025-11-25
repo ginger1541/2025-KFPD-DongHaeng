@@ -13,7 +13,8 @@ enum class LocationType {
     START,      // 출발지
     END,        // 도착지
     REQUESTER,  // 요청자
-    COMPANION   // 동행자
+    COMPANION,   // 동행자
+    PLACE // 장소 검색
 }
 
 data class RouteState(

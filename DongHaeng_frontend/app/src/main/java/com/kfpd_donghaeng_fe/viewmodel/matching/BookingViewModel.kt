@@ -44,7 +44,9 @@ class BookingViewModel @Inject constructor(
     fun navigateToRequestDetail() { _currentPhase.value = MatchingPhase.REQUEST_DETAIL }
     fun navigateToPayment() { _currentPhase.value = MatchingPhase.PAYMENT }
     fun navigateToOverview() { _currentPhase.value = MatchingPhase.OVERVIEW }
-
+    fun navigateToPhase(phase: MatchingPhase) {
+        _currentPhase.value = phase
+    }
     // 4. 경로, 요청사항 저장
     private var _calculatedRoute: WalkingRoute? = null
     private val _requestDescription = MutableStateFlow("")
@@ -84,13 +86,16 @@ class BookingViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // 💡 ISO 8601 형식으로 변환 (타임존 포함)
+                val selectedKstZdt = _selectedDateTime.value.atZone(ZoneId.of("Asia/Seoul"))
 
-                val koreanFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-                val localTimeStr = _selectedDateTime.value.format(koreanFormatter)
-                val scheduledAtString = "${localTimeStr}+09:00"
+                // 2. UTC로 변환 (Instant는 동일, Zone만 변경)
+                val utcZdt = selectedKstZdt.withZoneSameInstant(ZoneId.of("UTC"))
 
-                Log.d("MatchingViewModel", "변환된 scheduledAt: $scheduledAtString")
+                // 3. ISO 8601 UTC 포맷 (Zulu time)으로 포맷팅 (서버가 기대하는 형식)
+                val isoFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                val scheduledAtString = utcZdt.format(isoFormatter) // e.g., 2025-11-24T18:50:00.000Z
+
+                Log.d("MatchingViewModel", "변환된 scheduledAt (UTC): $scheduledAtString")
 
                 val requestDto = RequestCreateDto(
                     title = "${start.placeName} -> ${end.placeName} 동행 요청",

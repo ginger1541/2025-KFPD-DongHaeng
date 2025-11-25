@@ -9,6 +9,7 @@ import com.kfpd_donghaeng_fe.data.remote.dto.MyRequestItemDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateDto
 import com.kfpd_donghaeng_fe.data.remote.dto.RequestCreateResponse
 import com.kfpd_donghaeng_fe.domain.repository.RequestRepository
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -72,16 +73,19 @@ class RequestRepositoryImpl @Inject constructor(
     private fun convertDtoToDomain(dto: MyRequestItemDto): Request {
         // 날짜/시간 포맷팅
         val zdt = try {
-            ZonedDateTime.parse(dto.scheduledAt)
+            val parsedZdt = ZonedDateTime.parse(dto.scheduledAt)
+
+            // ✅ [FIX] UTC 시간을 KST 시간대 기준으로 변환 (시간대 이동)
+            parsedZdt.withZoneSameInstant(ZoneId.of("Asia/Seoul"))
         } catch (e: Exception) {
             Log.w("RequestRepo", "날짜 파싱 실패 (${dto.scheduledAt}), 현재 시간 사용")
             ZonedDateTime.now()
         }
 
         val dateStr = zdt.format(DateTimeFormatter.ofPattern("M월 d일", Locale.KOREA))
-        val timeStr = zdt.format(DateTimeFormatter.ofPattern("a h시 m분 출발", Locale.KOREA))
+        val timeStr = zdt.format(DateTimeFormatter.ofPattern("HH시 m분 출발", Locale.KOREA))
         val arriveTimeStr = zdt.plusMinutes(dto.estimatedMinutes.toLong())
-            .format(DateTimeFormatter.ofPattern("a h시 m분 도착", Locale.KOREA))
+            .format(DateTimeFormatter.ofPattern("HH시 m분 도착", Locale.KOREA))
         val routePoints = dto.route?.points
         val lastPoint = routePoints?.lastOrNull()
         val startLat = dto.latitude ?: 0.0

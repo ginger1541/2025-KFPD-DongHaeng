@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -45,6 +46,7 @@ import com.kfpd_donghaeng_fe.ui.common.permission.AndroidAppSettingsNavigatorImp
 import com.kfpd_donghaeng_fe.ui.common.permission.AndroidPermissionChecker
 import com.kfpd_donghaeng_fe.ui.matching.CompanionRequestDetailScreen
 import com.kfpd_donghaeng_fe.ui.matching.PreFilledRouteData
+import com.kfpd_donghaeng_fe.ui.matching.ongoing.OngoingRoute
 import com.kfpd_donghaeng_fe.util.AppScreens
 import com.kfpd_donghaeng_fe.viewmodel.SplashViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.RequesterDetailViewModel
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             KFPD_DongHaeng_FETheme {
                 Surface(
-                    color = MaterialTheme.colorScheme.background
+                    color = Color.White
                 ) {
                     val navController = rememberNavController()
 
@@ -239,7 +241,6 @@ class MainActivity : ComponentActivity() {
                                         onAcceptClick = {
                                             // 요청자는 '수락' 대신 '상태 확인'이나 다른 동작이 필요할 수 있습니다.
                                             // 일단은 화면 이동 없이 두거나, 필요 시 구현
-                                            navController.navigateToOngoingScreen()
                                         }
                                     )
                                 } else {
@@ -311,6 +312,24 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 )
+                            }
+
+                            // 온고잉
+                            composable(
+                                route = AppScreens.ONGOING_ROUTE, // "ongoing_route/{matchId}"
+                                arguments = listOf(navArgument("matchId") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val matchId = backStackEntry.arguments?.getLong("matchId") ?: -1L
+
+                                if (matchId != -1L) {
+                                    OngoingRoute(
+                                        matchId = matchId,
+                                        navController = navController,
+                                        // 👇 [추가] Activity가 가지고 있는 권한 도구들을 넘겨줍니다.
+                                        permissionChecker = permissionChecker,
+                                        appSettingsNavigator = appSettingsNavigator
+                                    )
+                                }
                             }
                         }
                     }

@@ -2,18 +2,32 @@ package com.kfpd_donghaeng_fe.ui.matching.search
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.kfpd_donghaeng_fe.domain.entity.LocationType
+import com.kfpd_donghaeng_fe.domain.entity.PlaceSearchResult
+import com.kfpd_donghaeng_fe.domain.entity.toRouteLocation
 import com.kfpd_donghaeng_fe.ui.common.CommonDialog
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
 import com.kfpd_donghaeng_fe.ui.matching.MatchingPhase
@@ -22,9 +36,13 @@ import com.kfpd_donghaeng_fe.ui.matching.components.RequestDetailContent
 import com.kfpd_donghaeng_fe.ui.matching.components.PaymentContent
 import com.kfpd_donghaeng_fe.ui.matching.components.PathInputBox
 import com.kfpd_donghaeng_fe.ui.matching.components.RequestTimePicker
+import com.kfpd_donghaeng_fe.ui.theme.AppColors
 import com.kfpd_donghaeng_fe.viewmodel.matching.MapViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.PlaceSearchViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.BookingViewModel
+import com.kfpd_donghaeng_fe.viewmodel.matching.MatchingViewModel
+import com.kfpd_donghaeng_fe.R
+import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -35,25 +53,99 @@ fun MainRouteScreen(
     bookingViewModel: BookingViewModel = hiltViewModel(),
     placeSearchViewModel: PlaceSearchViewModel = hiltViewModel(),
     startSearch: Boolean = false,
-    mapViewModel: MapViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel(),
+    matchingViewModel: MatchingViewModel = hiltViewModel()
 ) {
     val startLocation by placeSearchViewModel.startLocation.collectAsState()
     val endLocation by placeSearchViewModel.endLocation.collectAsState()
     val isSelectingStart by placeSearchViewModel.isSelectingStart.collectAsState()
     val mapUiState by mapViewModel.uiState.collectAsState()
     val currentPhase by bookingViewModel.currentPhase.collectAsState()
-
     var showPlaceSearch by remember { mutableStateOf(startSearch) }
     var isInitialSearch by remember { mutableStateOf(startSearch) }
     val routeReady = startLocation != null && endLocation != null
     var showPaymentDialog by remember { mutableStateOf(false) }
+    val selectedDetailPlace by placeSearchViewModel.selectedDetailPlace.collectAsState()
 
     fun isValidLocation(loc: com.kfpd_donghaeng_fe.domain.entity.RouteLocation?): Boolean {
         return loc != null && (loc.latitude ?: 0.0) != 0.0 && (loc.longitude ?: 0.0) != 0.0
     }
+
+    val mapCenterLat = remember(selectedDetailPlace, endLocation, startLocation) {
+        selectedDetailPlace?.y?.toDoubleOrNull()
+            ?: endLocation?.latitude
+            ?: startLocation?.latitude
+            ?: 37.5665 // 서울 기본값
+    }
+
+    val mapCenterLng = remember(selectedDetailPlace, endLocation, startLocation) {
+        selectedDetailPlace?.x?.toDoubleOrNull()
+            ?: endLocation?.longitude
+            ?: startLocation?.longitude
+            ?: 126.9780 // 서울 기본값
+    }
+
+    val activeMarkers by remember(currentPhase, startLocation, endLocation, selectedDetailPlace) {
+        derivedStateOf {
+            val list = mutableListOf<RouteLocation>()
+
+            val place = selectedDetailPlace
+
+            if (currentPhase == MatchingPhase.PLACE_DETAIL && place != null) {
+                // PlaceSearchResult을 RouteLocation으로 변환
+                // 이제 'place'는 non-nullable로 스마트 캐스트되어 오류가 발생하지 않습니다.
+                list.add(place.toRouteLocation(LocationType.PLACE))
+            }
+
+            else if (currentPhase == MatchingPhase.BOOKING) {
+                startLocation?.let { list.add(it) }
+                endLocation?.let {
+                    if (isValidLocation(it)) list.add(it)
+                }
+            }
+
+            if (currentPhase >= MatchingPhase.SERVICE_TYPE && mapUiState.route != null) {
+                return@derivedStateOf emptyList<RouteLocation>()
+            }
+
+            list.toList()
+        }
+    }
+
     // 1. 화면 진입 시 초기화
+    LaunchedEffect(selectedDetailPlace) {
+        if (selectedDetailPlace != null) {
+            // 상세 정보가 선택되면 Phase를 PLACE_DETAIL로 전환
+            if (currentPhase != MatchingPhase.PLACE_DETAIL) {
+                // ❌ 기존: matchingViewModel.navigateToPhase(MatchingPhase.PLACE_DETAIL)
+                // ✅ 변경:
+                bookingViewModel.navigateToPhase(MatchingPhase.PLACE_DETAIL)
+            }
+        } else if (currentPhase == MatchingPhase.PLACE_DETAIL) {
+            // 상세 정보가 해제되면 (onClose), BOOKING으로 복귀
+            // ❌ 기존: matchingViewModel.navigateToBooking()
+            // ✅ 변경:
+            bookingViewModel.navigateToBooking()
+        }
+    }
+
+    LaunchedEffect(selectedDetailPlace) {
+        if (selectedDetailPlace != null) {
+            // [FIX] Phase가 현재 PLACE_DETAIL이 아니거나 BOOKING일 때만 전환 요청
+            // 이 조건이 없으면, PLACE_DETAIL 상태에서 다시 PLACE_DETAIL로 전환 요청이 들어갈 수 있습니다.
+            if (currentPhase != MatchingPhase.PLACE_DETAIL) {
+                matchingViewModel.navigateToPhase(MatchingPhase.PLACE_DETAIL)
+            }
+        } else if (currentPhase == MatchingPhase.PLACE_DETAIL) {
+            // 상세 정보가 해제되면 (모달 닫기 버튼), BOOKING으로 복귀
+            matchingViewModel.navigateToBooking()
+        }
+    }
+
     LaunchedEffect(Unit) {
-        bookingViewModel.navigateToBooking()
+        if (currentPhase == MatchingPhase.OVERVIEW) {
+            bookingViewModel.navigateToBooking()
+        }
         if (startSearch) {
             placeSearchViewModel.setSelectingTarget(isStart = true)
         }
@@ -112,6 +204,25 @@ fun MainRouteScreen(
                     )
                 } else {
                     when (currentPhase) {
+                        MatchingPhase.PLACE_DETAIL -> {
+                            selectedDetailPlace?.let { place ->
+                                PlaceDetailSheetContent(
+                                    place = place,
+                                    onClose = {
+                                        // 1. ViewModel 상태 해제
+                                        placeSearchViewModel.setDetailPlace(null)
+                                        // 2. Phase 복귀 (LaunchedEffect에서 처리되므로 여기서 명시적 호출 제거)
+                                    },
+                                    onSelect = { isStart ->
+                                        // 1. 장소를 선택하고 Phase를 Booking으로 복귀
+                                        placeSearchViewModel.setDetailPlace(null)
+                                        placeSearchViewModel.selectPlace(place)
+                                        // 2. Phase 복귀 (LaunchedEffect에서 처리되므로 여기서 명시적 호출 제거)
+                                    },
+                                    modifier = Modifier.padding(horizontal = 0.dp)
+                                )
+                            } ?: Spacer(modifier = Modifier.height(100.dp))
+                        }
                         MatchingPhase.TIME_SELECTION -> RequestTimePicker(
                             currentDateTime = bookingViewModel.selectedDateTime.collectAsState().value,
                             onConfirm = { newDateTime ->
@@ -169,38 +280,52 @@ fun MainRouteScreen(
                 // 지도가 시트 뒤에도 보이게 하려면 padding을 주지 않거나 bottom만 제외할 수 있습니다.
                 // 여기서는 전체 화면을 쓰도록 padding을 무시하거나 필요한 만큼만 적용합니다.
             ) {
-                val targetLocation = endLocation ?: startLocation ?: mapUiState.centerLocation
-                val targetLat = targetLocation?.latitude ?: 37.5665
-                val targetLng = targetLocation?.longitude ?: 126.9780
                 // 1. 지도 (가장 뒤)
                 KakaoMapView(
                     modifier = Modifier.fillMaxSize(),
-                    locationX = targetLng, // ✅ 수정된 좌표 전달
-                    locationY = targetLat, // ✅ 수정된 좌표 전달
+                    locationX = mapCenterLng,
+                    locationY = mapCenterLat,
                     route = mapUiState.route,
-                    enabled = true
+                    enabled = true,
+                    markers = activeMarkers
                 )
 
                 // 2. 상단 입력창 (지도 위)
-                // Scaffold의 상단 패딩(paddingValues.calculateTopPadding()) 만큼 내려서 그립니다.
-                PathInputBox(
-                    startLocation = startLocation,
-                    endLocation = endLocation,
-                    isSelectingStart = isSelectingStart,
-                    onLocationClick = { isStart ->
-                        placeSearchViewModel.setSelectingTarget(isStart)
-                        showPlaceSearch = true
-                    },
-                    onClose = onClose,
-                    onSwapClick = { placeSearchViewModel.swapLocations() },
-                    onClear = {
-                        placeSearchViewModel.clearAllLocations()
-                        onClose()
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = paddingValues.calculateTopPadding()) // 상단 시스템 바 겹침 방지
-                )
+                when (currentPhase) {
+                    // 💡 [FIX] PLACE_DETAIL일 때 전용 상단바 표시
+                    MatchingPhase.PLACE_DETAIL -> {
+                        val place = selectedDetailPlace
+                        if (place != null) {
+                            PlaceDetailTopBar(
+                                placeName = place.placeName,
+                                onBackClick = {
+                                    placeSearchViewModel.setDetailPlace(null)
+                                },
+                                paddingTop = paddingValues.calculateTopPadding()
+                            )
+                        }
+                    }
+                    else -> {
+                        PathInputBox(
+                            startLocation = startLocation,
+                            endLocation = endLocation,
+                            isSelectingStart = isSelectingStart,
+                            onLocationClick = { isStart ->
+                                placeSearchViewModel.setSelectingTarget(isStart)
+                                showPlaceSearch = true
+                            },
+                            onClose = onClose, // 전체 플로우 종료
+                            onSwapClick = { placeSearchViewModel.swapLocations() },
+                            onClear = {
+                                placeSearchViewModel.clearAllLocations()
+                                onClose()
+                            },
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = paddingValues.calculateTopPadding())
+                        )
+                    }
+                }
             }
         }
     )
@@ -228,14 +353,70 @@ fun MainRouteScreen(
                 showPlaceSearch = false
                 isInitialSearch = false
             },
+
+            // [CRITICAL FIX: 아이템 클릭 시 홈 이동 방지]
             onBackPressed = {
-                if (isInitialSearch) {
-                    onNavToHome()
+                // 1. **핵심 확인:** 이 back 호출이 장소 상세 정보 선택(아이템 클릭) 때문에 발생한 것인지 확인.
+                //    (selectedDetailPlace != null 이면 아이템 클릭 후 호출된 것입니다.)
+                val isSelectionClose = placeSearchViewModel.selectedDetailPlace.value != null
+
+                if (isSelectionClose) {
+                    // Case 1: 아이템이 클릭되었습니다. (Detail Phase로 전환 예정)
+                    // -> 검색 오버레이만 닫고, 전체 플로우(onNavToHome)를 끝내지 않습니다.
+                    showPlaceSearch = false
+                    // 초기 검색 상태 플래그를 해제하여, 다음 백 버튼부터는 홈으로 가지 않도록 합니다.
+                    isInitialSearch = false
+                }
+                else if (isInitialSearch) {
+                    // Case 2: 백 버튼을 눌렀고, 초기 검색 상태입니다. (아무것도 선택 안 함)
+                    onNavToHome() // 홈으로 돌아가서 Matching Flow를 완전히 종료
                 } else {
+                    // Case 3: 백 버튼을 눌렀고, 경로 설정 중입니다.
                     showPlaceSearch = false
                     placeSearchViewModel.clearSearchQuery()
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun PlaceDetailTopBar(
+    placeName: String,
+    onBackClick: () -> Unit,
+    paddingTop: Dp
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(top = paddingTop)
+            .height(56.dp) // 표준 TopAppBar 높이
+            .padding(horizontal = 4.dp), // 아이콘 버튼을 위한 내부 패딩
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 1. 뒤로가기 버튼 (ic_chevron_left 사용)
+        IconButton(onClick = onBackClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_left),
+                contentDescription = "뒤로가기",
+                tint = AppColors.PrimaryDarkText
+            )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        // 2. 장소 이름
+        Text(
+            text = placeName,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = AppColors.PrimaryDarkText,
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Spacer(Modifier.width(16.dp))
     }
 }

@@ -3,9 +3,13 @@ package com.kfpd_donghaeng_fe.ui.matching.ongoing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,10 +17,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.kfpd_donghaeng_fe.GlobalApplication
+import com.kfpd_donghaeng_fe.domain.entity.RouteLocation
+import com.kfpd_donghaeng_fe.domain.entity.WalkingRoute
 import com.kfpd_donghaeng_fe.domain.entity.auth.UserType
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.OngoingRequestEntity
@@ -24,7 +33,10 @@ import com.kfpd_donghaeng_fe.domain.entity.matching.QREntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScanResultEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRScandEntity
 import com.kfpd_donghaeng_fe.domain.entity.matching.QRTypes
+import com.kfpd_donghaeng_fe.domain.service.AppSettingsNavigator
+import com.kfpd_donghaeng_fe.domain.service.PermissionChecker
 import com.kfpd_donghaeng_fe.ui.common.KakaoMapView
+import com.kfpd_donghaeng_fe.ui.common.permission.rememberLocationPermissionRequester
 import com.kfpd_donghaeng_fe.viewmodel.matching.OngoingViewModel
 import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 
@@ -33,18 +45,27 @@ import com.kfpd_donghaeng_fe.viewmodel.matching.QRViewModel
 // =========================================================================================
 
 @Composable
-fun Background_Map() {
+fun Background_Map(
+    markers: List<RouteLocation>, // 👈 추가: 마커 리스트 받기
+    route: WalkingRoute?          // 👈 추가: 경로 정보 받기
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Blue.copy(0.9f)),
+            .background(Color.White), // 지도 로딩 전 흰색 배경
     ) {
         KakaoMapView(
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(0f),
-            locationX = 126.97796919,
-            locationY = 37.56661209,
+            // 중심 좌표는 내 위치(REQUESTER or COMPANION)가 있으면 거기로, 없으면 서울 시청 등 기본값
+            locationX = markers.firstOrNull()?.longitude ?: 126.9780,
+            locationY = markers.firstOrNull()?.latitude ?: 37.5665,
+
+            // 💡 ViewModel에서 받은 데이터 연결
+            route = route,
+            markers = markers,
+
             enabled = GlobalApplication.isMapLoaded
         )
     }
@@ -69,13 +90,19 @@ fun OngoingScreen(
     onScanRequest: (QRScandEntity, QRTypes, Long) -> Unit,
     nextPage:()->Unit,
     NavigateToReview: () -> Unit // 리뷰 화면 이동 함수를 인자로 받음
+    ,
+    mapMarkers: List<RouteLocation>,
+    routePath: WalkingRoute?,
 ) {
 
 
     // Box 안의 컴포넌트들은 순서대로 쌓입니다 (1 -> 2 -> 3 -> 4)
     Box(modifier = Modifier.fillMaxSize()) {
 
-        Background_Map()
+        Background_Map(
+            markers = mapMarkers,
+            route = routePath
+        )
         // 동행자(user=2)일 경우 QR 코드 시트로 시작
         if (uiState.userType == UserType.NEEDY) {
             Column(
@@ -154,6 +181,10 @@ fun OngoingScreen(
 fun OngoingRoute(
     viewModel: OngoingViewModel = hiltViewModel(),
     viewModel2: QRViewModel = hiltViewModel(),
+    matchId: Long,
+    appSettingsNavigator: AppSettingsNavigator,
+    permissionChecker: PermissionChecker,
+    navController: NavHostController,
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
@@ -175,16 +206,76 @@ fun OngoingRoute(
         }
     }
 
-    OngoingScreen(
-        uiState = uiState,
-        uiState2 = uiState2,
-        uiState3=uiState3,
-        resultUiState = resultUiState,
-        locateUiState=locateUiState,
-        onScanRequest= viewModel2::scanQR,
-        nextPage=viewModel::nextPage,
-        NavigateToReview = viewModel::NavigateToReview
-    )
+    /*
+    지도
+     */
+    val requester = rememberLocationPermissionRequester(permissionChecker, appSettingsNavigator)
+    val permissionState = requester.state.value
+    val mapMarkers by viewModel.mapMarkers.collectAsState()
+    val routePath by viewModel.routePath.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        if (!permissionState.isGranted) {
+            requester.request()
+        }
+    }
+
+    // 권한 상태를 감시하다가 '승인됨(true)'이면 위치 추적 시작
+    LaunchedEffect(permissionState.isGranted) {
+        if (permissionState.isGranted) {
+            viewModel.startLocationTracking()
+        }
+    }
+
+    // 데이터 로드는 권한과 상관없이 진행
+    LaunchedEffect(matchId) {
+        viewModel.loadMatchData(matchId)
+    }
+
+    if (permissionState.isGranted) {
+        // ✅ 권한이 있으면 정상 화면 표시
+        OngoingScreen(
+            uiState = uiState,
+            uiState2 = uiState2,
+            uiState3 = uiState3,
+            resultUiState = resultUiState,
+            locateUiState = locateUiState,
+            mapMarkers = mapMarkers,
+            routePath = routePath,
+            onScanRequest = viewModel2::scanQR,
+            nextPage = viewModel::nextPage,
+            NavigateToReview = viewModel::NavigateToReview
+        )
+    } else {
+        // 🚫 권한이 없으면 안내 문구 표시 (간단하게 처리)
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("위치 권한이 있어야 동행을 시작할 수 있습니다.")
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { requester.request() }) {
+                    Text("권한 허용하기")
+                }
+            }
+        }
+    }
+
+//    OngoingScreen(
+//        uiState = uiState,
+//        uiState2 = uiState2,
+//        uiState3=uiState3,
+//        resultUiState = resultUiState,
+//        locateUiState=locateUiState,
+//        onScanRequest= viewModel2::scanQR,
+//        nextPage=viewModel::nextPage,
+//        NavigateToReview = viewModel::NavigateToReview,
+//        mapMarkers = mapMarkers,
+//        routePath = routePath,
+//    )
 }
+
 
 

@@ -56,7 +56,8 @@ fun MainScreen(userType: UserType, mainNavController: NavHostController) {
                     }
                 }
             )
-        }
+        },
+        containerColor = Color.White
     ) { innerPadding ->
 
         // 3. 하단바 '내부' 화면들

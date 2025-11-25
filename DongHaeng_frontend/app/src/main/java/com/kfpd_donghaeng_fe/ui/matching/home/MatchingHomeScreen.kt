@@ -150,8 +150,8 @@ fun MatchingSearchBar(
             .fillMaxWidth()
             .height(52.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(10.dp),
+        color = Color.White,
         shadowElevation = 2.dp
     ) {
         Row(
@@ -160,13 +160,6 @@ fun MatchingSearchBar(
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack, // ← 디자인에 맞게 바꿔도 됨
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = placeholder,
                 style = MaterialTheme.typography.bodyMedium,

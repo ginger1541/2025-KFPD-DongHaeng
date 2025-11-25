@@ -91,13 +91,6 @@ fun MatchingScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        // NEEDY인 경우 바로 BOOKING 모드로 진입
-        if (userType == UserType.NEEDY) {
-            matchingViewModel.navigateToBooking(isDirectSearch = startSearch)
-        }
-    }
-
     var showPermissionAlert by remember { mutableStateOf(false) }
 
     val requester = rememberLocationPermissionRequester(checker, navigator)
@@ -149,10 +142,6 @@ fun MatchingScreen(
                         modifier = Modifier.fillMaxWidth(),
                         role = userType,
                         navController = navController,
-                        onNavigateToOngoing = {
-                            // TODO: 온고잉이 아닐걸~
-                            navController.navigateToOngoingScreen()
-                        }
                     )
                 }
             },
@@ -237,7 +226,6 @@ fun BottomMatchingSheetContent(
     modifier: Modifier,
     role: UserType,
     navController: NavHostController,
-    onNavigateToOngoing: () -> Unit
 ) {
     TODO("Not yet implemented")
 }

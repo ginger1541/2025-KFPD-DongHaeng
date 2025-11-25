@@ -1,5 +1,6 @@
 package com.kfpd_donghaeng_fe.ui.matching.home.companion
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import com.kfpd_donghaeng_fe.ui.matching.components.RequestCard
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.graphics.Color
 import com.kfpd_donghaeng_fe.ui.matching.home.toRequest
 
 @Composable
@@ -33,6 +35,7 @@ fun CompanionHomeContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp)
+            .background(Color.White)
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
