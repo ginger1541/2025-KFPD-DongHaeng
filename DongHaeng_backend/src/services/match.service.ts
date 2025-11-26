@@ -58,8 +58,8 @@ export const generateStartQR = async (matchId: bigint, userId: bigint) => {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
 
-  // QR 이미지 파일 생성 및 URL 받기
-  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'start', parsed.nonce);
+  // QR 이미지 파일 생성 및 URL 받기 (userId 포함)
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, userId, 'start', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({
@@ -204,8 +204,8 @@ export const generateEndQR = async (matchId: bigint, userId: bigint) => {
     throw new AppError('QR 데이터 생성 실패', 500);
   }
 
-  // QR 이미지 파일 생성 및 URL 받기
-  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, 'end', parsed.nonce);
+  // QR 이미지 파일 생성 및 URL 받기 (userId 포함)
+  const { qrImageUrl, qrCode } = await generateQRCodeFile(matchId, userId, 'end', parsed.nonce);
 
   // DB에 QR 인증 레코드 저장
   await prisma.qrAuthentication.create({

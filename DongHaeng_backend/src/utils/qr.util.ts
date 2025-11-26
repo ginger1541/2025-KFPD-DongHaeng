@@ -36,6 +36,7 @@ export const generateQRCode = async (data: string): Promise<string> => {
 // QR 코드 이미지 파일 생성 및 URL 반환
 export const generateQRCodeFile = async (
   matchId: bigint,
+  userId: bigint,
   type: 'start' | 'end',
   nonce: string
 ): Promise<{ qrImageUrl: string; qrCode: string }> => {
@@ -51,9 +52,10 @@ export const generateQRCodeFile = async (
     // 디렉토리 확인 및 생성
     await fs.mkdir(publicDir, { recursive: true });
 
-    // QR 데이터 생성
+    // QR 데이터 생성 (userId 포함)
     const qrData = JSON.stringify({
       matchId: matchId.toString(),
+      userId: userId.toString(),
       type,
       timestamp: Date.now(),
       nonce,
