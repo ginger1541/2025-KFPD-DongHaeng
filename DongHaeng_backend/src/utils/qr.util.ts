@@ -103,12 +103,12 @@ export const verifyQRData = (
       return false;
     }
     
-    // 타임스탬프 확인 (5분 이내)
+    // 타임스탬프 확인 (2주 이내) - 테스트용
     const now = Date.now();
     const timestamp = parsed.timestamp;
-    const fiveMinutes = 5 * 60 * 1000;
-    
-    if (now - timestamp > fiveMinutes) {
+    const twoWeeks = 14 * 24 * 60 * 60 * 1000; // 2주 = 1,209,600,000ms
+
+    if (now - timestamp > twoWeeks) {
       return false; // 만료됨
     }
     
